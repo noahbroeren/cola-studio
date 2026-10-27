@@ -61,6 +61,43 @@ const DEFAULT_COLOR_ALIASES = {
   绿色: 'Green',
   蓝色: 'Blue',
   红色: 'Red',
+  深灰色: 'Charcoal',
+  浅灰: 'Light Grey',
+  浅灰色: 'Light Grey',
+  灰白: 'Light Grey',
+  深蓝: 'Navy',
+  深蓝色: 'Navy',
+  藏青色: 'Navy',
+  藏蓝色: 'Navy',
+  浅蓝: 'Sky Blue',
+  浅蓝色: 'Sky Blue',
+  天蓝色: 'Sky Blue',
+  雾蓝: 'Fog Blue',
+  牛仔蓝: 'Denim',
+  军绿色: 'Olive',
+  卡其绿: 'Olive',
+  墨绿: 'Forest',
+  墨绿色: 'Forest',
+  湖水绿: 'Sage',
+  奶油白: 'Cream',
+  奶白: 'Cream',
+  象牙白: 'Ivory',
+  杏色系: 'Apricot',
+  驼色: 'Camel',
+  焦糖色: 'Caramel',
+  咖色: 'Brown',
+  深棕: 'Chocolate',
+  深棕色: 'Chocolate',
+  酒红: 'Burgundy',
+  酒红色: 'Burgundy',
+  粉色: 'Pink',
+  粉红色: 'Pink',
+  紫色: 'Purple',
+  橙色: 'Orange',
+  黄色: 'Yellow',
+  银色: 'Silver',
+  金色: 'Gold',
+  香槟色: 'Champagne',
 };
 
 /**
@@ -248,6 +285,15 @@ function responseError(json) {
   return `Weidian error ${code}: ${s.message || s.status_reason || s.description || 'unknown'}`;
 }
 
+/**
+ * Sellers often set "unlimited" stock (999999999). Anything above MAX_STOCK is
+ * shown as MAX_STOCK, so the site never displays absurd numbers.
+ */
+const MAX_STOCK = 999;
+function capStock(v) {
+  return Math.min(MAX_STOCK, Math.max(0, toInt(v, 0)));
+}
+
 /** Normalise any Weidian-ish item JSON. → { title, price, images, skus:[{skuId, sku, title, stock, price}] } */
 function parseItemResponse(json, { priceUnit = 'auto' } = {}) {
   const err = responseError(json);
@@ -261,11 +307,13 @@ function parseItemResponse(json, { priceUnit = 'auto' } = {}) {
       skuId: id != null && !isObj(id) ? String(id) : '',
       sku: code != null && !isObj(code) ? String(code) : '',
       title: skuTitle(o, attrMap),
-      stock: Math.max(0, toInt(pick(o, STOCK_KEYS), 0)),
+      stock: capStock(pick(o, STOCK_KEYS)),
       price: toYuan(pick(o, PRICE_KEYS), priceUnit),
     };
   });
-  return { ...extractItemInfo(json, priceUnit), skus };
+  const r = isObj(json) && isObj(json.result) ? json.result : json;
+  const itemStock = isObj(r) ? pick(r, ['itemStock', 'item_stock', 'totalStock', 'stock']) : undefined;
+  return { ...extractItemInfo(json, priceUnit), skus, ...(isNumeric(itemStock) ? { stock: capStock(itemStock) } : {}) };
 }
 
 /** JSON (array / {rows|items|data|products}) or CSV feed → rows. */
@@ -797,6 +845,8 @@ module.exports = {
   matchByTitle,
   matchByColorSize,
   toYuan,
+  capStock,
+  MAX_STOCK,
   PROVIDERS,
   DEFAULT_SIZE_ALIASES,
   DEFAULT_COLOR_ALIASES,

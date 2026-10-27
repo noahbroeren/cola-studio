@@ -67,7 +67,8 @@ Auth: `POST /api/admin/login { password }` → `{ token, expiresAt }`. Send `Aut
 | GET / DELETE | `/api/admin/uploads[/:name]` | list / remove uploaded files |
 | GET / POST | `/api/admin/updates` | all updates incl. pending/hidden / create manual post |
 | PUT / DELETE | `/api/admin/updates/:id` | edit (title, textEnglish, status, pinned, category, relatedProducts) / delete |
-| POST | `/api/admin/updates/bulk` | `{ ids?:[…], fromStatus?, source?, status }` → `{ changed }` (e.g. publish all pending) |
+| POST | `/api/admin/updates/bulk` | `{ ids?:[…], fromStatus?, source?, status }` → `{ changed }` (e.g. publish all pending); `{ ids, delete: true }` → `{ deleted }` (Weibo posts are tombstoned) |
+| POST | `/api/admin/weibo/reset` | `{ deletePosts?: true }` → `{ removed, backup }` — forget lastId, history position and tombstones (409 while an import runs) |
 | GET / POST | `/api/admin/weibo/history` | status / start a background import of older posts: `{ limit?: 100, translate?, resume?, translateOnly?, publishUntranslated? }` (409 while running, 501 on serverless) |
 | POST | `/api/admin/weibo/history/stop` | stop after the current step |
 | GET | `/api/admin/seo` | built-in page titles/descriptions (placeholders), sitemap/robots/feed URLs, indexed counts |
@@ -75,6 +76,7 @@ Auth: `POST /api/admin/login { password }` → `{ token, expiresAt }`. Send `Aut
 | POST | `/api/admin/weibo/retranslate/:id` | re-run translation for one post |
 | POST | `/api/admin/translate/test` | `{ text }` → `{ provider, translation }` |
 | POST | `/api/admin/weidian/sync` | `{ dryRun?: bool, productId?: id }` → `{ changes:[{productId,sku,from,to}], unmatched:[…], errors:[…], applied }` |
+| POST | `/api/admin/weidian/shop` | `{ text }` (shop link) → `{ shopId, items:[{ itemId, name, price, image, stock, hasSku, suggested, existing? }] }` — every product of the shop, for the import picker |
 | POST | `/api/admin/weidian/test` | `{ itemId }` (id or link) → raw mapped result for one item, plus `scrape: { sources, images, detailImages, description, notes }` (what an import would take over) |
 | POST | `/api/admin/weidian/import` | `{ items: "links/ids" \| [..], links?: [share links], translate?: bool, sizeChart?: bool }` (max 10 per call) → `{ results:[{ itemId, ok, draft?, notes, sources?, sizeChart?, error?, skipped?, existing? }], translated }`. Full scrape: gallery + colour photos, description (translated), detail photos, size chart read by Claude into `measurements` + `sizeChartImage`; requests fall back to the scraping service and Claude web fetch. Nothing is saved — create them with `/products/bulk` |
 | GET | `/api/admin/messages`, `/api/admin/orders`, `/api/admin/notify` | stored submissions |

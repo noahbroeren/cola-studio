@@ -38,7 +38,7 @@
       let updates = await A.data.getUpdates();
       if (ctx.stale()) return null;
       const server = A.data.mode === 'server';
-      const st = { status: ['published', 'pending', 'hidden'].includes(ctx.query.status) ? ctx.query.status : 'all', source: '', q: '', shown: PAGE };
+      const st = { status: ['published', 'pending', 'hidden'].includes(ctx.query.status) ? ctx.query.status : 'all', source: '', q: '', shown: PAGE, sel: new Set() };
 
       root.innerHTML =
         '<header class="page-head"><div class="page-head__text"><h1 data-count></h1><p class="lead">Posts from the studio’s Weibo, translated to English, plus your own studio posts. Pinned posts stay on top.</p></div>' +
@@ -47,7 +47,7 @@
         '<a class="btn btn--primary" href="' + A.href('/updates/new') + '">' + icon('plus', 16) + 'New studio post</a></div></header>' +
         '<div data-console hidden style="margin-bottom:20px"></div>' +
         '<div class="card"><div class="tabs" role="tablist" data-tabs></div>' +
-        '<div class="toolbar"><label class="search">' + icon('search', 16) + '<input class="input" type="search" data-search data-q placeholder="Search titles and text" aria-label="Search updates"><kbd>/</kbd></label>' +
+        '<div class="toolbar"><label class="u-selall" title="Select every post in this view"><input type="checkbox" class="check" data-selall aria-label="Select all posts in this view"></label><label class="search">' + icon('search', 16) + '<input class="input" type="search" data-search data-q placeholder="Search titles and text" aria-label="Search updates"><kbd>/</kbd></label>' +
         ui.segmented('src', [{ value: '', label: 'All sources' }, { value: 'weibo', label: 'Weibo' }, { value: 'studio', label: 'Studio' }], '', 'aria-label="Source"') +
         '</div><div data-bulk></div><div data-list></div></div>';
 
@@ -59,6 +59,11 @@
           c[u.status] = (c[u.status] || 0) + 1;
         });
         return c;
+      }
+
+      function filtered() {
+        const q = st.q.trim().toLowerCase();
+        return updates.filter((u) => (st.status === 'all' || u.status === st.status) && (!st.source || u.source === st.source) && (!q || (u.title + ' ' + u.textEnglish + ' ' + u.textOriginal).toLowerCase().includes(q)));
       }
 
       function draw() {
@@ -76,8 +81,20 @@
         const list = updates.filter((u) => (st.status === 'all' || u.status === st.status) && (!st.source || u.source === st.source) && (!q || (u.title + ' ' + u.textEnglish + ' ' + u.textOriginal).toLowerCase().includes(q)));
         const pending = updates.filter((u) => u.status === 'pending' && (!st.source || u.source === st.source));
         const queued = pending.filter((u) => u.translation && u.translation.queued).length;
-        root.querySelector('[data-bulk]').innerHTML =
-          st.status === 'pending' && pending.length > 1
+        // Selection: drop ids that no longer exist, keep the "select all" box in step with the view.
+        for (const id of [...st.sel]) if (!updates.some((u) => u.id === id)) st.sel.delete(id);
+        const selAll = root.querySelector('[data-selall]');
+        const inView = list.filter((u) => st.sel.has(u.id)).length;
+        selAll.checked = !!list.length && inView === list.length;
+        selAll.indeterminate = inView > 0 && inView < list.length;
+        selAll.disabled = !list.length;
+        root.querySelector('[data-bulk]').innerHTML = st.sel.size
+          ? '<div class="bulk-bar bulk-bar--sel"><span><b>' + esc(A.plural(st.sel.size, 'post')) + '</b> selected' + (inView < list.length ? ' · <button type="button" class="link-btn" data-act="sel-view">Select all ' + esc(list.length) + ' in this view</button>' : '') + '</span><div class="row row--wrap">' +
+            '<button type="button" class="btn btn--sm btn--ghost" data-act="sel-clear">Clear</button>' +
+            '<button type="button" class="btn btn--sm btn--secondary" data-act="sel-status" data-to="published">' + icon('eye', 15) + 'Publish</button>' +
+            '<button type="button" class="btn btn--sm btn--secondary" data-act="sel-status" data-to="hidden">' + icon('minus', 15) + 'Hide</button>' +
+            '<button type="button" class="btn btn--sm btn--danger" data-act="sel-delete">' + icon('trash', 15) + 'Delete ' + esc(st.sel.size) + '</button></div></div>'
+          : st.status === 'pending' && pending.length > 1
             ? '<div class="bulk-bar"><span>' + esc(A.plural(pending.length, 'post') + ' waiting for review') + (queued ? ' · ' + esc(queued) + ' not translated yet' : '') + '</span><div class="row row--wrap">' +
               (queued && server ? '<a class="btn btn--sm btn--ghost" href="' + A.href('/integrations?section=weibo-history') + '">' + icon('wand', 15) + 'Translate</a>' : '') +
               '<button type="button" class="btn btn--sm btn--primary" data-act="publish-all">' + icon('eye', 15) + 'Publish all ' + esc(pending.length) + '</button></div></div>'
@@ -87,7 +104,7 @@
           ? page
               .map(
                 (u) =>
-                  '<div class="u-row is-clickable" data-id="' + esc(u.id) + '">' + thumbFor(u) +
+                  '<div class="u-row is-clickable' + (st.sel.has(u.id) ? ' is-selected' : '') + '" data-id="' + esc(u.id) + '"><label class="u-check"><input type="checkbox" class="check" data-sel="' + esc(u.id) + '"' + (st.sel.has(u.id) ? ' checked' : '') + ' aria-label="Select ' + esc(u.title || 'update') + '"></label>' + thumbFor(u) +
                   '<div style="min-width:0"><div class="u-title">' + (u.pinned ? icon('pin', 14) : '') + '<a class="u-link" href="' + A.href('/updates/' + encodeURIComponent(u.id)) + '">' + esc(u.title || '(untitled)') + '</a></div>' +
                   '<div class="u-excerpt">' + esc(u.textEnglish || u.textOriginal || '') + '</div>' +
                   '<div class="u-meta"><span class="pill pill--outline">' + esc(CAT_LABEL[u.category] || u.category) + '</span><span>' + esc(u.source === 'weibo' ? 'Weibo' : 'Studio') + '</span><span>·</span><span title="' + esc(A.dateTime(u.publishedAt)) + '">' + esc(A.date(u.publishedAt)) + '</span>' +
@@ -155,8 +172,40 @@
           return;
         }
         const row = e.target.closest('.u-row[data-id]');
-        if (row && !e.target.closest('a, button')) {
+        if (row && !e.target.closest('a, button, label, input')) {
           A.go('/updates/' + encodeURIComponent(row.dataset.id));
+          return;
+        }
+        const selAct = e.target.closest('[data-act^="sel-"]');
+        if (selAct) {
+          const ids = [...st.sel];
+          if (selAct.dataset.act === 'sel-clear') {
+            st.sel.clear();
+            return draw();
+          }
+          if (selAct.dataset.act === 'sel-view') {
+            filtered().forEach((u) => st.sel.add(u.id));
+            return draw();
+          }
+          try {
+            if (selAct.dataset.act === 'sel-delete') {
+              const wb = updates.filter((u) => st.sel.has(u.id) && u.source === 'weibo').length;
+              const ok = await ui.confirm({ title: 'Delete ' + A.plural(ids.length, 'post') + '?', body: 'They are removed from the site.' + (wb ? ' Deleted Weibo posts are not imported again by the next fetch (use Integrations → Weibo → Start over to reset that).' : ''), confirmText: 'Delete ' + ids.length, danger: true });
+              if (!ok) return;
+              const r = await ui.busy(selAct, () => A.data.bulkUpdates({ ids, delete: true }), 'Deleting…');
+              ui.toast(A.plural(r.deleted || 0, 'post') + ' deleted');
+            } else {
+              const to = selAct.dataset.to;
+              const r = await ui.busy(selAct, () => A.data.bulkUpdates({ ids, status: to }), 'Saving…');
+              ui.toast(A.plural(r.changed || 0, 'post') + (to === 'published' ? ' published' : ' hidden'));
+            }
+            st.sel.clear();
+            updates = await A.data.getUpdates();
+            draw();
+            A.app.refreshBadges();
+          } catch (err) {
+            ui.error(err);
+          }
           return;
         }
         const moreBtn = e.target.closest('[data-act="more"]');
@@ -194,6 +243,21 @@
             updates = await A.data.getUpdates();
             draw();
           }
+        }
+      });
+      root.addEventListener('change', (e) => {
+        const box = e.target.closest('[data-sel]');
+        if (box) {
+          if (box.checked) st.sel.add(box.dataset.sel);
+          else st.sel.delete(box.dataset.sel);
+          box.closest('.u-row').classList.toggle('is-selected', box.checked);
+          return draw();
+        }
+        if (e.target.matches('[data-selall]')) {
+          const list = filtered();
+          if (e.target.checked) list.forEach((u) => st.sel.add(u.id));
+          else list.forEach((u) => st.sel.delete(u.id));
+          draw();
         }
       });
       root.querySelector('[data-q]').addEventListener('input', A.debounce((e) => {

@@ -172,6 +172,8 @@ function parseWeiboDate(s, now = new Date()) {
 }
 
 const isTrivialRepost = (text) => !text || /^(转发微博|Repost|轉發微博)$/i.test(text.trim());
+/** A post is worth showing when it has at least one photo or a video. */
+const hasPhotos = (media) => !!(media && ((media.images && media.images.length) || (media.video && media.video.url)));
 
 /* ------------------------------------------------------------------------ */
 /* Service                                                                    */
@@ -441,6 +443,12 @@ class WeiboService {
           result.skipped++;
           continue;
         }
+        const media = extractMedia(post);
+        if (cfg.requirePhotos !== false && !hasPhotos(media)) {
+          log.info(`Skipping ${pid}: no photos or video.`);
+          result.skipped++;
+          continue;
+        }
         try {
           const own = cleanText(await this.getFullText(post, log));
           const retweeted = !!post.retweeted_status;
@@ -449,7 +457,6 @@ class WeiboService {
             result.skipped++;
             continue;
           }
-          const media = extractMedia(post);
           const tr = await this.translator.translatePost(own, { products });
           const update = this.buildUpdate(post, own, media, tr, cfg);
           db.updates.push(update);
@@ -558,6 +565,25 @@ class WeiboService {
     return { ...rest, log: log.slice(-40), ...base };
   }
 
+  /**
+   * Start over (for testing): remove imported Weibo posts and forget what was
+   * imported — last post id, history position and deleted-post list.
+   */
+  resetImport({ deletePosts = true } = {}) {
+    if (this.running || (this.history && this.history.state === 'running')) throw Object.assign(new Error('A Weibo import is running — wait for it or stop it first'), { status: 409 });
+    const db = this.store.db;
+    const before = db.updates.length;
+    if (deletePosts) db.updates = db.updates.filter((u) => u.source !== 'weibo');
+    db.meta.weiboDeleted = [];
+    delete db.meta.weiboHistory;
+    if (db.meta.sync) db.meta.sync.weibo = null;
+    this.history = null;
+    this.store.private.weibo.lastId = null;
+    this.store.savePrivate();
+    this.store.save();
+    return { ok: true, removed: before - db.updates.length };
+  }
+
   async _history(h) {
     const log = this.log.capture ? this.log.capture(h.log, 'weibo') : this.log;
     const cfg = this.getConfig() || {};
@@ -615,6 +641,12 @@ class WeiboService {
             h.skipped++;
             continue;
           }
+          const media = extractMedia(post);
+          if (cfg.requirePhotos !== false && !hasPhotos(media)) {
+            h.skipped++;
+            h.noPhotos = (h.noPhotos || 0) + 1;
+            continue;
+          }
           try {
             const raw = post.isLongText || String(post.text || '').includes('全文');
             const own = cleanText(await this.getFullText(post, log));
@@ -623,7 +655,6 @@ class WeiboService {
               h.skipped++;
               continue;
             }
-            const media = extractMedia(post);
             const category = categorize(own);
             const tr = { ok: false, provider: 'none', model: null, title: CATEGORY_LABELS[category], category, translation: own, relatedProductIds: [] };
             const update = this.buildUpdate(post, own, media, tr, cfg);

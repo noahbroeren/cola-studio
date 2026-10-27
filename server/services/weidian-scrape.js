@@ -15,7 +15,7 @@
  * the request, so it also works when Weidian blocks the host's IP address.
  * The stock sync never uses Claude (it runs every few minutes).
  */
-const { parseItemResponse, extractItemInfo, viaService } = require('./weidian');
+const { parseItemResponse, extractItemInfo, viaService, capStock } = require('./weidian');
 
 const SKU_URL = 'https://thor.weidian.com/detail/getItemSkuInfo/1.0?param={param}';
 const DESC_URL = 'https://thor.weidian.com/detail/getDetailDesc/1.0?param={param}';
@@ -60,9 +60,12 @@ const isIcon = (u) => {
 };
 /** The seller id inside a file name ("weidian1790815530-…", "bj-vshop-973365404-…"), to drop other shops' pictures. */
 function sellerOf(u) {
-  const m = /\/(?:weidian|[a-z]+-(?:vshop|pc|wd|item)-)(\d{6,12})[-_]/i.exec(String(u || ''));
-  return m ? m[1] : '';
+  const m = /\/(?:weidian|pcitem|wdseller|wditem|[a-z]+-(?:vshop|pc|wd|item)-)(\d{6,14})[-_]/i.exec(String(u || ''));
+  return m ? m[1].slice(0, 7) : ''; // ids of one seller share their first digits (pcitem902045282637 / wdseller902045282507)
 }
+/** Product photos (not shop decoration, banners or icons). */
+const isSellerPhoto = (u) => /\/(?:weidian|pcitem|wdseller|wditem|[a-z]+-(?:vshop|pc|wd|item)-)\d/i.test(u) && (!imageDims(u) || Math.min(imageDims(u).w, imageDims(u).h) >= 300);
+const isProductPhoto = (u) => isSellerPhoto(u) && !isLong(u);
 
 const IMG_RE = /(?:https?:)?(?:\\?\/){2}[a-z0-9.-]*geilicdn\.com(?:\\?\/)[^"'\s<>()\\]+?\.(?:jpe?g|png|webp|gif)(?:\.webp)?/gi;
 
@@ -128,8 +131,15 @@ function parseDetailDesc(json) {
     if (Array.isArray(node)) return node.forEach((n) => walk(n, key, depth + 1));
     if (isObj(node)) for (const [k, v] of Object.entries(node)) if (k !== 'status') walk(v, k, depth + 1);
   };
-  walk(json && json.result !== undefined ? json.result : json, '', 0);
-  return { text: texts.join('\n').trim(), images: collectImages(json && json.result !== undefined ? json.result : json) };
+  // Folded blocks ("购前说明", type 10000) are shop-wide notices, not about this product.
+  const strip = (node) => {
+    if (Array.isArray(node)) return node.filter((x) => !(isObj(x) && (x.defaultFold === true || Number(x.type) === 10000))).map(strip);
+    if (isObj(node)) return Object.fromEntries(Object.entries(node).map(([k, v]) => [k, strip(v)]));
+    return node;
+  };
+  const body = strip(json && json.result !== undefined ? json.result : json);
+  walk(body, '', 0);
+  return { text: texts.join('\n').trim(), images: collectImages(body) };
 }
 
 /** JSON objects assigned or passed inside a <script> ("window.x = {…}", "init({…})"). */
@@ -170,6 +180,8 @@ function jsonBlobs(code, limit = 40) {
 
 function decodeAttr(s) {
   return String(s || '')
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => (d === '38' ? '&amp;' : String.fromCodePoint(Number(d))))
     .replace(/&quot;/g, '"')
     .replace(/&#39;|&apos;/g, "'")
     .replace(/&lt;/g, '<')
@@ -369,10 +381,10 @@ async function fetchFullItem(svc, itemId, { cfg = {}, claude = null } = {}) {
   let detail = uniq([...(d ? d.images : []), ...(p ? p.detail : [])]);
   if (!d && p && !p.detail.length) {
     // No description source: keep this seller's other pictures from the page as detail photos.
-    detail = p.all.filter((u) => !gallery.includes(u) && (!seller || sellerOf(u) === seller));
+    detail = p.all.filter((u) => !gallery.includes(u) && isSellerPhoto(u) && (!seller || sellerOf(u) === seller));
   }
-  if (gallery.length <= 1 && p) {
-    const extra = p.all.filter((u) => !detail.includes(u) && (!seller || sellerOf(u) === seller) && !isLong(u));
+  if (gallery.length <= 1 && p && !p.gallery.length) {
+    const extra = p.all.filter((u) => !detail.includes(u) && isProductPhoto(u) && (!seller || sellerOf(u) === seller));
     gallery = uniq([...gallery, ...extra]);
   }
   detail = detail.filter((u) => !gallery.includes(u));
@@ -418,6 +430,59 @@ async function resolveShortLink(fetchFn, url) {
   return m ? m[1] : '';
 }
 
+/* ----------------------------------------------------------------- shops */
+
+const SHOP_LIST_URL = 'https://thor.weidian.com/decorate/shopDetail.tab.getItemList/1.0?param={param}';
+
+/** Shop ids in a piece of text: shop1785487515.v.weidian.com, ?userid=1785487515, weidian.com/s/1785487515. */
+function shopIds(text) {
+  const out = [];
+  const re = /shop(\d{6,12})\.v\.weidian\.com|[?&]userid=(\d{6,12})|weidian\.com\/s\/(\d{6,12})/gi;
+  let m;
+  const s = String(text || '');
+  // Item links on a shop domain are items, not shops.
+  const lines = s.split(/\s+/).filter((l) => !/item\.html|itemI[Dd]=/.test(l)).join('\n');
+  while ((m = re.exec(lines))) {
+    const id = m[1] || m[2] || m[3];
+    if (id && !out.includes(id)) out.push(id);
+  }
+  return out;
+}
+
+/** Things in a shop that are not garments: price-difference links, VIP rules, shipping fees, loyalty points … */
+const NOT_A_PRODUCT = /补差|差价|补拍|运费|邮费|定金|订金|VIP|会员|积分|规则|说明|售后|禁售|COLA星|cola星|链接专用|专拍/i;
+
+/** Every item of a Weidian shop (newest first). → [{ itemId, name, price, image, stock, hasSku, suggested }] */
+async function listShopItems(svc, shopId, { cfg = {}, claude = null, max = 600, sleep = (ms) => new Promise((r) => setTimeout(r, ms)) } = {}) {
+  const items = [];
+  const seen = new Set();
+  for (let offset = 0; offset < max; offset += 20) {
+    const url = paramUrl(SHOP_LIST_URL, { shopId: String(shopId), tabId: 0, sortOrder: 'desc', offset, limit: 20, from: 'h5', showItemTag: true });
+    const r = await fetchChain(svc, url, {
+      cfg,
+      claude,
+      headers: { Referer: `https://shop${shopId}.v.weidian.com/`, Origin: 'https://weidian.com' },
+      check: (text) => {
+        const json = parseJsonText(text);
+        const err = statusError(json);
+        if (err) throw new Error(err);
+        return (json.result && json.result.itemList) || [];
+      },
+    });
+    for (const it of r.value) {
+      const id = String(it.itemId || '');
+      if (!/^\d{6,14}$/.test(id) || seen.has(id)) continue;
+      seen.add(id);
+      const price = Number(it.price) || 0;
+      const name = String(it.itemName || '').trim();
+      items.push({ itemId: id, name, price, image: cleanImageUrl(it.itemImg || it.image || ''), stock: capStock(it.stock), hasSku: !!it.hasSku, suggested: !NOT_A_PRODUCT.test(name) && price > 0 && price < 50000 });
+    }
+    if (r.value.length < 20) break;
+    await sleep(250);
+  }
+  return items;
+}
+
 /* ------------------------------------------------------- image downloads */
 
 /** Download images for Claude (base64). Skips files that are too large or too tall for the API. */
@@ -455,6 +520,8 @@ module.exports = {
   fetchFullItem,
   shortLinks,
   resolveShortLink,
+  shopIds,
+  listShopItems,
   downloadForVision,
   sellerOf,
   isLong,

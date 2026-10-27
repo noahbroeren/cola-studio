@@ -303,7 +303,18 @@ alleen *nieuwe* posts, posts die er al staan worden overgeslagen) en druk op
 - Draait alleen op een vaste server (Render, Railway, VPS), niet serverless.
 
 In **Studio updates** staan nieuwe pending posts in het tabblad *Pending*, met
-de knop **Publish all**; de lijst laadt per 50.
+de knop **Publish all**; de lijst laadt per 50. Met de vakjes voor elke post
+(of *Select all*) publiceer, verberg of verwijder je er meerdere tegelijk.
+Verwijderde Weibo-posts worden onthouden, zodat een gewone fetch ze niet terugzet.
+
+**Alleen posts met foto's.** Standaard (*Only posts with photos*) slaat de
+import posts zonder foto of video over — zowel de gewone fetch als *Import
+older posts*.
+
+**Opnieuw beginnen (testen).** *Integrations → Weibo → Start over…* vergeet
+alles wat al geïmporteerd is (laatste post, positie van *Import older posts*,
+lijst met verwijderde posts) en verwijdert desgewenst alle Weibo-posts. Eerst
+wordt een snapshot gemaakt. Je eigen studio-posts blijven staan.
 
 ### Als Weibo blokkeert (cookie instellen)
 
@@ -403,6 +414,14 @@ er een vertaalprovider is ingesteld. Elke variant krijgt meteen zijn
 `/media/img` (cache op het volume). Een bladwijzer-knop in dat venster kopieert
 alle productlinks van je eigen winkelpagina. Het voorbeeld wordt pas na
 bevestigen opgeslagen, via `POST /api/admin/products/bulk` (met snapshot).
+
+**Hele winkel.** Plak je winkellink (`https://shop123.v.weidian.com/?userid=123`):
+de server leest alle producten van de winkel (`decorate/shopDetail.tab.getItemList`)
+en je vinkt aan welke je wilt. Toeslag-links, regels en producten "in
+ontwikkeling" (prijs ≥ ¥50.000) staan standaard uit. Deellinks
+(`k.youshop10.com/…`) worden gevolgd naar het product. Producten zonder kleur-
+of maatkeuze komen binnen als één variant (OS); de kleur wordt dan uit de titel
+gehaald als dat kan. "Onbeperkte" voorraad (999999999) wordt 999.
 
 **Wat de import overneemt.** Per product haalt de server drie bronnen op
 (`server/services/weidian-scrape.js`):

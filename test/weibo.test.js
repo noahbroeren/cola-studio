@@ -89,7 +89,7 @@ function weiboRoutes(overrides = {}) {
 function setup({ weibo = {}, translator, routes } = {}) {
   const dir = tmpDir();
   const store = new Store({ dataDir: dir, publicDir: path.join(FIXTURES, 'public'), log: silentLog() }).init();
-  Object.assign(store.private.weibo, { uid: UID, backfill: 6, autoPublish: true, ...weibo });
+  Object.assign(store.private.weibo, { uid: UID, backfill: 6, autoPublish: true, requirePhotos: false, ...weibo });
   const fetch = fakeFetch(routes || weiboRoutes());
   const calls = [];
   const tr = translator || {
@@ -246,7 +246,7 @@ test('WeiboService + real translator (Anthropic mocked): translated + pending wh
   t.after(() => rmrf(dir));
   const store = new Store({ dataDir: dir, publicDir: path.join(dir, 'nope'), log: silentLog() }).init();
   store.db.products = products.map((p) => ({ ...p, status: 'published', variants: [] }));
-  Object.assign(store.private.weibo, { uid: UID, backfill: 3, autoPublish: true });
+  Object.assign(store.private.weibo, { uid: UID, backfill: 3, autoPublish: true, requirePhotos: false });
   const fetch = fakeFetch(routes);
   const translator = createTranslator({ getConfig: () => ({ provider: 'anthropic', anthropicKey: 'sk-test' }), fetch, log: silentLog() });
   const svc = new WeiboService({ getConfig: () => store.private.weibo, store, translator, log: silentLog(), fetch, sleep: noSleep, prefetch: false });

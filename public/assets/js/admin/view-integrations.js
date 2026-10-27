@@ -144,9 +144,10 @@
           '<div class="set-layout"><nav class="secnav" aria-label="Sections">' + SECTIONS.map((x) => '<a class="secnav__link" href="' + A.href('/integrations?section=' + x.id) + '" data-goto="' + x.id + '"><span>' + esc(x.label) + '</span></a>').join('') + '</nav>' +
           '<form class="set-main stack" novalidate autocomplete="off">' +
           /* ---------- weibo */
-          '<section class="card ed-section" id="int-weibo" data-sec="weibo"><div class="ed-section__head"><div><h2>Weibo</h2><p>Imports the studio’s Weibo posts as Studio Updates and translates them.</p></div><div class="row"><button type="button" class="btn btn--sm btn--primary" data-act="weibo-fetch">' + icon('refresh', 15) + 'Fetch now</button></div></div><div class="ed-section__body">' +
+          '<section class="card ed-section" id="int-weibo" data-sec="weibo"><div class="ed-section__head"><div><h2>Weibo</h2><p>Imports the studio’s Weibo posts as Studio Updates and translates them.</p></div><div class="row"><button type="button" class="btn btn--sm btn--ghost" data-act="weibo-reset" title="Remove imported Weibo posts and forget what was imported">' + icon('trash', 15) + 'Start over…</button><button type="button" class="btn btn--sm btn--primary" data-act="weibo-fetch">' + icon('refresh', 15) + 'Fetch now</button></div></div><div class="ed-section__body">' +
           statusBlock('Weibo import', 'weibo') +
           '<div class="form-grid">' + toggle('weibo.enabled', 'Enabled', 'Fetch on a schedule') + toggle('weibo.autoPublish', 'Publish automatically', 'Off = new posts wait as pending') +
+          toggle('weibo.requirePhotos', 'Only posts with photos', 'Posts without a photo or video are skipped') + '<div class="field"></div>' +
           text('Weibo UID', 'weibo.uid', { mono: true, ph: '1234567890', hint: 'The number in m.weibo.cn/u/<b>1234567890</b>.' }) +
           text('Interval (minutes)', 'weibo.intervalMinutes', { type: 'number', dtype: 'num', attrs: 'min="5" max="1440"', hint: 'Minimum 5.' }) +
           text('Backfill', 'weibo.backfill', { type: 'number', dtype: 'num', attrs: 'min="0" max="20"', hint: 'Posts imported on the very first fetch.' }) +
@@ -498,6 +499,33 @@
             if (!(await ensureSaved('Translating'))) return;
             await startHist({ translateOnly: true, translate: true }, b);
             break;
+          case 'weibo-reset': {
+            const n = hist && hist.weiboPosts != null ? hist.weiboPosts : null;
+            const r = await ui.dialog({
+              title: 'Start the Weibo import over?',
+              body:
+                '<p>The site forgets which Weibo posts it already imported: the last imported post, the position of “Import older posts” and the list of deleted posts. The next fetch then starts from the newest posts again.</p>' +
+                '<label class="imp-remove"><input type="checkbox" class="check" data-del checked> <span><b>Also delete the imported Weibo posts' + (n != null ? ' (' + esc(n) + ')' : '') + '</b><span class="imp-remove__sub">Your own studio posts stay. A backup snapshot is made first.</span></span></label>',
+              buttons: [
+                { id: 'cancel', label: 'Cancel', variant: 'ghost' },
+                { id: 'reset', label: 'Start over', variant: 'danger' },
+              ],
+            });
+            if (!r || r.id !== 'reset') return;
+            try {
+              const out = await ui.busy(b, () => A.data.weiboReset(!!r.el.querySelector('[data-del]').checked), 'Resetting…');
+              cfg.weibo.lastId = null;
+              baseline = JSON.stringify(Object.assign(JSON.parse(baseline), { weibo: Object.assign(JSON.parse(baseline).weibo || {}, { lastId: null }) }));
+              const inp = root.querySelector('[data-i="weibo.lastId"]');
+              if (inp) inp.value = '';
+              ui.toast(out.removed ? A.plural(out.removed, 'Weibo post') + ' removed — ready to import again' : 'Weibo import reset — ready to import again');
+              await refreshMeta();
+              loadHist();
+            } catch (err) {
+              ui.error(err, 'Could not reset');
+            }
+            break;
+          }
           case 'hist-stop':
             try {
               hist = await ui.busy(b, () => A.data.weiboHistoryStop(), 'Stopping…');

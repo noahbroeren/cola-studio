@@ -57,7 +57,7 @@ const DEFAULT_TOKEN_URL =
 
 const DEFAULT_PRIVATE = {
   // Cola Studio's Weibo account (https://weibo.com/u/7354109778) — change in the admin or with WEIBO_UID.
-  weibo: { enabled: true, uid: '7354109778', cookie: '', intervalMinutes: 15, autoPublish: true, backfill: 6, lastId: null },
+  weibo: { enabled: true, uid: '7354109778', cookie: '', intervalMinutes: 15, autoPublish: true, requirePhotos: true, backfill: 6, lastId: null },
   translation: {
     provider: 'anthropic',
     anthropicKey: '',

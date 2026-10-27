@@ -77,6 +77,7 @@ test('Weidian import + bulk create through the admin API', async (t) => {
   let descCalls = 0;
   let visionCalls = 0;
   let claudeFetches = 0;
+  const claudeUrls = [];
   const routes = [
     [
       (u) => u.includes('getDetailDesc') && decodeURIComponent(u).includes('7781239999'),
@@ -102,13 +103,15 @@ test('Weidian import + bulk create through the admin API', async (t) => {
     ],
     [(u) => u.includes('weidian.com/item.html'), () => new Response('captcha', { status: 200 })],
     [(u) => u.startsWith('https://thor.weidian.com/') && decodeURIComponent(u).includes('7781239999'), () => fixtureJson('weidian', 'thor-item.json')],
-    [(u) => u.startsWith('https://thor.weidian.com/') && decodeURIComponent(u).includes('1000000001'), () => ({ status: { code: 0 }, result: { itemTitle: 'Empty', skuInfos: [] } })],
+    [(u) => u.startsWith('https://thor.weidian.com/') && decodeURIComponent(u).includes('1000000001'), () => ({ status: { code: 9, message: '商品不存在' }, result: null })],
+    [(u) => u.startsWith('https://thor.weidian.com/') && decodeURIComponent(u).includes('2000000002'), () => ({ status: { code: 0 }, result: { itemId: '2000000002', itemTitle: '军绿色帆布托特包', itemMainPic: 'https://si.geilicdn.com/wdseller1234567-tote_1080_1080.jpg', itemDiscountLowPrice: 19900, itemStock: 999999999 } })],
     [
       'api.anthropic.com',
       (u, init) => {
         const body = JSON.parse(init.body);
         if (body.tools) {
           claudeFetches++;
+          claudeUrls.push(decodeURIComponent(/https:\/\/\S+/.exec(body.messages[0].content)[0]));
           return { content: [{ type: 'web_fetch_tool_result', content: { type: 'web_fetch_tool_result_error', error_code: 'url_not_accessible' } }] };
         }
         if (Array.isArray(body.messages[0].content)) {
@@ -148,13 +151,19 @@ test('Weidian import + bulk create through the admin API', async (t) => {
   const admin = (method, p, body) => request(base, method, p, { body, headers: auth });
 
   // 1) preview: one good item, one without SKUs
-  const r = await admin('POST', '/api/admin/weidian/import', { items: 'https://weidian.com/item.html?itemID=7781239999\n1000000001' });
+  const r = await admin('POST', '/api/admin/weidian/import', { items: 'https://weidian.com/item.html?itemID=7781239999\n1000000001\n2000000002' });
   assert.equal(r.status, 200, JSON.stringify(r.json));
   assert.equal(r.json.translated, true);
   assert.equal(translateCalls, 1, 'one translation call per batch');
   const [good, bad] = r.json.results;
   assert.equal(bad.ok, false);
-  assert.match(bad.error, /no colours\/sizes/);
+  assert.match(bad.error, /Weidian error 9/);
+  // An item without colour/size options becomes one variant; the colour comes from the title; stock is capped.
+  const single = r.json.results[2].draft;
+  assert.deepEqual(single.sizes, ['OS']);
+  assert.deepEqual(single.colors.map((c) => c.name), ['Olive']);
+  assert.equal(single.variants[0].stock, 999);
+  assert.equal(single.price, 199);
   const d = good.draft;
   assert.equal(d.name, 'Cola Studio Heavyweight Hoodie 480g Terry');
   assert.equal(d.status, 'draft');
@@ -183,7 +192,9 @@ test('Weidian import + bulk create through the admin API', async (t) => {
   assert.equal(good.sizeChart, true);
   assert.match(good.sources.description, /^direct · 2 photo/);
   assert.match(good.sources.page, /^direct · 2 gallery/);
-  assert.equal(claudeFetches, 0, 'Claude fetch only when direct requests fail');
+  assert.ok(claudeFetches >= 1);
+  assert.ok(!claudeUrls.some((u) => u.includes('7781239999')), 'Claude fetch only when a direct request fails');
+  assert.ok(claudeUrls.some((u) => u.includes('1000000001')));
 
   // 2) create through the bulk endpoint (nothing saved by the preview)
   const before = (await admin('GET', '/api/admin/products')).json.products.length;

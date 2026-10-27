@@ -437,7 +437,7 @@ test('server integration', async (t) => {
     assert.equal(noUid.json.ok, false);
     assert.match(noUid.json.errors[0], /uid/);
 
-    await admin('PUT', '/api/admin/integrations', { weibo: { uid: '1234567890', backfill: 3 }, translation: { provider: 'deepl', deeplKey: 'key:fx' } });
+    await admin('PUT', '/api/admin/integrations', { weibo: { uid: '1234567890', backfill: 3, requirePhotos: false }, translation: { provider: 'deepl', deeplKey: 'key:fx' } });
     const fetched = await admin('POST', '/api/admin/weibo/fetch', {});
     assert.equal(fetched.status, 200, fetched.text);
     assert.equal(fetched.json.added, 2);
@@ -492,6 +492,18 @@ test('server integration', async (t) => {
     assert.ok(pubAll.json.changed >= 2);
     assert.ok(!(await admin('GET', '/api/admin/updates')).json.updates.some((u) => u.source === 'weibo' && u.status === 'pending'));
     assert.equal((await admin('POST', '/api/admin/updates/bulk', { status: 'nope', fromStatus: 'pending' })).status, 400);
+    // Delete a selection; Weibo posts are tombstoned so the next fetch skips them.
+    const victims = (await admin('GET', '/api/admin/updates')).json.updates.filter((u) => u.source === 'weibo').slice(0, 2);
+    const del = await admin('POST', '/api/admin/updates/bulk', { ids: victims.map((u) => u.id), delete: true });
+    assert.deepEqual(del.json, { ok: true, deleted: 2 });
+    assert.ok(!(await admin('GET', '/api/admin/updates')).json.updates.some((u) => victims.some((v) => v.id === u.id)));
+    assert.equal((await admin('POST', '/api/admin/updates/bulk', { delete: true })).status, 400);
+    // Start over: Weibo posts removed, memory cleared, a backup is made.
+    const reset = await admin('POST', '/api/admin/weibo/reset', { deletePosts: true });
+    assert.equal(reset.status, 200, reset.text);
+    assert.ok(reset.json.backup);
+    assert.ok(!(await admin('GET', '/api/admin/updates')).json.updates.some((u) => u.source === 'weibo'));
+    assert.equal((await admin('GET', '/api/admin/integrations')).json.weibo.lastId, null);
     assert.equal((await admin('POST', '/api/admin/updates/bulk', { status: 'published' })).status, 400);
 
     const imgUrl = 'https://wx2.sinaimg.cn/large/006hoodie01.jpg';

@@ -132,6 +132,7 @@ function sortSizes(list) {
 }
 
 const CATEGORY_RULES = [
+  ['shoes', /鞋|靴|sneaker|shoe|runner|trainer|boot|loafer|slide/i],
   ['hoodies', /卫衣|连帽|卫裤|hoodie|sweatshirt|crewneck|sweatpant|jogger/i],
   ['outerwear', /外套|夹克|棉服|羽绒|风衣|大衣|马甲|jacket|coat|parka|puffer|bomber|vest|gilet/i],
   ['knitwear', /针织|毛衣|开衫|羊毛衫|knit|sweater|cardigan/i],
@@ -193,7 +194,10 @@ function draftFromItem(item, raw, { itemId, cfg = {}, categories = [] } = {}) {
   const colorAliases = { ...DEFAULT_COLOR_ALIASES, ...(cfg.colorAliases || {}) };
   const dims = attrDims(raw);
   const notes = [];
-  const skus = (item.skus || []).map((s) => ({ ...s, ...(s.color || s.size ? { color: alias(s.color, colorAliases) || s.color || 'Default', size: sizeToken(s.size, sizeAliases) || s.size || 'OS', rawColor: s.color } : splitSkuTitle(s.title, { dims, sizeAliases, colorAliases })) }));
+  // No colour/size options on Weidian: one variant with the item's own stock.
+  const rawSkus = (item.skus || []).length ? item.skus : [{ skuId: '', sku: '', title: '', stock: item.stock || 0, price: item.price }];
+  if (!(item.skus || []).length) notes.push('No colours or sizes on Weidian — imported as one variant (OS)');
+  const skus = rawSkus.map((s) => ({ ...s, ...(s.color || s.size ? { color: alias(s.color, colorAliases) || s.color || 'Default', size: sizeToken(s.size, sizeAliases) || s.size || 'OS', rawColor: s.color } : splitSkuTitle(s.title, { dims, sizeAliases, colorAliases })) }));
   const colors = [];
   for (const s of skus) if (!colors.some((c) => c.toLowerCase() === s.color.toLowerCase())) colors.push(s.color);
   let sizes = [];
@@ -201,6 +205,15 @@ function draftFromItem(item, raw, { itemId, cfg = {}, categories = [] } = {}) {
   sizes = sortSizes(sizes);
   if (!colors.length) colors.push('Default');
   if (!sizes.length) sizes.push('OS');
+  // Only one unnamed colour: take the colour from the title ("军绿色羽绒服" → Olive).
+  if (colors.length === 1 && colors[0] === 'Default') {
+    const keys = Object.keys(colorAliases).filter((k) => /[㐀-鿿]/.test(k)).sort((a, b) => b.length - a.length);
+    const hit = keys.find((k) => String(item.title || '').includes(k));
+    if (hit) {
+      colors[0] = String(colorAliases[hit]);
+      skus.forEach((s) => s.color === 'Default' && (s.color = colors[0]));
+    }
+  }
   const variants = [];
   for (const c of colors) {
     for (const z of sizes) {
@@ -303,7 +316,7 @@ async function importItems({ ids, weidian, translator, cfg = {}, products = [], 
       if (cfg.provider === 'open-api') got = { ...(await weidian.fetchItem(itemId, cfg)), sources: { skus: 'open-api' }, notes: [] };
       else got = await scrape.fetchFullItem(weidian, itemId, { cfg, claude: cfg.claudeFetch === false ? null : claude });
       const { item, json } = got;
-      if (!item || !(item.skus || []).length) throw new Error('Weidian returned no colours/sizes for this item');
+      if (!item || (!(item.skus || []).length && !item.title)) throw new Error('Weidian returned no product data for this item');
       const r = draftFromItem(item, json, { itemId, cfg, categories });
       results.push({ itemId, ok: true, draft: r.draft, notes: [...r.notes, ...(got.notes || [])], original: r.original, sources: got.sources, visionCandidates: r.visionCandidates });
     } catch (err) {

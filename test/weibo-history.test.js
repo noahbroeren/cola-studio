@@ -49,11 +49,11 @@ function routes(log, opts = {}) {
   ];
 }
 
-function setup({ translator, configured = true, autoPublish = true, failOn } = {}) {
+function setup({ translator, configured = true, autoPublish = true, failOn, requirePhotos = false } = {}) {
   const dir = tmpDir();
   const store = new Store({ dataDir: dir, publicDir: path.join(FIXTURES, 'public'), log: silentLog() }).init();
   store.db.updates = [];
-  Object.assign(store.private.weibo, { uid: UID, autoPublish });
+  Object.assign(store.private.weibo, { uid: UID, autoPublish, requirePhotos });
   const pages = [];
   const fetch = fakeFetch(routes(pages, { failOn }));
   const calls = [];
@@ -203,4 +203,29 @@ test('history import needs a uid', async (t) => {
   const st = await finish(env.svc);
   assert.equal(st.state, 'error');
   assert.match(st.message, /uid is not configured/);
+});
+
+test('posts without photos are skipped by default; reset forgets everything that was imported', async (t) => {
+  // Page 3 posts get a photo on even numbers only.
+  const withPics = (pg) => ({ ...pg, data: { ...pg.data, cards: pg.data.cards.map((c) => (Number(c.mblog.id.slice(-2)) % 2 === 0 ? { ...c, mblog: { ...c.mblog, pics: [{ large: { url: `https://wx1.sinaimg.cn/large/p${c.mblog.id}.jpg` } }] } } : c)) } });
+  const saved = { ...PAGES };
+  PAGES[''] = withPics(PAGES['']);
+  t.after(() => Object.assign(PAGES, saved));
+  const env = setup({ requirePhotos: true });
+  t.after(() => rmrf(env.dir));
+  env.svc.startHistory({ limit: 10 });
+  const st = await finish(env.svc);
+  assert.equal(st.added, 5, 'only the five posts with a photo on page 1');
+  assert.ok(st.noPhotos >= 5, 'posts without photos skipped');
+  assert.ok(env.store.db.updates.every((u) => u.media.length > 0));
+
+  env.store.db.updates.push({ id: 'su-own', source: 'studio', status: 'published', title: 'Own post', publishedAt: new Date().toISOString() });
+  env.store.db.meta.weiboDeleted = ['123'];
+  const r = env.svc.resetImport({ deletePosts: true });
+  assert.equal(r.removed, 5);
+  assert.deepEqual(env.store.db.updates.map((u) => u.id), ['su-own']);
+  assert.equal(env.store.private.weibo.lastId, null);
+  assert.equal(env.store.db.meta.weiboHistory, undefined);
+  assert.deepEqual(env.store.db.meta.weiboDeleted, []);
+  assert.equal(env.svc.historyStatus().state, 'idle');
 });

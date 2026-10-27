@@ -13,8 +13,8 @@ test('image URLs: cleaned, sized, deduplicated, icons and scripts dropped', () =
   assert.equal(scrape.cleanImageUrl('javascript:alert(1)'), '');
   assert.deepEqual(scrape.imageDims('https://si.geilicdn.com/a_790_4200.jpg'), { w: 790, h: 4200 });
   assert.equal(scrape.isLong('https://si.geilicdn.com/a_790_4200.jpg'), true);
-  assert.equal(scrape.sellerOf('https://si.geilicdn.com/bj-vshop-973365404-1540477335945-383425165_984_984.jpg'), '973365404');
-  assert.equal(scrape.sellerOf('https://si.geilicdn.com/weidian1790815530-3d59_1080_1620.jpg'), '1790815530');
+  assert.equal(scrape.sellerOf('https://si.geilicdn.com/bj-vshop-973365404-1540477335945-383425165_984_984.jpg'), '9733654');
+  assert.equal(scrape.sellerOf('https://si.geilicdn.com/pcitem902045282637-3c48_640_640.png'), scrape.sellerOf('https://si.geilicdn.com/wdseller902045282507-5365_1024_1536.jpg'));
   const list = scrape.collectImages('a "https://si.geilicdn.com/p1_800_800.jpg" b //si.geilicdn.com/p1_800_800.jpg.webp?w=30 c https:\\u002F\\u002Fsi.geilicdn.com\\u002Fp2_800_800.jpg d https://si.geilicdn.com/hz_img_icon_42_42_unadjust.png');
   assert.deepEqual(list, ['https://si.geilicdn.com/p1_800_800.jpg', 'https://si.geilicdn.com/p2_800_800.jpg']);
 });
@@ -105,4 +105,41 @@ test('share links are followed to the product; size chart reader parses Claude o
   const none = createTranslator({ getConfig: () => ({ provider: 'anthropic', anthropicKey: 'k' }), fetch: fakeFetch([['api.anthropic.com', () => ({ content: [{ type: 'text', text: '{"index": null}' }] })]]), log: silentLog() });
   assert.equal(await none.readSizeChart([{ data: 'AA' }]), null);
   assert.equal(createTranslator({ getConfig: () => ({ provider: 'deepl', deeplKey: 'x' }), log: silentLog() }).claudeConfig(), null);
+});
+
+test('live-shaped Weidian data: numeric entities in data-obj, folded shop notices, shop list, stock cap', async () => {
+  const inject = JSON.stringify({ status: { code: 0 }, result: { default_model: { item_info: { item_name: 'Universal link', imgs: ['https://si.geilicdn.com/wdseller902045282414-a_1424_1780.jpg', 'https://si.geilicdn.com/wdseller902045282414-b_1320_1650.jpg'] } } } }).replace(/"/g, '&#34;');
+  const page = scrape.parseItemPage(`<html><script crossorigin="anonymous" id="__rocker-render-inject__" data-obj="${inject}"></script><img src="https://si.geilicdn.com/img-73f4-unadjust_550_200.png"></html>`);
+  assert.equal(page.title, 'Universal link');
+  assert.equal(page.gallery.length, 2);
+
+  const d = scrape.parseDetailDesc({ status: { code: 0 }, result: { item_detail: { desc_content: [{ text: '面料', type: 1 }, { type: 2, url: 'https://si.geilicdn.com/wdseller9-d_1024_1536.jpg' }, { defaultFold: true, text: '购前说明', type: 10000, url: 'https://si.geilicdn.com/img-7913-unadjust_2250_4929.png' }] } } });
+  assert.equal(d.text, '面料');
+  assert.deepEqual(d.images, ['https://si.geilicdn.com/wdseller9-d_1024_1536.jpg']);
+
+  const { capStock, parseItemResponse } = require('../server/services/weidian');
+  assert.equal(capStock(999999999), 999);
+  assert.equal(parseItemResponse({ status: { code: 0 }, result: { itemTitle: 'x', itemStock: 999999999 } }).stock, 999);
+
+  assert.deepEqual(scrape.shopIds('https://shop1785487515.v.weidian.com/?userid=1785487515&spider_token=8bea\nhttps://shop1785487515.v.weidian.com/item.html?itemID=7696749159'), ['1785487515']);
+  assert.deepEqual(scrape.shopIds('https://shop1785487515.v.weidian.com/item.html?itemID=7696749159'), []);
+  const pages = [];
+  const fetch = fakeFetch([
+    [
+      'shopDetail.tab.getItemList',
+      (u) => {
+        const p = JSON.parse(new URL(u).searchParams.get('param'));
+        pages.push(p.offset);
+        const n = p.offset === 0 ? 20 : 3;
+        return { status: { code: 0 }, result: { hasData: true, itemList: Array.from({ length: n }, (_, i) => ({ itemId: String(7700000000 + p.offset + i), itemName: i === 1 && p.offset === 0 ? '万用补差链接' : 'Cola出品-T恤 ' + i, price: i === 2 && p.offset === 0 ? '99999' : '168', stock: 999999999, itemImg: 'https://si.geilicdn.com/wdseller9-x_800_800.jpg?w=1', hasSku: true })) } };
+      },
+    ],
+  ]);
+  const svc = new WeidianService({ getConfig: () => ({}), store: { db: { products: [] } }, log: silentLog(), fetch });
+  const items = await scrape.listShopItems(svc, '1785487515', { sleep: async () => {} });
+  assert.deepEqual(pages, [0, 20]);
+  assert.equal(items.length, 23);
+  assert.equal(items.filter((i) => !i.suggested).length, 2, 'fee link and in-development price not ticked');
+  assert.equal(items[0].stock, 999);
+  assert.equal(items[0].image, 'https://si.geilicdn.com/wdseller9-x_800_800.jpg');
 });

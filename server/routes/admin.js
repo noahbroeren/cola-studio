@@ -12,7 +12,7 @@ const { DEFAULT_SETTINGS, normalizeDb } = require('../lib/store');
 const { CATEGORIES: UPDATE_CATEGORIES, PROVIDERS: TRANSLATION_PROVIDERS } = require('../services/translate');
 const { PROVIDERS: WEIDIAN_PROVIDERS } = require('../services/weidian');
 const { extractItemIds, importItems } = require('../services/weidian-import');
-const { shortLinks, resolveShortLink, fetchFullItem } = require('../services/weidian-scrape');
+const { shortLinks, resolveShortLink, fetchFullItem, shopIds, listShopItems } = require('../services/weidian-scrape');
 const { ENV_OVERRIDES } = require('../config');
 const { byOrder } = require('./public');
 const seo = require('../lib/seo');
@@ -31,6 +31,7 @@ const SCHEMA = {
     cookie: 'secret',
     intervalMinutes: ['number', 5, 1440],
     autoPublish: 'bool',
+    requirePhotos: 'bool',
     backfill: ['number', 0, 20],
     lastId: 'lastId',
   },
@@ -562,6 +563,18 @@ function registerAdmin(router, app) {
   /** Change the status of many updates at once: { ids?: [...], fromStatus?: 'pending', source?: 'weibo', status } */
   router.post('/api/admin/updates/bulk', async (ctx) => {
     const b = await ctx.body();
+    if (isObj(b) && b.delete === true) {
+      // Delete a selection. Weibo posts are remembered as deleted so a normal fetch does not bring them back.
+      if (!Array.isArray(b.ids) || !b.ids.length) throw new HttpError(400, 'Send the ids to delete');
+      const ids = new Set(b.ids.map(String));
+      const d = db();
+      const gone = d.updates.filter((u) => ids.has(u.id));
+      d.updates = d.updates.filter((u) => !ids.has(u.id));
+      const tomb = gone.filter((u) => u.source === 'weibo' && u.sourceId).map((u) => String(u.sourceId));
+      if (tomb.length) d.meta.weiboDeleted = [...(d.meta.weiboDeleted || []).filter((x) => !tomb.includes(String(x))), ...tomb].slice(-3000);
+      if (gone.length) store.save();
+      return { ok: true, deleted: gone.length };
+    }
     if (!isObj(b) || !UPDATE_STATUSES.includes(b.status)) throw new HttpError(400, `status must be one of ${UPDATE_STATUSES.join(', ')}`);
     const ids = Array.isArray(b.ids) ? new Set(b.ids.map(String)) : null;
     if (!ids && !b.fromStatus) throw new HttpError(400, 'Send ids or fromStatus');
@@ -640,6 +653,21 @@ function registerAdmin(router, app) {
     }
   });
   router.post('/api/admin/weibo/history/stop', () => weibo.stopHistory());
+  router.post('/api/admin/weibo/reset', async (ctx) => {
+    const b = (await ctx.body()) || {};
+    let backup = null;
+    try {
+      backup = store.snapshot('pre-weibo-reset');
+    } catch {
+      /* a failed snapshot should not block a reset the owner asked for */
+    }
+    try {
+      return { ...weibo.resetImport({ deletePosts: b.deletePosts !== false }), backup };
+    } catch (err) {
+      if (err.status === 409) throw new HttpError(409, err.message);
+      throw err;
+    }
+  });
 
   router.post('/api/admin/weibo/retranslate/:id', async (ctx) => {
     const update = await weibo.retranslate(ctx.params.id);
@@ -743,6 +771,29 @@ function registerAdmin(router, app) {
     const out = await importItems({ ids, weidian, translator, cfg, products: d.products, categories: d.categories, translate: !(isObj(b) && b.translate === false), sizeChart: !(isObj(b) && b.sizeChart === false) });
     if (unresolved.length) out.results.push(...unresolved.map(linkError));
     return out;
+  });
+
+  /** Shop link → every product in that shop, for the import picker. */
+  router.post('/api/admin/weidian/shop', async (ctx) => {
+    const b = (await ctx.body()) || {};
+    const ids = shopIds(isObj(b) ? b.text || b.link || '' : b);
+    if (!ids.length) throw new HttpError(400, 'No Weidian shop link found (e.g. https://shop123456.v.weidian.com/?userid=123456)');
+    const cfg = getPrivate().weidian || {};
+    const claude = cfg.claudeFetch === false ? null : translator.claudeConfig();
+    let items;
+    try {
+      items = await listShopItems(weidian, ids[0], { cfg, claude });
+    } catch (err) {
+      throw new HttpError(502, `Could not read the shop: ${err.message}`);
+    }
+    const linked = new Map(db().products.filter((p) => p.weidian && p.weidian.itemId).map((p) => [String(p.weidian.itemId), p]));
+    return {
+      shopId: ids[0],
+      items: items.map((it) => {
+        const p = linked.get(it.itemId);
+        return { ...it, ...(p ? { existing: { id: p.id, name: p.name } } : {}) };
+      }),
+    };
   });
 
   /* ---------------------------------------------------- submissions */

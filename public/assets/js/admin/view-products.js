@@ -169,6 +169,88 @@
   function shareLinks(text) {
     return [...new Set(String(text || '').match(/https?:\/\/(?:k\.youshop10\.com|youshop10\.com|v\.youshop10\.com|wd\.youshop10\.com|weidian\.com\/s\/|vdian\.com)[^\s"'<>]*/gi) || [])];
   }
+  /** Shop links (shop123.v.weidian.com, ?userid=123) — not item links on a shop domain. */
+  function shopLinks(text) {
+    const out = [];
+    String(text || '')
+      .split(/\s+/)
+      .filter((l) => !/item\.html|itemI[Dd]=/.test(l))
+      .forEach((l) => {
+        const m = /shop(\d{6,12})\.v\.weidian\.com|[?&]userid=(\d{6,12})|weidian\.com\/s\/(\d{6,12})/i.exec(l);
+        const id = m && (m[1] || m[2] || m[3]);
+        if (id && !out.includes(id)) out.push(id);
+      });
+    return out;
+  }
+
+  /** Shop link → list of the shop's products to tick. → item ids, or null when cancelled. */
+  async function pickShopItems(text) {
+    let items = null;
+    const r = await ui.dialog({
+      title: 'Choose products from your shop',
+      size: 'lg',
+      body: '<div data-pick><p class="muted">Reading your Weidian shop…</p><div class="meter"><div class="meter__bar" style="width:35%"></div></div></div>',
+      buttons: [
+        { id: 'cancel', label: 'Cancel', variant: 'ghost' },
+        { id: 'ok', label: 'Import products', variant: 'primary' },
+      ],
+      validate(id, el) {
+        if (id !== 'ok') return true;
+        return !!el.querySelector('[data-pick-id]:checked');
+      },
+      onOpen(el) {
+        const ok = el.querySelector('[data-id="ok"]');
+        ok.disabled = true;
+        const host = el.querySelector('[data-pick]');
+        const count = () => {
+          const n = el.querySelectorAll('[data-pick-id]:checked').length;
+          const c = el.querySelector('[data-pick-count]');
+          if (c) c.textContent = n + ' of ' + items.length + ' selected';
+          ok.disabled = !n;
+          ok.textContent = n ? 'Import ' + A.plural(n, 'product') : 'Import products';
+          const all = el.querySelector('[data-pick-all]');
+          const boxes = el.querySelectorAll('[data-pick-id]:not(:disabled)');
+          if (all) {
+            all.checked = n === boxes.length && n > 0;
+            all.indeterminate = n > 0 && n < boxes.length;
+          }
+        };
+        A.data
+          .weidianShop(text)
+          .then((res) => {
+            items = res.items || [];
+            if (!items.length) {
+              host.innerHTML = '<p>No products found in this shop.</p>';
+              return;
+            }
+            host.innerHTML =
+              '<div class="wd-pick-head"><label class="row" style="gap:8px"><input type="checkbox" class="check" data-pick-all> <b>Select all</b></label><span class="small muted" data-pick-count></span></div>' +
+              '<div class="wd-pick">' +
+              items
+                .map(
+                  (it) =>
+                    '<label class="wd-pick__row' + (it.existing ? ' is-existing' : '') + '"><input type="checkbox" class="check" data-pick-id="' + esc(it.itemId) + '"' + (it.existing ? ' disabled' : it.suggested ? ' checked' : '') + '>' +
+                    '<span class="wd-pick__img">' + (it.image ? '<img src="/media/img?u=' + encodeURIComponent(it.image) + '" alt="" loading="lazy">' : '') + '</span>' +
+                    '<span class="wd-pick__name">' + esc(it.name || 'Item ' + it.itemId) + (it.existing ? '<span class="cell-sub">Already on the site as ' + esc(it.existing.name) + '</span>' : !it.suggested ? '<span class="cell-sub">Looks like a fee, rule or item in development — not ticked</span>' : '') + '</span>' +
+                    '<span class="wd-pick__price">¥' + esc(Math.round(it.price).toLocaleString('en')) + '</span></label>'
+                )
+                .join('') +
+              '</div>';
+            host.addEventListener('change', (e) => {
+              if (e.target.matches('[data-pick-all]')) el.querySelectorAll('[data-pick-id]:not(:disabled)').forEach((b) => (b.checked = e.target.checked));
+              count();
+            });
+            count();
+          })
+          .catch((err) => {
+            host.innerHTML = '<div class="note note--error">' + icon('alert', 16) + '<p><b>Could not read the shop:</b> ' + esc(err.message) + '</p></div>';
+          });
+      },
+    });
+    if (!r || r.id !== 'ok') return null;
+    return [...r.el.querySelectorAll('[data-pick-id]:checked')].map((b) => b.dataset.pickId);
+  }
+
   function extractItemIds(text) {
     const ids = [];
     const re = /item[_-]?id(?:%3[AD]|%22|["':=\s]|\\u0022)*(\d{6,14})|weidian\.com\/(?:[a-z]+\/)*item[^\d\s]{0,12}(\d{6,14})|(?:^|[\s,;])(\d{8,14})(?=$|[\s,;])/gi;
@@ -231,8 +313,8 @@
       size: 'lg',
       body:
         (badProvider ? '<div class="note note--warn" style="margin-bottom:12px">' + icon('alert', 16) + '<p>Set <b>Integrations → Weidian → Provider</b> to “Public item page” (or Open API) first — the current provider cannot fetch products.</p></div>' : '') +
-        '<p>Paste the links of your Weidian products — one per line, or any text that contains them. Share links and item IDs work too. Photos, description, detail photos, colours, sizes and stock are taken over.</p>' +
-        '<textarea class="input input--code wd-links" rows="7" data-links placeholder="https://weidian.com/item.html?itemID=7781234567"></textarea>' +
+        '<p>Paste your <b>shop link</b> to choose from all its products, or the links of single products (share links and item IDs work too). Photos, description, detail photos, colours, sizes and stock are taken over.</p>' +
+        '<textarea class="input input--code wd-links" rows="7" data-links placeholder="https://shop1234567.v.weidian.com/?userid=1234567&#10;https://weidian.com/item.html?itemID=7781234567"></textarea>' +
         '<p class="hint mt-0" data-count>No products found yet.</p>' +
         '<details class="wd-shop"><summary>' + icon('sparkle', 14) + 'Grab every product of your shop at once</summary><ol class="wd-steps">' +
         '<li>Drag this button to your bookmarks bar: <a class="btn btn--sm btn--secondary wd-bookmarklet" href="javascript:' + esc(encodeURIComponent(BOOKMARKLET)) + '" onclick="return false" title="Drag me to the bookmarks bar">' + icon('link', 14) + 'Copy Weidian products</a></li>' +
@@ -250,7 +332,7 @@
       validate(id, el) {
         if (id !== 'fetch') return true;
         const v = el.querySelector('[data-links]').value;
-        return extractItemIds(v).length + shareLinks(v).length > 0;
+        return extractItemIds(v).length + shareLinks(v).length + shopLinks(v).length > 0;
       },
       onOpen(el) {
         const ta = el.querySelector('[data-links]');
@@ -258,9 +340,10 @@
         const btn = el.querySelector('[data-id="fetch"]');
         const sync = () => {
           const n = extractItemIds(ta.value).length + shareLinks(ta.value).length;
-          out.textContent = n ? A.plural(n, 'Weidian product') + ' found' + (n > 300 ? ' — the first 300 are imported' : '') : 'No products found yet.';
-          btn.textContent = n ? 'Fetch ' + A.plural(Math.min(n, 300), 'product') : 'Fetch products';
-          btn.disabled = !n || badProvider;
+          const shops = shopLinks(ta.value).length;
+          out.textContent = n || shops ? [shops ? A.plural(shops, 'shop link') + ' — you choose the products next' : '', n ? A.plural(n, 'Weidian product') + ' found' : ''].filter(Boolean).join(' · ') + (n > 300 ? ' — the first 300 are imported' : '') : 'No products found yet.';
+          btn.textContent = shops ? 'Next' : n ? 'Fetch ' + A.plural(Math.min(n, 300), 'product') : 'Fetch products';
+          btn.disabled = (!n && !shops) || badProvider;
         };
         ta.addEventListener('input', sync);
         sync();
@@ -269,7 +352,14 @@
     });
     if (!step1 || step1.id !== 'fetch') return;
     const linksText = step1.el.querySelector('[data-links]').value;
-    const ids = extractItemIds(linksText).concat(shareLinks(linksText)).slice(0, 300);
+    let ids = extractItemIds(linksText).concat(shareLinks(linksText));
+    if (shopLinks(linksText).length) {
+      const picked = await pickShopItems(linksText);
+      if (!picked) return;
+      ids = [...new Set(ids.concat(picked))];
+    }
+    ids = ids.slice(0, 300);
+    if (!ids.length) return;
     const translate = !!(step1.el.querySelector('[data-translate]') || {}).checked;
     const sizeChart = !!(step1.el.querySelector('[data-sizechart]') || {}).checked;
     const BATCH = 2;

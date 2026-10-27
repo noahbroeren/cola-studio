@@ -541,6 +541,12 @@
   D.bulkUpdates = async function (body) {
     if (D.mode === 'server') return api('POST', '/api/admin/updates/bulk', body);
     const ids = Array.isArray(body.ids) ? new Set(body.ids.map(String)) : null;
+    if (body.delete) {
+      const all = col('updates');
+      const keep = all.filter((u) => !ids || !ids.has(u.id));
+      writeOverlay({ updates: keep });
+      return { ok: true, deleted: all.length - keep.length };
+    }
     let changed = 0;
     const list = col('updates').map((u) => {
       if ((ids && !ids.has(u.id)) || (body.fromStatus && u.status !== body.fromStatus) || (body.source && u.source !== body.source) || u.status === body.status) return u;
@@ -665,10 +671,12 @@
   D.weiboHistory = () => api('GET', '/api/admin/weibo/history');
   D.weiboHistoryStart = (opts) => api('POST', '/api/admin/weibo/history', opts || {});
   D.weiboHistoryStop = () => api('POST', '/api/admin/weibo/history/stop', {});
+  D.weiboReset = (deletePosts) => api('POST', '/api/admin/weibo/reset', { deletePosts: deletePosts !== false });
   D.retranslate = async (id) => (await api('POST', '/api/admin/weibo/retranslate/' + encodeURIComponent(id))).update;
   D.translateTest = (text) => api('POST', '/api/admin/translate/test', { text });
   D.weidianSync = (opts) => api('POST', '/api/admin/weidian/sync', opts || {});
   D.weidianTest = (itemId) => api('POST', '/api/admin/weidian/test', { itemId });
+  D.weidianShop = (text) => api('POST', '/api/admin/weidian/shop', { text });
   D.weidianImport = (items, translate, opts) => api('POST', '/api/admin/weidian/import', Object.assign({ items, translate: translate !== false }, opts || {}));
   D.getCollection = async (name) => (await api('GET', '/api/admin/' + name))[name] || [];
   D.patchCollection = (name, id, body) => api('PATCH', '/api/admin/' + name + '/' + encodeURIComponent(id), body);
