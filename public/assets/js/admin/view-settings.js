@@ -28,6 +28,7 @@
     ['whatsappChannel', 'WhatsApp channel', 'https://whatsapp.com/channel/…'],
     ['discord', 'Discord', 'https://discord.gg/…'],
     ['xiaohongshu', 'Xiaohongshu (RED)', 'https://xiaohongshu.com/user/profile/…'],
+    ['yupoo', 'Yupoo', 'https://colastudio.x.yupoo.com/albums'],
   ];
 
   function withDefaults(s) {
@@ -44,7 +45,12 @@
     x.nextDrop = Object.assign({ enabled: false, title: '', subtitle: '', date: '' }, x.nextDrop || {});
     x.shipping = Object.assign({ regions: [], note: '' }, x.shipping || {});
     x.shipping.regions = Array.isArray(x.shipping.regions) ? x.shipping.regions : [];
-    x.seo = Object.assign({ title: '', description: '' }, x.seo || {});
+    x.seo = Object.assign({ title: '', description: '', image: '', googleVerification: '', bingVerification: '' }, x.seo || {});
+    x.seo.pages = A.isObj(x.seo.pages) ? x.seo.pages : {};
+    // Old seed defaults are ignored by the server (it uses better built-in copy) — show them as empty.
+    const LEGACY = ['Cola Studio — International Fashion Studio', 'Cola Studio is an international fashion studio focused on design, production and craftsmanship.', 'Cola Studio designs and produces garments with obsessive attention to construction, fabric and craftsmanship. Live stock, studio updates and worldwide ordering.'];
+    if (LEGACY.includes(x.seo.title)) x.seo.title = '';
+    if (LEGACY.includes(x.seo.description)) x.seo.description = '';
     return x;
   }
 
@@ -52,7 +58,7 @@
     title: 'Settings',
     skeleton: 'form',
     async render(root, params, ctx) {
-      const [raw, products] = await Promise.all([A.data.getSettings(), A.data.getProducts().catch(() => [])]);
+      const [raw, products, seoInfo] = await Promise.all([A.data.getSettings(), A.data.getProducts().catch(() => []), A.data.mode === 'server' ? A.data.getSeoInfo().catch(() => null) : Promise.resolve(null)]);
       if (ctx.stale()) return null;
       let s = withDefaults(raw);
       let baseline = JSON.stringify(s);
@@ -140,6 +146,52 @@
         );
       }
 
+      // Built-in page copy from the server (placeholders); static demo mode only knows the labels.
+      const SEO_PAGES = (seoInfo && seoInfo.pages) || [
+        { route: '/', label: 'Home' }, { route: '/products', label: 'Shop' }, { route: '/live-stock', label: 'Live stock' }, { route: '/updates', label: 'Studio updates' },
+        { route: '/how-to-order', label: 'How to order' }, { route: '/about', label: 'About' }, { route: '/contact', label: 'Contact' }, { route: '/faq', label: 'FAQ' }, { route: '/size-guide', label: 'Size guide' }, { route: '/lookbook', label: 'Lookbook' },
+      ];
+      const seoHome = SEO_PAGES.find((x) => x.route === '/') || {};
+      const pageOver = (route) => (A.isObj(s.seo.pages[route]) ? s.seo.pages[route] : {});
+      const isCustom = (route) => !!(String(pageOver(route).title || '').trim() || String(pageOver(route).description || '').trim());
+
+      function seoHtml() {
+        const pg = SEO_PAGES.filter((x) => x.route !== '/');
+        const info = seoInfo;
+        return (
+          '<div class="stack">' +
+          ui.field('Homepage title', input('seo.title', { attrs: 'maxlength="120"', ph: seoHome.title || 'Built-in title' }), { for: 's-seo-title', aside: '<span data-count-for="seo.title">' + (s.seo.title || '').length + ' / 60</span>', hint: 'Leave empty to use the built-in title (shown greyed out).' }) +
+          ui.field('Homepage description', '<textarea class="input" id="s-seo-description" data-s="seo.description" rows="3" maxlength="400" placeholder="' + esc(seoHome.description || '') + '">' + esc(s.seo.description || '') + '</textarea>', { for: 's-seo-description', aside: '<span data-count-for="seo.description">' + (s.seo.description || '').length + ' / 160</span>' }) +
+          '<div class="field"><div class="label">Google preview</div><div class="example serp" data-serp></div></div>' +
+          f('Share image', 'seo.image', { ph: '/assets/brand/og-image.png', hint: 'Shown when a page is shared on WhatsApp, Discord, X or Facebook — ideally 1200 × 630 px. Paste an image URL or a file from the Media library. Product and update pages use their own photo.' }) +
+          '</div>' +
+          '<div class="ed-sub"><div class="ed-sub__title">Other pages</div><p class="hint" style="margin:-4px 0 12px">Every page already has a title and description written for search engines. Fill in a field only to replace it. Products have their own fields in the product editor (Story &amp; details → Search engines).</p><div class="seo-pages">' +
+          pg
+            .map((x) => {
+              const o = pageOver(x.route);
+              const base = 'seo.pages.' + x.route + '.';
+              const id = 's-seo-' + x.route.replace(/[^a-z0-9]+/gi, '');
+              return (
+                '<details class="seo-page"><summary>' + icon('chevronRight', 14) + esc(x.label) + '<span class="seo-page__state' + (isCustom(x.route) ? ' is-custom' : '') + '" data-seo-state="' + esc(x.route) + '">' + (isCustom(x.route) ? 'Custom' : 'Built-in') + '</span><span class="seo-page__path">' + esc(x.route) + '</span></summary><div class="seo-page__body">' +
+                ui.field('Title', '<input class="input" id="' + id + '-t" data-s="' + esc(base + 'title') + '" maxlength="120" value="' + esc(o.title || '') + '" placeholder="' + esc(x.title || 'Built-in title') + '">', { for: id + '-t', aside: '<span data-count-for="' + esc(base + 'title') + '">' + String(o.title || '').length + ' / 60</span>' }) +
+                ui.field('Description', '<textarea class="input" id="' + id + '-d" data-s="' + esc(base + 'description') + '" rows="2" maxlength="320" style="min-height:64px" placeholder="' + esc(x.description || 'Built-in description') + '">' + esc(o.description || '') + '</textarea>', { for: id + '-d', aside: '<span data-count-for="' + esc(base + 'description') + '">' + String(o.description || '').length + ' / 160</span>' }) +
+                '</div></details>'
+              );
+            })
+            .join('') +
+          '</div></div>' +
+          '<div class="ed-sub"><div class="ed-sub__title">Google &amp; Bing</div><div class="form-grid">' +
+          f('Google Search Console code', 'seo.googleVerification', { cls: 'mono', ph: 'Paste the code or the whole <meta> tag' }) +
+          f('Bing Webmaster code', 'seo.bingVerification', { cls: 'mono', ph: 'Optional' }) +
+          '</div><ol class="seo-steps"><li>Open <b>Google Search Console</b> → <b>Add property</b> → <b>URL prefix</b> and enter your web address.</li><li>Choose <b>HTML tag</b>, paste the code above and press <b>Save settings</b>.</li><li>Press <b>Verify</b> in Search Console, then open <b>Sitemaps</b> and submit <code>sitemap.xml</code>. New products and updates are added to it automatically.</li></ol>' +
+          (info
+            ? '<ul class="seo-links" style="margin-top:14px"><li>Sitemap · <a href="' + esc(info.sitemap) + '" target="_blank" rel="noopener">' + esc(info.sitemap) + '</a></li><li>Robots · <a href="' + esc(info.robots) + '" target="_blank" rel="noopener">' + esc(info.robots) + '</a></li><li>Updates feed (RSS) · <a href="' + esc(info.feed) + '" target="_blank" rel="noopener">' + esc(info.feed) + '</a></li></ul>' +
+              '<p class="hint">' + esc(A.plural(info.indexed.products, 'product') + ' and ' + A.plural(info.indexed.updates, 'studio update') + ' are in the sitemap') + (info.indexed.demoProducts ? esc(' · ' + A.plural(info.indexed.demoProducts, 'demo product') + ' left out (demo pages are hidden from search engines)') : '') + '.</p>'
+            : '<p class="hint">Sitemap, robots.txt and the RSS feed are generated by the server.</p>') +
+          '</div>'
+        );
+      }
+
       function draw() {
         const c = s.currency;
         const extraSocial = Object.keys(s.social).filter((k) => !SOCIAL.some(([key]) => key === k));
@@ -182,10 +234,7 @@
             '<div class="form-grid">' + SOCIAL.map(([k, label, ph]) => f(label, 'social.' + k, { ph })).join('') + extraSocial.map((k) => f(k, 'social.' + k)).join('') + '</div>') +
           card('shipping', 'Shipping', 'Indicative delivery times after dispatch.',
             shippingHtml() + '<div style="margin-top:18px">' + ui.field('Note', '<textarea class="input" id="s-shipping-note" data-s="shipping.note" rows="2" style="min-height:64px">' + esc(s.shipping.note || '') + '</textarea>', { for: 's-shipping-note' }) + '</div>') +
-          card('seo', 'SEO', 'Default title and description for search engines and link previews.',
-            '<div class="stack">' + ui.field('Title', input('seo.title', { attrs: 'maxlength="120"' }), { for: 's-seo-title', aside: '<span data-count-for="seo.title">' + (s.seo.title || '').length + ' / 60</span>' }) +
-            ui.field('Description', '<textarea class="input" id="s-seo-description" data-s="seo.description" rows="3" maxlength="400">' + esc(s.seo.description || '') + '</textarea>', { for: 's-seo-description', aside: '<span data-count-for="seo.description">' + (s.seo.description || '').length + ' / 160</span>' }) +
-            '<div class="field"><div class="label">Search preview</div><div class="example" style="font-family:var(--font);font-size:13px;line-height:1.5" data-serp></div></div></div>') +
+          card('seo', 'SEO', 'How the site appears in Google and in link previews. Titles, descriptions, structured data and the sitemap are generated for every page automatically.', seoHtml()) +
           card('demo', 'Demo mode', null,
             ui.toggle('data-s="demo" data-type="bool"', !!s.demo, 'Show demo markers on the site', 'Adds a small “demo catalogue” label to products and the footer so visitors know the stock and prices are examples. Turn it off when the real catalogue goes live.')) +
           '</form></div>' +
@@ -281,7 +330,16 @@
         });
         // SEO
         const serp = root.querySelector('[data-serp]');
-        if (serp) serp.innerHTML = '<div style="color:#1a0dab;font-size:16px;line-height:1.3">' + esc((s.seo.title || s.brand.name || '').slice(0, 70)) + '</div><div style="color:#006621;font-size:12.5px">' + esc(s.brand.domain || 'colastudio.com') + '</div><div style="color:#545454">' + esc((s.seo.description || '').slice(0, 165)) + ((s.seo.description || '').length > 165 ? '…' : '') + '</div>';
+        if (serp) {
+          const st = s.seo.title || seoHome.title || s.brand.name || '';
+          const sd = s.seo.description || seoHome.description || '';
+          serp.innerHTML = '<div class="serp__title">' + esc(st.slice(0, 70)) + '</div><div class="serp__url">' + esc(s.brand.domain || 'colastudio.com') + '</div><div class="serp__desc">' + esc(sd.slice(0, 165)) + (sd.length > 165 ? '…' : '') + '</div>';
+        }
+        A.$$('[data-seo-state]', root).forEach((el) => {
+          const on = isCustom(el.dataset.seoState);
+          el.textContent = on ? 'Custom' : 'Built-in';
+          el.classList.toggle('is-custom', on);
+        });
         // counts
         A.$$('[data-count-for]', root).forEach((el) => {
           const path = el.dataset.countFor;

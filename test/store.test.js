@@ -17,7 +17,7 @@ test('seeds db.json from public/data on first boot and creates private.json with
   assert.equal(db.categories.length, 2);
   assert.equal(db.updates.length, 4);
   assert.equal(db.settings.brand.name, 'Cola Studio');
-  assert.deepEqual(db.settings.social, { instagram: '', weibo: '', tiktok: '', whatsappChannel: '', discord: '', xiaohongshu: '' }, 'missing keys filled from defaults');
+  assert.deepEqual(db.settings.social, { instagram: '', weibo: '', tiktok: '', whatsappChannel: '', discord: '', xiaohongshu: '', yupoo: '' }, 'missing keys filled from defaults');
   assert.deepEqual(db.messages, []);
   assert.deepEqual(db.meta.seededFrom.sort(), ['categories.json', 'inventory-events.json', 'products.json', 'settings.json', 'updates.json']);
   // inventory events sorted oldest → newest
@@ -35,6 +35,30 @@ test('seeds db.json from public/data on first boot and creates private.json with
   store.writeNow();
   const again = new Store({ dataDir: dir, publicDir: path.join(FIXTURES, 'public'), log: silentLog() }).init();
   assert.equal(again.db.products[0].name, 'Changed');
+});
+
+test('placeholder WhatsApp number is replaced by the seed number once; real numbers are kept', (t) => {
+  const dir = tmpDir();
+  const pub = tmpDir();
+  t.after(() => {
+    rmrf(dir);
+    rmrf(pub);
+  });
+  copyDir(path.join(FIXTURES, 'public'), pub);
+  const store = new Store({ dataDir: dir, publicDir: pub, log: silentLog() }).init();
+  assert.equal(store.db.settings.whatsapp.number, '31600000000', 'fixture seed has the placeholder');
+  // The repo's settings.json now carries the studio's real number.
+  const file = path.join(pub, 'data', 'settings.json');
+  const seed = JSON.parse(fs.readFileSync(file, 'utf8'));
+  seed.whatsapp.number = '8618060779381';
+  fs.writeFileSync(file, JSON.stringify(seed));
+  const again = new Store({ dataDir: dir, publicDir: pub, log: silentLog() }).init();
+  assert.equal(again.db.settings.whatsapp.number, '8618060779381');
+  assert.equal(JSON.parse(fs.readFileSync(path.join(dir, 'db.json'), 'utf8')).settings.whatsapp.number, '8618060779381', 'written to disk');
+  // A number the owner typed is never overwritten.
+  again.db.settings.whatsapp.number = '31612345678';
+  again.writeNow();
+  assert.equal(new Store({ dataDir: dir, publicDir: pub, log: silentLog() }).init().db.settings.whatsapp.number, '31612345678');
 });
 
 test('seeding tolerates missing and broken seed files', (t) => {

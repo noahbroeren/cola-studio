@@ -1,0 +1,33 @@
+  <main id="main" class="updates-page">
+    <section class="page-hero">
+      <div class="container page-hero__inner">
+        <div>
+          <nav class="crumbs" aria-label="Breadcrumb" data-u-crumbs><!--ssr:crumbs--><a href="index.html">Home</a><span aria-hidden="true">/</span><span>Studio updates</span><!--/ssr:crumbs--></nav>
+          <h1 class="h1 page-hero__title" data-u-title><!--ssr:h1-->Studio <b>updates</b><!--/ssr:h1--></h1>
+        </div>
+        <div class="page-hero__aside">
+          <p class="lead" data-u-lead><!--ssr:lead-->News from the studio, straight from our Weibo and translated into English.<!--/ssr:lead--></p>
+        </div>
+      </div>
+    </section>
+
+    <div class="band bg-white">
+    <section class="container updates-controls">
+      <div class="tabs" role="tablist" aria-label="Categories" data-u-tabs>
+        <button class="chip" type="button" role="tab" aria-selected="true" data-uc="all">All</button>
+        <button class="chip" type="button" role="tab" aria-selected="false" data-uc="production">Production</button>
+        <button class="chip" type="button" role="tab" aria-selected="false" data-uc="drop">Drops</button>
+        <button class="chip" type="button" role="tab" aria-selected="false" data-uc="restock">Restocks</button>
+      </div>
+      <div class="segmented" role="group" aria-label="Language" data-lang>
+        <button type="button" aria-pressed="true" data-l="en">English</button>
+        <button type="button" aria-pressed="false" data-l="zh">中文</button>
+      </div>
+    </section>
+
+    <section class="container updates-main">
+      <ol class="timeline" data-timeline aria-live="polite"><!--ssr:timeline--><li class="skeleton" style="height:320px"></li><!--/ssr:timeline--></ol>
+      <div class="ta-c mt-5" data-u-more><!--ssr:more--><button class="btn btn--ghost" type="button" data-more hidden>Load older updates</button><!--/ssr:more--></div>
+    </section>
+    </div>
+  </main>

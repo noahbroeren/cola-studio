@@ -165,6 +165,10 @@
   /* --------------------------------------------------------- Weidian import */
 
   /** Same pattern as server/services/weidian-import.js → extractItemIds. */
+  /** Weidian share links (k.youshop10.com/…) — the server follows them to the product. */
+  function shareLinks(text) {
+    return [...new Set(String(text || '').match(/https?:\/\/(?:k\.youshop10\.com|youshop10\.com|v\.youshop10\.com|wd\.youshop10\.com|weidian\.com\/s\/|vdian\.com)[^\s"'<>]*/gi) || [])];
+  }
   function extractItemIds(text) {
     const ids = [];
     const re = /item[_-]?id(?:%3[AD]|%22|["':=\s]|\\u0022)*(\d{6,14})|weidian\.com\/(?:[a-z]+\/)*item[^\d\s]{0,12}(\d{6,14})|(?:^|[\s,;])(\d{8,14})(?=$|[\s,;])/gi;
@@ -191,6 +195,15 @@
     return [...by].map(([msg, names]) => ({ where: names.length > 1 ? A.plural(names.length, 'product') : names[0].slice(0, 40), msg }));
   }
 
+  function importSummary(drafts) {
+    if (!drafts.length) return '';
+    const photos = drafts.reduce((n, r) => n + (r.draft.images || []).length, 0);
+    const detail = drafts.reduce((n, r) => n + (r.draft.detailImages || []).length, 0);
+    const charts = drafts.filter((r) => r.sizeChart).length;
+    const desc = drafts.filter((r) => r.draft.description).length;
+    return 'Found ' + A.plural(photos, 'photo') + ', ' + A.plural(detail, 'detail photo') + ', ' + A.plural(desc, 'description') + (charts ? ' and ' + A.plural(charts, 'size chart') : '') + '. ';
+  }
+
   async function weidianImport(done) {
     if (A.data.mode !== 'server') {
       await ui.dialog({
@@ -211,21 +224,24 @@
     const tcfg = cfg.translation || {};
     const tKey = { anthropic: tcfg.anthropicKey, deepl: tcfg.deeplKey, google: tcfg.googleKey, libre: tcfg.libreUrl }[tcfg.provider || 'anthropic'];
     const canTranslate = !!tKey && tcfg.provider !== 'none';
+    const hasClaude = !!tcfg.anthropicKey;
     const badProvider = wcfg.provider === 'json-feed' || wcfg.provider === 'mock';
     const step1 = await ui.dialog({
       title: 'Import from Weidian',
       size: 'lg',
       body:
         (badProvider ? '<div class="note note--warn" style="margin-bottom:12px">' + icon('alert', 16) + '<p>Set <b>Integrations → Weidian → Provider</b> to “Public item page” (or Open API) first — the current provider cannot fetch products.</p></div>' : '') +
-        '<p>Paste the links of your Weidian products — one per line, or any text that contains them. Item IDs work too.</p>' +
+        '<p>Paste the links of your Weidian products — one per line, or any text that contains them. Share links and item IDs work too. Photos, description, detail photos, colours, sizes and stock are taken over.</p>' +
         '<textarea class="input input--code wd-links" rows="7" data-links placeholder="https://weidian.com/item.html?itemID=7781234567"></textarea>' +
         '<p class="hint mt-0" data-count>No products found yet.</p>' +
         '<details class="wd-shop"><summary>' + icon('sparkle', 14) + 'Grab every product of your shop at once</summary><ol class="wd-steps">' +
         '<li>Drag this button to your bookmarks bar: <a class="btn btn--sm btn--secondary wd-bookmarklet" href="javascript:' + esc(encodeURIComponent(BOOKMARKLET)) + '" onclick="return false" title="Drag me to the bookmarks bar">' + icon('link', 14) + 'Copy Weidian products</a></li>' +
         '<li>Open your Weidian shop in this browser and scroll down until every product has loaded.</li>' +
         '<li>Click the bookmark — all product links are copied. Paste them above.</li></ol></details>' +
-        '<label class="imp-remove wd-translate"><input type="checkbox" class="check" data-translate' + (canTranslate ? ' checked' : ' disabled') + '> <span><b>Translate titles and colours to English</b><span class="imp-remove__sub">' +
-        (canTranslate ? 'Uses the translation provider from Integrations.' : 'No translation key set up yet (Integrations → Translation), so Chinese titles are kept — you can rename them later.') + '</span></span></label>' +
+        '<label class="imp-remove wd-translate"><input type="checkbox" class="check" data-translate' + (canTranslate ? ' checked' : ' disabled') + '> <span><b>Translate to English</b><span class="imp-remove__sub">' +
+        (canTranslate ? 'Titles, colours and the description. Uses the translation provider from Integrations.' : 'No translation key set up yet (Integrations → Translation), so Chinese titles are kept — you can rename them later.') + '</span></span></label>' +
+        '<label class="imp-remove wd-translate"><input type="checkbox" class="check" data-sizechart' + (hasClaude ? ' checked' : ' disabled') + '> <span><b>Read the size chart with Claude</b><span class="imp-remove__sub">' +
+        (hasClaude ? 'Finds the size-chart photo in the description and fills in the product’s size table (about 1–3 cents per product).' : 'Needs your Anthropic key (Integrations → Translation). Without it the detail photos are still imported — mark the size chart in the editor.') + '</span></span></label>' +
         '<p class="hint mb-0">Nothing is saved until you confirm the preview. Products that are already linked to the same Weidian item are skipped.</p>',
       buttons: [
         { id: 'cancel', label: 'Cancel', variant: 'ghost' },
@@ -233,14 +249,15 @@
       ],
       validate(id, el) {
         if (id !== 'fetch') return true;
-        return extractItemIds(el.querySelector('[data-links]').value).length > 0;
+        const v = el.querySelector('[data-links]').value;
+        return extractItemIds(v).length + shareLinks(v).length > 0;
       },
       onOpen(el) {
         const ta = el.querySelector('[data-links]');
         const out = el.querySelector('[data-count]');
         const btn = el.querySelector('[data-id="fetch"]');
         const sync = () => {
-          const n = extractItemIds(ta.value).length;
+          const n = extractItemIds(ta.value).length + shareLinks(ta.value).length;
           out.textContent = n ? A.plural(n, 'Weidian product') + ' found' + (n > 300 ? ' — the first 300 are imported' : '') : 'No products found yet.';
           btn.textContent = n ? 'Fetch ' + A.plural(Math.min(n, 300), 'product') : 'Fetch products';
           btn.disabled = !n || badProvider;
@@ -251,8 +268,11 @@
       },
     });
     if (!step1 || step1.id !== 'fetch') return;
-    const ids = extractItemIds(step1.el.querySelector('[data-links]').value).slice(0, 300);
+    const linksText = step1.el.querySelector('[data-links]').value;
+    const ids = extractItemIds(linksText).concat(shareLinks(linksText)).slice(0, 300);
     const translate = !!(step1.el.querySelector('[data-translate]') || {}).checked;
+    const sizeChart = !!(step1.el.querySelector('[data-sizechart]') || {}).checked;
+    const BATCH = 2;
 
     // Step 2: fetch in batches of 5 with a progress bar.
     const results = [];
@@ -260,7 +280,7 @@
     let failure = null;
     await ui.dialog({
       title: 'Fetching from Weidian',
-      body: '<p data-progress-text>Starting…</p><div class="meter"><div class="meter__bar" data-progress style="width:0%"></div></div><p class="hint">About 1–2 seconds per product. You can keep this tab open in the background.</p>',
+      body: '<p data-progress-text>Starting…</p><div class="meter"><div class="meter__bar" data-progress style="width:0%"></div></div><p class="hint">About 5–20 seconds per product (photos, description' + (sizeChart ? ', size chart' : '') + '). You can keep this tab open in the background.</p>',
       dismissable: false,
       buttons: [
         { id: 'cancel', label: 'Stop', variant: 'ghost' },
@@ -273,16 +293,17 @@
         const txt = el.querySelector('[data-progress-text]');
         const bar = el.querySelector('[data-progress]');
         (async () => {
-          for (let i = 0; i < ids.length && !cancelled; i += 5) {
-            txt.textContent = 'Fetching ' + Math.min(i + 5, ids.length) + ' of ' + ids.length + '…';
+          for (let i = 0; i < ids.length && !cancelled; i += BATCH) {
+            txt.textContent = 'Fetching ' + Math.min(i + BATCH, ids.length) + ' of ' + ids.length + '…';
             try {
-              const r = await A.data.weidianImport(ids.slice(i, i + 5), translate);
+              const batch = ids.slice(i, i + BATCH);
+              const r = await A.data.weidianImport(batch.filter((x) => /^\d+$/.test(x)), translate, { links: batch.filter((x) => !/^\d+$/.test(x)), sizeChart });
               results.push(...(r.results || []));
             } catch (e) {
               failure = e;
               break;
             }
-            bar.style.width = Math.round((Math.min(i + 5, ids.length) / ids.length) * 100) + '%';
+            bar.style.width = Math.round((Math.min(i + BATCH, ids.length) / ids.length) * 100) + '%';
           }
           if (!cancelled) doneBtn.click();
         })();
@@ -305,7 +326,7 @@
       warnings: groupNotes(drafts).concat(results.filter((r) => r.skipped).map((r) => ({ where: 'Weidian ' + r.itemId, msg: 'Already on the site as “' + r.existing.name + '” (' + r.existing.id + ') — skipped.' }))),
       missing: [],
       counts: { create: drafts.length, update: 0, unchanged: results.filter((r) => r.skipped).length, skipped: results.filter((r) => !r.ok).length },
-      footnote: 'They are added as <b>drafts</b> with Weidian stock sync on. Check names, categories and photos, then publish them (select → Publish).' + (wcfg.enabled ? '' : ' Turn on <b>Integrations → Weidian → Enabled</b> to keep stock in sync automatically.'),
+      footnote: importSummary(drafts) + 'They are added as <b>drafts</b> with Weidian stock sync on. Check names, categories and photos, then publish them (select → Publish).' + (wcfg.enabled ? '' : ' Turn on <b>Integrations → Weidian → Enabled</b> to keep stock in sync automatically.'),
       after: async () => {
         A.go('/products?status=draft&sort=updated'); // show the new drafts first
         if (!wcfg.enabled) ui.toast('Tip: switch on Integrations → Weidian so stock stays in sync', { type: 'info', duration: 8000 });
@@ -453,7 +474,7 @@
         root.querySelector('[data-count]').innerHTML = A.heading('Products', list.length === total ? total : list.length + ' / ' + total);
         $rows.innerHTML = list.map(row).join('');
         if (!total) {
-          $empty.innerHTML = ui.empty({ icon: 'products', title: 'No products yet', body: 'Add your first garment — colours, sizes and stock are set up in one place.', actions: '<a class="btn btn--primary" href="' + A.href('/products/new') + '">' + icon('plus', 16) + 'New product</a><button type="button" class="btn btn--secondary" data-weidian-import>' + icon('globe', 16) + 'Import from Weidian</button><button type="button" class="btn btn--secondary" data-sheet-import>' + icon('upload', 16) + 'Import spreadsheet</button>' });
+          $empty.innerHTML = ui.empty({ icon: 'products', title: 'No products yet', body: 'Add your first garment — colours, sizes and stock are set up in one place.', actions: '<a class="btn btn--primary" href="' + A.href('/products/new') + '">' + icon('plus', 16) + 'New product</a><button type="button" class="btn btn--secondary" data-weidian-import>' + icon('globe', 16) + 'Import from Weidian</button><button type="button" class="btn btn--secondary" data-sheet-import>' + icon('upload', 16) + 'Import spreadsheet</button>', actionsGrid: true });
         } else if (!list.length) {
           $empty.innerHTML = ui.empty({ icon: 'search', title: 'No products match', body: 'Try another search term or clear the filters.', actions: '<button type="button" class="btn btn--secondary" data-clear>Clear filters</button>', compact: true });
         } else $empty.innerHTML = '';

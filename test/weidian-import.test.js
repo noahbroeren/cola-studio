@@ -74,14 +74,56 @@ test('Weidian import + bulk create through the admin API', async (t) => {
   const publicDir = tmpDir();
   copyDir(path.join(FIXTURES, 'public'), publicDir);
   let translateCalls = 0;
+  let descCalls = 0;
+  let visionCalls = 0;
+  let claudeFetches = 0;
   const routes = [
+    [
+      (u) => u.includes('getDetailDesc') && decodeURIComponent(u).includes('7781239999'),
+      () => ({
+        status: { code: 0, message: 'OK' },
+        result: {
+          item_detail: {
+            desc_content: [
+              { type: 1, text: '面料：480g 毛圈棉\n宽松版型' },
+              { type: 2, url: 'https://si.geilicdn.com/weidian1234567-desc01_790_1100.jpg?w=750' },
+              { type: 2, url: 'https://si.geilicdn.com/weidian1234567-sizechart_790_900.jpg' },
+            ],
+          },
+        },
+      }),
+    ],
+    [(u) => u.includes('getDetailDesc'), () => new Response('blocked', { status: 403 })],
+    [
+      (u) => u.includes('weidian.com/item.html') && u.includes('7781239999'),
+      () =>
+        '<html><head><title>Cola Studio 重磅连帽卫衣 - 微店</title></head><body><script>window.__DATA__ = {"itemInfo":{"itemName":"Cola Studio 重磅连帽卫衣","imgs":["https:\\/\\/si.geilicdn.com\\/weidian1234567-g1_1080_1080.jpg","//si.geilicdn.com/weidian1234567-g2_1080_1080.jpg.webp?w=750&h=750&cp=1"]}};</script>' +
+        '<img src="https://si.geilicdn.com/hz_img_icon_42_42_unadjust.png"><img src="https://si.geilicdn.com/weidian9999999-other-shop_800_800.jpg"></body></html>',
+    ],
+    [(u) => u.includes('weidian.com/item.html'), () => new Response('captcha', { status: 200 })],
     [(u) => u.startsWith('https://thor.weidian.com/') && decodeURIComponent(u).includes('7781239999'), () => fixtureJson('weidian', 'thor-item.json')],
     [(u) => u.startsWith('https://thor.weidian.com/') && decodeURIComponent(u).includes('1000000001'), () => ({ status: { code: 0 }, result: { itemTitle: 'Empty', skuInfos: [] } })],
     [
       'api.anthropic.com',
       (u, init) => {
+        const body = JSON.parse(init.body);
+        if (body.tools) {
+          claudeFetches++;
+          return { content: [{ type: 'web_fetch_tool_result', content: { type: 'web_fetch_tool_result_error', error_code: 'url_not_accessible' } }] };
+        }
+        if (Array.isArray(body.messages[0].content)) {
+          visionCalls++;
+          const imgs = body.messages[0].content.filter((x) => x.type === 'image');
+          assert.ok(imgs.length >= 2 && imgs.every((x) => x.source.type === 'base64'));
+          return { content: [{ type: 'text', text: JSON.stringify({ index: 1, unit: 'cm', columns: ['Length', 'Chest'], rows: [{ size: 'M', values: ['70', '120'] }, { size: '2XL', values: ['74', 128] }] }) }] };
+        }
+        if (/description/.test(body.system)) {
+          descCalls++;
+          const lines = JSON.parse(body.messages[0].content);
+          return { content: [{ type: 'text', text: JSON.stringify(lines.map((l) => (/面料/.test(l) ? 'Fabric: 480 g loopback cotton' : 'Relaxed fit'))) }] };
+        }
         translateCalls++;
-        const input = JSON.parse(JSON.parse(init.body).messages[0].content);
+        const input = JSON.parse(body.messages[0].content);
         const map = { 陶土色: 'Clay' };
         const out = input.map((s) => (map[s] ? map[s] : /卫衣/.test(s) ? 'Cola Studio Heavyweight Hoodie 480g Terry' : s));
         return { model: 'test', stop_reason: 'end_turn', content: [{ type: 'text', text: JSON.stringify(out) }] };
@@ -125,6 +167,23 @@ test('Weidian import + bulk create through the admin API', async (t) => {
   assert.equal(d.weidian.syncEnabled, true);
   assert.match(d.images[0].url, /^\/media\/img\?u=https%3A%2F%2Fsi\.geilicdn\.com/);
   assert.equal(d.garment, 'hoodie');
+
+  // Full scrape: gallery from the item page, colour photos, description + detail photos, size chart.
+  const urls = d.images.map((im) => decodeURIComponent(im.url.replace('/media/img?u=', '')));
+  assert.deepEqual(urls.slice(0, 3), ['https://si.geilicdn.com/weidian1234567-g1_1080_1080.jpg', 'https://si.geilicdn.com/weidian1234567-g2_1080_1080.jpg', 'https://si.geilicdn.com/pcitem1234-main.jpg']);
+  assert.ok(!urls.some((u) => /icon|other-shop/.test(u)), 'no icons or other shops’ pictures');
+  assert.equal(d.images.find((im) => /clay\.jpg/.test(im.url)).color, 'Clay', 'colour photo tagged (after translation)');
+  assert.equal(d.description, 'Fabric: 480 g loopback cotton\nRelaxed fit');
+  assert.equal(descCalls, 1);
+  assert.equal(visionCalls, 1);
+  assert.match(decodeURIComponent(d.sizeChartImage), /sizechart_790_900\.jpg$/);
+  assert.equal(d.detailImages[0].url, d.sizeChartImage, 'size chart first among the detail photos');
+  assert.equal(d.detailImages.length, 2);
+  assert.deepEqual(d.measurements, { unit: 'cm', columns: ['Length', 'Chest'], rows: [{ size: 'M', values: ['70', '120'] }, { size: 'XXL', values: ['74', '128'] }] });
+  assert.equal(good.sizeChart, true);
+  assert.match(good.sources.description, /^direct · 2 photo/);
+  assert.match(good.sources.page, /^direct · 2 gallery/);
+  assert.equal(claudeFetches, 0, 'Claude fetch only when direct requests fail');
 
   // 2) create through the bulk endpoint (nothing saved by the preview)
   const before = (await admin('GET', '/api/admin/products')).json.products.length;

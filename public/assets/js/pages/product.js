@@ -22,7 +22,7 @@
       }
       state = { color: color, size: P.sizes.length === 1 ? P.sizes[0] : null, qty: 1 };
       Cola.bag.pushRecent(P.id);
-      document.title = P.name + ' — Cola Studio';
+      if (!Cola.isServer) document.title = P.name + ' | ' + ((Cola.data.settings && Cola.data.settings.brand && Cola.data.settings.brand.name) || 'Cola Studio');
       crumbs(); gallery(); info(); related(res.related || []); stickyCta();
     });
   });
@@ -69,9 +69,11 @@
         '<span class="tiny subtle" data-cny-note>' + cnyNote() + '</span></div>' +
       Cola.c.buyPanel(P, state) +
       '<div class="acc pdp__acc" data-acc>' +
-        acc('Description', '<p>' + esc(P.description || '') + '</p>', true) +
+        acc('Description', '<p>' + esc(P.description || '').replace(/\n+/g, '</p><p>') + '</p>', true) +
         acc('Details & care', '<ul class="bullets">' + (P.details || []).map(function (d) { return '<li>' + esc(d) + '</li>'; }).join('') + '</ul>' + (P.materials ? '<p class="mt-2"><b>' + esc(P.materials) + '</b></p>' : '') + '<ul class="bullets mt-1">' + (P.care || []).map(function (d) { return '<li>' + esc(d) + '</li>'; }).join('') + '</ul>') +
-        acc('Size & fit', '<p>' + esc(P.fit || '') + '</p>' + (P.measurements ? '<div class="row row--between mt-2 mb-1"><span class="tiny subtle">Garment measurements</span><div class="segmented" data-units><button type="button" aria-pressed="true" data-unit="cm">cm</button><button type="button" aria-pressed="false" data-unit="in">inch</button></div></div><div data-mtable>' + Cola.c.sizeTable(P.measurements, 'cm') + '</div>' : '') + '<a class="link small mt-2" href="' + Cola.url('size-guide') + '">Full size guide & fit finder ' + Cola.icon('arrow-right') + '</a>') +
+        acc('Size & fit', (P.fit ? '<p>' + esc(P.fit) + '</p>' : '') +
+          (P.sizeChartImage ? '<button type="button" class="pdp-chart" data-chart aria-label="Enlarge the size chart"><img src="' + esc(P.sizeChartImage) + '" alt="Size chart — ' + esc(P.name) + '" loading="lazy" decoding="async"></button>' : '') + (P.measurements ? '<div class="row row--between mt-2 mb-1"><span class="tiny subtle">Garment measurements</span><div class="segmented" data-units><button type="button" aria-pressed="true" data-unit="cm">cm</button><button type="button" aria-pressed="false" data-unit="in">inch</button></div></div><div data-mtable>' + Cola.c.sizeTable(P.measurements, 'cm') + '</div>' : '') + '<a class="link small mt-2" href="' + Cola.url('size-guide') + '">Full size guide & fit finder ' + Cola.icon('arrow-right') + '</a>') +
+        (detailImgs().length ? acc('Detail photos <span class="tiny subtle">' + detailImgs().length + '</span>', '<div class="pdp-detail">' + detailImgs().map(function (d, i) { return '<button type="button" class="pdp-detail__img" data-detail="' + i + '" aria-label="Enlarge detail photo ' + (i + 1) + '"><img src="' + esc(d.url) + '" alt="' + esc(P.name) + ' — detail ' + (i + 1) + '" loading="lazy" decoding="async"></button>'; }).join('') + '</div>') : '') +
         acc('Shipping & ordering', '<p>' + esc(P.leadTime || 'Ships in 3–5 working days') + '. Orders are confirmed on WhatsApp or placed through your agent.</p><a class="link small mt-2" href="' + Cola.url('how-to-order') + '">How ordering works ' + Cola.icon('arrow-right') + '</a>') +
       '</div>' +
       '<div class="pdp__share"><button class="link link--quiet tiny" type="button" data-share>' + Cola.icon('share') + 'Share</button><span class="tiny subtle">SKU ' + esc(skuNow()) + '</span></div>';
@@ -81,9 +83,14 @@
       var u = e.target.closest('[data-unit]');
       if (u) { $$('[data-unit]', host).forEach(function (x) { x.setAttribute('aria-pressed', x === u); }); $('[data-mtable]', host).innerHTML = Cola.c.sizeTable(P.measurements, u.getAttribute('data-unit')); }
       if (e.target.closest('[data-share]')) share();
+      var ch = e.target.closest('[data-chart]');
+      if (ch) Cola.ui.lightbox([{ html: '<img src="' + esc(P.sizeChartImage) + '" alt="Size chart">', caption: 'Size chart — ' + P.name, kind: 'photo', bg: '#fff' }], 0);
+      var dt = e.target.closest('[data-detail]');
+      if (dt) Cola.ui.lightbox(detailImgs().map(function (d, i, all) { return { html: '<img src="' + esc(d.url) + '" alt="">', caption: P.name + ' — detail ' + (i + 1) + '/' + all.length, kind: 'photo', bg: '#fff' }; }), +dt.getAttribute('data-detail'));
     });
     Cola.rewriteLinks(host);
   }
+  function detailImgs() { return (P.detailImages || []).filter(function (d) { return d && d.url && d.url !== P.sizeChartImage; }); }
   function acc(title, body, open) {
     return '<div class="acc__item' + (open ? ' is-open' : '') + '"><button class="acc__btn" type="button"><span>' + title + '</span><span class="acc__plus" aria-hidden="true"></span></button><div class="acc__panel"><div><div class="acc__content">' + body + '</div></div></div></div>';
   }

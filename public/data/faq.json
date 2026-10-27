@@ -1,0 +1,161 @@
+{
+  "note": "Edit the questions here. Shown on /faq and used for Google’s FAQ structured data.",
+  "topics": [
+    {
+      "id": "ordering",
+      "title": "Ordering",
+      "items": [
+        {
+          "q": "How do I place an order?",
+          "a": "Add pieces to your order list, open the order page and press “Send order on WhatsApp”. We pre-fill a message with every item, size, quantity and an order reference. The studio confirms availability and shipping, and you pay once everything is confirmed."
+        },
+        {
+          "q": "Do I need an account?",
+          "a": "No. Your order list, saved items and details are stored on your own device. Nothing is charged on this website."
+        },
+        {
+          "q": "Can I order without WhatsApp?",
+          "a": "Yes — use the “Copy message” button on the order page and send it by email or Instagram, or order through an agent using the agent button on each product."
+        },
+        {
+          "q": "Can I change my order after sending it?",
+          "a": "As long as it has not been paid and packed, simply reply in the same WhatsApp chat with the change."
+        },
+        {
+          "q": "Do you offer pre-orders?",
+          "a": "Some styles are produced in numbered runs and sold as pre-order. The product page shows the expected shipping date, and pre-order items ship together with the rest of your order unless you ask us to split it."
+        }
+      ]
+    },
+    {
+      "id": "agents",
+      "title": "Agents",
+      "items": [
+        {
+          "q": "What is a buying agent?",
+          "a": "An agent buys products from Chinese marketplaces like Weidian on your behalf, stores them in a warehouse, sends you quality-control photos and ships everything to you in one parcel."
+        },
+        {
+          "q": "Which agents can I use?",
+          "a": "Every product page lists the agents we work with. If your favourite agent is not listed, copy the product link — most agents accept Weidian links directly."
+        },
+        {
+          "q": "Are prices the same through an agent?",
+          "a": "The item price is the same as in our Weidian store. Your agent may add their own service and shipping fees."
+        }
+      ]
+    },
+    {
+      "id": "payment",
+      "title": "Payment & currency",
+      "items": [
+        {
+          "q": "In which currency do I pay?",
+          "a": "Our store currency is Chinese yuan (CNY). Prices in EUR, USD or GBP are converted at a recent exchange rate and are indicative. The exact total is confirmed before you pay."
+        },
+        {
+          "q": "Which payment methods do you accept?",
+          "a": "We agree on a secure payment method in the WhatsApp chat once your order is confirmed. When ordering through an agent, you pay the agent using their methods."
+        },
+        {
+          "q": "When do I pay?",
+          "a": "Only after the studio has confirmed availability, shipping and the total amount."
+        }
+      ]
+    },
+    {
+      "id": "shipping",
+      "title": "Shipping",
+      "items": [
+        {
+          "q": "Do you ship worldwide?",
+          "a": "Yes. See the shipping table on the How to order page for indicative delivery times per region."
+        },
+        {
+          "q": "How much does shipping cost?",
+          "a": "Shipping depends on weight, destination and the line you choose. The order page shows an estimated parcel weight; we quote the exact price in the chat."
+        },
+        {
+          "q": "Will I get a tracking number?",
+          "a": "Always. Tracking is shared in the same WhatsApp conversation as soon as your parcel leaves."
+        },
+        {
+          "q": "Do I have to pay import duties?",
+          "a": "Depending on your country, customs duties or VAT may apply on arrival. These are set by your local customs authority and are not included in our prices."
+        }
+      ]
+    },
+    {
+      "id": "sizing",
+      "title": "Sizing & fit",
+      "items": [
+        {
+          "q": "How do Cola Studio pieces fit?",
+          "a": "Most tops are cut boxy and oversized with dropped shoulders. Every product page lists the intended fit and exact garment measurements."
+        },
+        {
+          "q": "How do I find my size?",
+          "a": "Measure a garment you love lying flat and compare it to our size chart, or use the fit finder on the size guide page."
+        },
+        {
+          "q": "Are the measurements garment or body measurements?",
+          "a": "Garment measurements, laid flat. “½” means measured across the front — double it for the full circumference."
+        }
+      ]
+    },
+    {
+      "id": "returns",
+      "title": "Returns & exchanges",
+      "items": [
+        {
+          "q": "Can I exchange a size?",
+          "a": "Contact us within 7 days of delivery with your order reference. Exchanges depend on stock and the item must be unworn with labels attached. Return shipping is at the customer's expense."
+        },
+        {
+          "q": "What if my item arrives damaged?",
+          "a": "Send photos in your WhatsApp chat within 48 hours of delivery and we will make it right."
+        },
+        {
+          "q": "I ordered through an agent — who handles returns?",
+          "a": "Agents usually handle returns while the item is still in their warehouse. Check the QC photos carefully before shipping."
+        }
+      ]
+    },
+    {
+      "id": "stock",
+      "title": "Stock & restocks",
+      "items": [
+        {
+          "q": "How accurate is the live stock?",
+          "a": "Stock is synchronised automatically with our Weidian store. Numbers can change between sending your order and our confirmation, which is why we always confirm first."
+        },
+        {
+          "q": "Will a sold-out item come back?",
+          "a": "Core styles are restocked regularly. Use “Notify me” on the product page and we will message you when your size is back."
+        },
+        {
+          "q": "Where do I hear about new drops?",
+          "a": "On the Studio updates page — posts from our Weibo are translated automatically — and through drop alerts on WhatsApp."
+        }
+      ]
+    },
+    {
+      "id": "care",
+      "title": "Product care",
+      "items": [
+        {
+          "q": "How should I wash heavyweight cotton?",
+          "a": "Cold, inside out, and lay flat to dry. Our terry is pre-shrunk, but tumble drying can still affect the shape."
+        },
+        {
+          "q": "How do I care for knitwear?",
+          "a": "Hand wash cold with a wool detergent and dry flat in shape. Store folded, never on a hanger."
+        },
+        {
+          "q": "How do I care for waxed canvas?",
+          "a": "Spot clean only and re-wax seasonally. The wax develops character with wear."
+        }
+      ]
+    }
+  ]
+}

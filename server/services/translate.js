@@ -459,7 +459,7 @@ function createTranslator({ getConfig, fetch: fetchFn = globalThis.fetch, log })
    * → array of the same length, or null when no translation provider is set up.
    * Throws when the provider fails (callers keep the originals).
    */
-  async function translateLines(lines, { kind = 'fashion product titles' } = {}) {
+  async function translateLines(lines, { kind = 'fashion product titles', prose = false } = {}) {
     const cfg = getConfig() || {};
     const provider = PROVIDERS.includes(cfg.provider) ? cfg.provider : 'anthropic';
     const list = (lines || []).map((x) => String(x == null ? '' : x).trim());
@@ -478,11 +478,14 @@ function createTranslator({ getConfig, fetch: fetchFn = globalThis.fetch, log })
           headers: { 'x-api-key': cfg.anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
           body: JSON.stringify({
             model: cfg.model || DEFAULT_MODEL,
-            max_tokens: 2000,
-            system:
-              `You translate Chinese ${kind} from a Weidian shop into concise, natural English for an international fashion studio's website. ` +
-              'Keep brand names and model codes, drop shop slogans, emoji and decorative brackets such as 【】, use Title Case for product titles and plain names for colours (e.g. "Black", "Clay"). ' +
-              `Reply with only a JSON array of exactly ${src.length} strings, in the same order as the input.`,
+            max_tokens: prose ? 4000 : 2000,
+            system: prose
+              ? `You translate Chinese ${kind} from a Weidian shop into clear, natural British English for an international fashion studio's website. ` +
+                'Keep measurements, fabric weights and model codes exactly, drop shop slogans, emoji, marketing filler and decorative brackets such as 【】. ' +
+                `Reply with only a JSON array of exactly ${src.length} strings, in the same order as the input (an empty string for lines that only contained filler).`
+              : `You translate Chinese ${kind} from a Weidian shop into concise, natural English for an international fashion studio's website. ` +
+                'Keep brand names and model codes, drop shop slogans, emoji and decorative brackets such as 【】, use Title Case for product titles and plain names for colours (e.g. "Black", "Clay"). ' +
+                `Reply with only a JSON array of exactly ${src.length} strings, in the same order as the input.`,
             messages: [{ role: 'user', content: JSON.stringify(src) }],
           }),
         },
@@ -508,11 +511,71 @@ function createTranslator({ getConfig, fetch: fetchFn = globalThis.fetch, log })
     if (!Array.isArray(out) || out.length !== src.length) throw new Error(`${provider}: unexpected translation response`);
     return out.map((t, i) => {
       const v = stripEmoji(applyGlossary(decodeEntities(String(t == null ? '' : t)), glossary)).replace(/\s+/g, ' ').trim();
-      return v || list[i];
+      return prose ? v : v || list[i];
     });
   }
 
-  return { translatePost, translateLines };
+  /** { key, model } when an Anthropic key is saved — used for Claude-only extras (size charts, web fetch). */
+  function claudeConfig() {
+    const cfg = getConfig() || {};
+    return cfg.anthropicKey ? { key: cfg.anthropicKey, model: cfg.model || DEFAULT_MODEL } : null;
+  }
+
+  /**
+   * Find the size chart among product photos and read it (Claude vision).
+   * images: [{ data (base64), mediaType }]. → { index, unit, columns, rows:[{size, values}] } or null.
+   */
+  async function readSizeChart(images, { title = '', sizes = [] } = {}) {
+    const c = claudeConfig();
+    if (!c || !images || !images.length) return null;
+    const content = [];
+    images.forEach((im, i) => {
+      content.push({ type: 'text', text: `Image ${i}:` });
+      content.push({ type: 'image', source: { type: 'base64', media_type: im.mediaType || 'image/jpeg', data: im.data } });
+    });
+    content.push({
+      type: 'text',
+      text:
+        `These are photos from a Weidian listing${title ? ` for "${title}"` : ''}${sizes.length ? ` (sizes on sale: ${sizes.join(', ')})` : ''}. ` +
+        'Find the image that shows the size chart / measurement table (尺码表, 尺寸表). If there is one, transcribe it. ' +
+        'Reply with only JSON: {"index": <number of the image or null>, "unit": "cm" or "in", "columns": [...], "rows": [{"size": "M", "values": [...]}]}. ' +
+        'Columns are short English measurement names in the order of the chart, e.g. 衣长 → "Length", 胸围 → "Chest", 肩宽 → "Shoulder", 袖长 → "Sleeve", 腰围 → "Waist", 臀围 → "Hip", 裤长 → "Length", 大腿围 → "Thigh", 脚口 → "Leg opening", 前裆 → "Front rise", 下摆 → "Hem". ' +
+        'Leave out columns that are not garment measurements (height, weight, recommended body size). Write sizes like XS, S, M, L, XL, XXL, XXXL (2XL → XXL, 3XL → XXXL) or as printed when they are numbers. ' +
+        'Values are numbers as strings without units, one per column (use "" when a cell is empty). If no image shows a size chart, reply {"index": null}.',
+    });
+    const payload = await httpJson(
+      fetchFn,
+      'https://api.anthropic.com/v1/messages',
+      {
+        method: 'POST',
+        headers: { 'x-api-key': c.key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+        body: JSON.stringify({ model: c.model, max_tokens: 1500, messages: [{ role: 'user', content }] }),
+        signal: AbortSignal.timeout(120000),
+      },
+      'Anthropic'
+    );
+    const raw = (payload.content || []).filter((b) => b && b.type === 'text').map((b) => b.text).join('').trim();
+    const m = /\{[\s\S]*\}/.exec(stripFences(raw));
+    const j = m ? tryJson(m[0]) : null;
+    if (!j || j.index === null || j.index === undefined || !Number.isInteger(Number(j.index))) return null;
+    const index = Number(j.index);
+    if (index < 0 || index >= images.length) return null;
+    const columns = (Array.isArray(j.columns) ? j.columns : []).map((x) => String(x || '').trim().slice(0, 40)).filter(Boolean).slice(0, 10);
+    const rows = (Array.isArray(j.rows) ? j.rows : [])
+      .filter((r) => r && r.size != null && Array.isArray(r.values))
+      .map((r) => ({ size: String(r.size).trim().slice(0, 20), values: columns.map((_, i) => String(r.values[i] == null ? '' : r.values[i]).trim().slice(0, 12)) }))
+      .slice(0, 20);
+    return { index, unit: j.unit === 'in' ? 'in' : 'cm', columns, rows };
+  }
+
+  /** True when the selected provider has what it needs (key / URL). */
+  function configured() {
+    const cfg = getConfig() || {};
+    const provider = PROVIDERS.includes(cfg.provider) ? cfg.provider : 'anthropic';
+    return !!{ anthropic: cfg.anthropicKey, deepl: cfg.deeplKey, google: cfg.googleKey, libre: cfg.libreUrl, none: '' }[provider];
+  }
+
+  return { translatePost, translateLines, configured, claudeConfig, readSizeChart };
 }
 
 module.exports = {

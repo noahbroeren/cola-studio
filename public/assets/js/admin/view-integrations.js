@@ -110,6 +110,23 @@
         );
       }
 
+      /** What “Import from Weidian” would take over for this item. */
+      function scrapeHtml(sc) {
+        if (!sc) return '';
+        if (sc.error) return '<div class="note note--error">' + icon('alert', 16) + '<p><b>Full import test failed:</b> ' + esc(sc.error) + '</p></div>';
+        const thumbs = (list) => '<div class="wd-thumbs">' + list.slice(0, 12).map((u) => '<a href="' + esc(u) + '" target="_blank" rel="noopener"><img src="/media/img?u=' + encodeURIComponent(u) + '" alt="" loading="lazy"></a>').join('') + (list.length > 12 ? '<span class="faint small">+' + (list.length - 12) + '</span>' : '') + '</div>';
+        const src = sc.sources || {};
+        return (
+          '<div class="card wd-scrape"><div class="ed-sub__title" style="margin:0 0 10px">Import preview</div>' +
+          '<dl class="wd-src"><dt>Sizes &amp; stock</dt><dd>' + esc(src.skus || '—') + '</dd><dt>Description</dt><dd>' + esc(src.description || '—') + '</dd><dt>Item page</dt><dd>' + esc(src.page || '—') + '</dd></dl>' +
+          '<p class="small" style="margin:12px 0 6px"><b>' + esc(A.plural((sc.images || []).length, 'photo')) + '</b>' + (sc.colorImages ? ' · ' + esc(A.plural(sc.colorImages, 'colour photo')) : '') + '</p>' + thumbs(sc.images || []) +
+          '<p class="small" style="margin:12px 0 6px"><b>' + esc(A.plural((sc.detailImages || []).length, 'detail photo')) + '</b> <span class="faint">(from the description — the size chart is usually one of these)</span></p>' + thumbs(sc.detailImages || []) +
+          (sc.description ? '<p class="small" style="margin:12px 0 4px"><b>Description</b></p><p class="small muted" style="white-space:pre-wrap;margin:0" lang="zh">' + esc(sc.description) + '</p>' : '') +
+          ((sc.notes || []).length ? '<div class="note note--warn" style="margin-top:12px">' + icon('alert', 16) + '<p>' + esc(sc.notes.join(' ')) + '</p></div>' : '') +
+          '</div>'
+        );
+      }
+
       function glossaryInfo() {
         const lines = String(cfg.translation.glossary || '').split(/\r?\n/).filter((l) => l.trim());
         const bad = lines.filter((l) => !/^[^=]+=[^=]+$/.test(l.trim()));
@@ -135,7 +152,9 @@
           text('Backfill', 'weibo.backfill', { type: 'number', dtype: 'num', attrs: 'min="0" max="20"', hint: 'Posts imported on the very first fetch.' }) +
           ui.field('Last imported post', '<div class="ig"><input class="input mono" style="font-size:12.5px" id="i-weibo-lastId" data-i="weibo.lastId" data-type="nullable" value="' + esc(cfg.weibo.lastId || '') + '" placeholder="none yet" spellcheck="false"><button type="button" class="btn btn--secondary" data-act="lastid-reset">Reset</button></div>', { for: 'i-weibo-lastId', hint: 'Only newer posts are fetched. Reset to import the latest posts again.' }) +
           secret('Cookie', 'weibo.cookie', { cls: 'span-2', hint: 'Only needed when Weibo blocks the server. Copy the <code>Cookie:</code> header from a logged-in m.weibo.cn request. Treat it like a password.' }) +
-          '</div><div data-weibo-out hidden style="margin-top:20px"></div></div></section>' +
+          '</div><div data-weibo-out hidden style="margin-top:20px"></div>' +
+          '<div class="ed-sub" id="int-weibo-history"><div class="ed-sub__title">Import older posts</div><div data-hist>' + histInner() + '</div></div>' +
+          '</div></section>' +
           /* ---------- translation */
           '<section class="card ed-section" id="int-translation" data-sec="translation"><div class="ed-section__head"><div><h2>Translation</h2><p>Chinese → English for Weibo posts, with a house glossary.</p></div></div><div class="ed-section__body"><div class="form-grid">' +
           select('Provider', 'translation.provider', tProviders.map((p) => ({ value: p, label: { anthropic: 'Anthropic (Claude)', deepl: 'DeepL', google: 'Google Translate', libre: 'LibreTranslate', none: 'None' }[p] || p })), { hint: PROVIDER_HELP[tp] || '' }) +
@@ -154,7 +173,10 @@
           text('Interval (minutes)', 'weidian.intervalMinutes', { type: 'number', dtype: 'num', attrs: 'min="2" max="1440"', hint: 'Minimum 2. Failures back off automatically.' }) +
           select('Provider', 'weidian.provider', wProviders.map((p) => ({ value: p, label: { 'public-item': 'Public item page', 'open-api': 'Open API', 'json-feed': 'JSON / CSV feed', mock: 'Mock (demo)' }[p] || p })), { cls: 'span-2', hint: PROVIDER_HELP[wp] || '' }) +
           (wp === 'open-api' ? text('App key', 'weidian.appKey', { mono: true }) + secret('App secret', 'weidian.appSecret') + secret('Access token', 'weidian.accessToken', { cls: 'span-2', hint: 'Optional fixed token — otherwise the server requests one with the key and secret.' }) : '') +
-          (wp === 'public-item' || !wp ? secret('Scraping service (optional)', 'weidian.fetchVia', { cls: 'span-2', hint: 'Only needed if Weidian blocks the server. Paste the request URL of a scraping service with your API key, e.g. <code>https://api.scraperapi.com/?api_key=YOUR_KEY&amp;url={url}</code> — <code>{url}</code> is replaced by the Weidian request.' }) : '') +
+          (wp === 'public-item' || !wp
+            ? '<div class="field span-2">' + ui.toggle('data-i="weidian.claudeFetch" data-type="bool"', cfg.weidian.claudeFetch !== false, 'Fetch through Claude when Weidian blocks the server', 'Only for “Import from Weidian” (not the stock sync). Uses your Anthropic key from Translation — a few cents per product. ' + (A.getPath(cfg, 'translation.anthropicKey') ? '<b>Key found.</b>' : 'No Anthropic key saved yet.')) + '</div>' +
+              secret('Scraping service (optional)', 'weidian.fetchVia', { cls: 'span-2', hint: 'Only needed if Weidian blocks the server. Paste the request URL of a scraping service with your API key, e.g. <code>https://api.scraperapi.com/?api_key=YOUR_KEY&amp;url={url}</code> — <code>{url}</code> is replaced by the Weidian request.' })
+            : '') +
           (wp === 'json-feed' ? text('Feed URL', 'weidian.feedUrl', { cls: 'span-2', ph: 'https://docs.google.com/spreadsheets/d/…/pub?output=csv', hint: 'Rows reference a product by <code>productId</code>, <code>slug</code> or <code>itemId</code>, and a variant by <code>sku</code>, <code>weidianSkuId</code> or <code>color</code> + <code>size</code>.' }) : '') +
           '<div class="field"><div class="label">Size aliases</div>' + kv('weidian.sizeAliases', '均码', 'OS') + '</div>' +
           '<div class="field"><div class="label">Colour aliases</div>' + kv('weidian.colorAliases', '黑色', 'Washed Black') + '</div>' +
@@ -164,14 +186,110 @@
           text('API version', 'weidian.apiVersion', { mono: true }) + text('Delay between items (ms)', 'weidian.delayMs', { type: 'number', dtype: 'num', attrs: 'min="0" max="60000"' }) +
           select('Price unit', 'weidian.priceUnit', [{ value: 'auto', label: 'Auto-detect' }, { value: 'cent', label: 'Fen (cents)' }, { value: 'yuan', label: 'Yuan' }]) +
           '</div></details></div>' +
-          '</div><div class="ed-sub"><div class="ed-sub__title">Test one item</div><div class="url-add" style="margin-top:0"><input class="input mono" style="font-size:12.5px" data-test-item value="' + esc(testItem) + '" placeholder="Weidian item ID (or a product id for mock / feed)" aria-label="Item ID to test"><button type="button" class="btn btn--secondary" data-act="weidian-test">' + icon('sync', 15) + 'Test item</button></div>' +
-          '<p class="hint">Shows what Weidian returns and which SKUs match which variants. Nothing is saved.</p><div data-weidian-test></div></div>' +
+          '</div><div class="ed-sub"><div class="ed-sub__title">Test one item</div><div class="url-add" style="margin-top:0"><input class="input mono" style="font-size:12.5px" data-test-item value="' + esc(testItem) + '" placeholder="Weidian link or item ID (or a product id for mock / feed)" aria-label="Weidian link or item ID to test"><button type="button" class="btn btn--secondary" data-act="weidian-test">' + icon('sync', 15) + 'Test item</button></div>' +
+          '<p class="hint">Shows what Weidian returns — photos, description, sizes and stock — and which SKUs match which variants. Nothing is saved.</p><div data-weidian-test></div></div>' +
           '<div data-weidian-out hidden style="margin-top:20px"></div></div></section>' +
           '</form></div><div class="savebar" data-savebar></div>';
         drawSavebar();
         if (spy) spy.destroy();
         spy = ui.scrollSpy(A.$$('.ed-section', root), setActive);
         setActive(activeSec);
+      }
+
+      /* ---------- Weibo history import (older posts) */
+      let hist = null; // last status from GET /api/admin/weibo/history
+      let histTimer = null;
+      const histOpts = { limit: 100, translate: true, publish: false };
+      const HIST_PRESETS = [50, 100, 250, 500];
+
+      function histInner() {
+        const h = hist;
+        if (!h) return '<p class="small faint">Loading…</p>';
+        if (h.error) return '<div class="note note--error">' + icon('alert', 16) + '<p>' + esc(h.error) + '</p></div>';
+        const running = h.state === 'running';
+        const tr = !!h.translator;
+        const cur = h.cursor || null;
+        const more = !!(cur && cur.sinceId && !cur.complete);
+        let out = '';
+        if (running) {
+          const translating = h.phase === 'translate';
+          const done = translating ? (h.translated || 0) + (h.translationFailed || 0) : h.added || 0;
+          const total = translating ? h.toTranslate || 0 : h.limit || 0;
+          const pct = total ? Math.min(100, Math.round((done / total) * 100)) : 0;
+          out +=
+            '<div class="hist-run"><div class="hist-run__head"><span class="spinner" aria-hidden="true"></span><b>' + esc(translating ? 'Translating posts' : 'Reading Weibo') + '</b><span class="faint">' + esc(done + ' / ' + total) + '</span></div>' +
+            '<div class="meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><div class="meter__bar" style="width:' + pct + '%"></div></div>' +
+            '<p class="small muted">' + esc(h.message || '') + '</p>' +
+            '<div class="row"><button type="button" class="btn btn--sm btn--secondary" data-act="hist-stop">' + icon('x', 15) + 'Stop</button><span class="small faint">You can leave this page — the import keeps running on the server.</span></div></div>';
+        } else {
+          if (h.state && h.state !== 'idle' && h.message) {
+            const bad = h.state === 'error' || (h.errors || []).length > 0;
+            out += '<div class="note' + (bad ? ' note--warn' : '') + '" style="margin-bottom:16px">' + icon(bad ? 'alert' : 'check', 16) + '<div style="min-width:0"><p>' + esc(h.state === 'stopped' ? 'Stopped. ' + h.message : h.message) + '</p>' +
+              ((h.errors || []).length ? '<p class="small muted" style="margin-top:4px">' + esc(h.errors[h.errors.length - 1]) + '</p>' : '') +
+              (h.added ? '<p class="small" style="margin-top:6px"><a href="' + A.href('/updates' + (h.publishUntranslated || (tr && cfg.weibo.autoPublish !== false) ? '' : '?status=pending')) + '">Open Studio updates ' + icon('arrowRight', 13) + '</a></p>' : '') + '</div></div>';
+          }
+          out +=
+            '<p class="hint" style="margin:0 0 14px">The regular fetch only picks up new posts. This goes back in time, newest first, and adds older posts as Studio Updates' +
+            (tr ? ' — translated to English in the background and published straight away when “Publish automatically” is on.' : '.') + '</p>' +
+            '<div class="hist-form"><div class="field"><label class="label" for="i-hist-limit">Number of posts</label><div class="hist-limit"><input class="input" type="number" id="i-hist-limit" min="10" max="3000" step="10" data-hist-limit value="' + esc(histOpts.limit) + '">' +
+            '<div class="seg seg--sm" role="group" aria-label="Presets">' + HIST_PRESETS.map((n) => '<button type="button" class="seg__btn' + (n === histOpts.limit ? ' is-active' : '') + '" data-hist-preset="' + n + '">' + n + '</button>').join('') + '</div></div>' +
+            '<p class="hint">About ' + esc(histMinutes(histOpts.limit, tr && histOpts.translate)) + '. Counts new posts only — posts already on the site are skipped.</p></div>' +
+            '<label class="imp-remove"><input type="checkbox" class="check" data-hist-translate' + (tr && histOpts.translate ? ' checked' : '') + (tr ? '' : ' disabled') + '> <span><b>Translate to English</b><span class="imp-remove__sub">' +
+            (tr ? 'Uses the translation provider below. Turn off to import the Chinese text only and translate later.' : 'Add a translation key under <a href="#int-translation" data-goto="translation">Translation</a> first. Without it the posts are imported in Chinese and wait as pending until you translate them.') + '</span></span></label>' +
+            (tr ? '' : '<label class="imp-remove"><input type="checkbox" class="check" data-hist-publish' + (histOpts.publish ? ' checked' : '') + '> <span><b>Publish them straight away, in Chinese</b><span class="imp-remove__sub">Off = they wait under Studio updates → Pending.</span></span></label>') +
+            '</div><div class="row hist-actions">' +
+            (more
+              ? '<button type="button" class="btn btn--sm btn--primary" data-act="hist-start" data-resume="1">' + icon('download', 15) + 'Import the next ' + esc(histOpts.limit) + ' older posts</button><button type="button" class="btn btn--sm btn--ghost" data-act="hist-start">Start again from the newest</button>'
+              : '<button type="button" class="btn btn--sm btn--primary" data-act="hist-start">' + icon('download', 15) + 'Import ' + esc(histOpts.limit) + ' posts</button>') +
+            (h.queued && tr ? '<button type="button" class="btn btn--sm btn--secondary" data-act="hist-translate">' + icon('wand', 15) + 'Translate ' + esc(A.plural(h.queued, 'waiting post')) + '</button>' : '') +
+            '</div>' +
+            '<p class="small faint hist-foot">' + esc(A.plural(h.weiboPosts || 0, 'Weibo post') + ' on the site') + (h.queued ? ' · ' + esc(h.queued) + ' waiting for translation' : '') +
+            (cur && cur.at ? ' · last history import ' + esc(A.ago(cur.at)) + (cur.complete ? ' (reached the oldest post)' : '') : '') + '</p>';
+        }
+        if ((h.log || []).length) out += '<details class="adv" style="margin-top:12px"' + (h.state === 'error' ? ' open' : '') + '><summary>' + icon('chevronRight', 14) + 'Log</summary><div class="adv__body"><pre class="json">' + esc(h.log.join('\n')) + '</pre></div></details>';
+        return out;
+      }
+      function histMinutes(n, translate) {
+        // ≈10 posts per page, ~3.5 s per page; translation ≈ 3 posts every 5 s
+        const sec = Math.ceil(n / 10) * 3.5 + (translate ? (n / 3) * 5 : 0);
+        const min = Math.max(1, Math.round(sec / 60));
+        return min === 1 ? 'a minute' : min + ' minutes';
+      }
+      function paintHist() {
+        const host = root.querySelector('[data-hist]');
+        if (!host) return;
+        const open = host.querySelector('details[open]');
+        const focusedAct = document.activeElement && host.contains(document.activeElement) ? document.activeElement.dataset.act || document.activeElement.dataset.histPreset : null;
+        host.innerHTML = histInner();
+        if (open) {
+          const d = host.querySelector('details');
+          if (d) d.open = true;
+        }
+        if (focusedAct) {
+          const el = host.querySelector('[data-act="' + focusedAct + '"], [data-hist-preset="' + focusedAct + '"]');
+          if (el) el.focus({ preventScroll: true });
+        }
+      }
+      async function loadHist() {
+        try {
+          hist = await A.data.weiboHistory();
+        } catch (err) {
+          hist = { error: 'Could not load the import status: ' + err.message };
+        }
+        paintHist();
+        clearTimeout(histTimer);
+        if (hist && hist.state === 'running') histTimer = setTimeout(() => (document.hidden ? (histTimer = setTimeout(loadHist, 4000)) : loadHist()), 2000);
+      }
+      async function startHist(opts, btn) {
+        try {
+          hist = await ui.busy(btn, () => A.data.weiboHistoryStart(opts), 'Starting…');
+          paintHist();
+          clearTimeout(histTimer);
+          histTimer = setTimeout(loadHist, 1500);
+        } catch (err) {
+          ui.error(err, 'Could not start the import');
+          loadHist();
+        }
       }
 
       let spy = null;
@@ -201,6 +319,25 @@
 
       root.addEventListener('input', (e) => {
         const t = e.target;
+        if (t.closest && t.closest('[data-hist]')) {
+          if (t.matches('[data-hist-limit]')) {
+            const n = Math.round(Number(t.value));
+            if (Number.isFinite(n) && n >= 10) {
+              histOpts.limit = Math.min(3000, n);
+              A.$$('[data-hist-preset]', root).forEach((x) => x.classList.toggle('is-active', Number(x.dataset.histPreset) === histOpts.limit));
+              A.$$('[data-act="hist-start"]', root).forEach((x) => {
+                if (x.dataset.resume) x.lastChild.textContent = 'Import the next ' + histOpts.limit + ' older posts';
+                else if (x.classList.contains('btn--primary')) x.lastChild.textContent = 'Import ' + histOpts.limit + ' posts';
+              });
+              const hint = t.closest('.field').querySelector('.hint');
+              if (hint) hint.textContent = 'About ' + histMinutes(histOpts.limit, !!(hist && hist.translator) && histOpts.translate) + '. Counts new posts only — posts already on the site are skipped.';
+            }
+          } else if (t.matches('[data-hist-translate]')) {
+            histOpts.translate = t.checked;
+            paintHist();
+          } else if (t.matches('[data-hist-publish]')) histOpts.publish = t.checked;
+          return; // not part of the saved configuration
+        }
         if (t.dataset.i) {
           const path = t.dataset.i;
           let v = t.dataset.type === 'bool' ? t.checked : t.dataset.type === 'num' ? (t.value === '' ? null : Number(t.value)) : t.dataset.type === 'nullable' ? t.value.trim() || null : t.value;
@@ -335,9 +472,40 @@
           drawSavebar();
           return;
         }
+        const pre = e.target.closest('[data-hist-preset]');
+        if (pre) {
+          histOpts.limit = Number(pre.dataset.histPreset);
+          paintHist();
+          return;
+        }
         const b = e.target.closest('[data-act]');
         if (!b) return;
         switch (b.dataset.act) {
+          case 'hist-start': {
+            if (!(await ensureSaved('The import'))) return;
+            if (!cfg.weibo.uid) {
+              ui.toast('Fill in the Weibo UID first', { type: 'error' });
+              const el = root.querySelector('[data-i="weibo.uid"]');
+              if (el) el.focus();
+              return;
+            }
+            const resume = !!b.dataset.resume;
+            const tr = !!(hist && hist.translator);
+            await startHist({ limit: histOpts.limit, resume, translate: tr && histOpts.translate, publishUntranslated: !tr && histOpts.publish }, b);
+            break;
+          }
+          case 'hist-translate':
+            if (!(await ensureSaved('Translating'))) return;
+            await startHist({ translateOnly: true, translate: true }, b);
+            break;
+          case 'hist-stop':
+            try {
+              hist = await ui.busy(b, () => A.data.weiboHistoryStop(), 'Stopping…');
+              paintHist();
+            } catch (err) {
+              ui.error(err);
+            }
+            break;
           case 'save':
             save();
             break;
@@ -406,6 +574,7 @@
                       '</tbody></table></div></div>'
                     : '') +
                   (u.length ? '<div class="note note--warn">' + icon('alert', 16) + '<p><b>' + esc(A.plural(u.length, 'unmatched SKU')) + ':</b> ' + esc(u.map((x) => x.title || x.sku || x.skuId).join(', ')) + '. Add aliases above.</p></div>' : '') +
+                  scrapeHtml(r.scrape) +
                   '<details class="adv"><summary>' + icon('chevronRight', 14) + 'Raw response</summary><div class="adv__body"><pre class="json">' + esc(JSON.stringify(r.raw !== undefined ? r.raw : r.item, null, 2)) + '</pre></div></details></div>';
               } catch (err) {
                 out.innerHTML = '<div class="note note--error" style="margin-top:12px">' + icon('alert', 16) + '<p><b>Test failed:</b> ' + esc(err.message) + '</p></div>';
@@ -431,6 +600,7 @@
       });
 
       draw();
+      loadHist();
       if (ctx.query.section) setTimeout(() => {
         const el = root.querySelector('#int-' + ctx.query.section);
         if (el) el.scrollIntoView({ block: 'start' });
@@ -438,7 +608,10 @@
 
       return {
         save,
-        destroy: () => spy && spy.destroy(),
+        destroy: () => {
+          if (spy) spy.destroy();
+          clearTimeout(histTimer);
+        },
         isDirty: () => !leaving && isDirty(),
         async canLeave() {
           if (leaving || !isDirty()) return true;

@@ -11,6 +11,7 @@
  * preview and then creates through POST /api/admin/products/bulk.
  */
 const { DEFAULT_SIZE_ALIASES, DEFAULT_COLOR_ALIASES } = require('./weidian');
+const scrape = require('./weidian-scrape');
 const { COLOR_HEX } = require('../../public/assets/js/admin/product-sheet.js');
 const { sleep: realSleep } = require('../lib/util');
 
@@ -224,7 +225,20 @@ function draftFromItem(item, raw, { itemId, cfg = {}, categories = [] } = {}) {
   let category = guess(CATEGORY_RULES, text);
   if (category && catIds.size && !catIds.has(category)) category = '';
   const garment = guess(GARMENT_RULES, text) || DEFAULT_GARMENT[category] || 'tee';
-  const images = [...new Set((item.images || []).map(proxied).filter(Boolean))].slice(0, 8).map((url) => ({ url, alt: '', color: '' }));
+  // Gallery first, then one photo per colour (tagged with the colour so the site can switch photos).
+  const images = [...new Set((item.images || []).map(proxied).filter(Boolean))].slice(0, 12).map((url) => ({ url, alt: '', color: '' }));
+  const colorImgs = item.colorImages || {};
+  for (const s of skus) {
+    const src = colorImgs[s.rawColor] || colorImgs[s.title];
+    const url = src && proxied(src);
+    if (url && !images.some((im) => im.url === url && (!im.color || im.color === s.color))) {
+      const same = images.find((im) => im.url === url);
+      if (same) same.color = same.color || '';
+      else images.push({ url, alt: '', color: s.color });
+    }
+  }
+  const detailImages = [...new Set((item.descImages || []).map(proxied).filter(Boolean))].slice(0, 30).map((url) => ({ url }));
+  const description = cleanDescription(item.description);
   return {
     draft: {
       name: title,
@@ -235,15 +249,31 @@ function draftFromItem(item, raw, { itemId, cfg = {}, categories = [] } = {}) {
       sizes,
       variants,
       images,
+      detailImages,
       garment,
-      description: '',
+      description,
       // url stays empty: the site builds the link from the item id (Settings → Weidian link template)
       weidian: { itemId: String(itemId), url: '', syncEnabled: true, syncInfo: false, title: item.title || '', lastSyncedAt: null },
       tags: [],
     },
     notes,
     original: { title: item.title || '', colors: skus.map((s) => s.rawColor || s.color) },
+    // Original CDN URLs (not proxied) for the size-chart reader.
+    visionCandidates: [...(item.descImages || []), ...(item.images || []).slice(1)],
   };
+}
+
+/** Seller description → tidy paragraphs (drops empty lines, repeated lines and pure decoration). */
+function cleanDescription(text) {
+  const seen = new Set();
+  return String(text || '')
+    .replace(/\r/g, '')
+    .split(/\n+/)
+    .map((l) => l.replace(/[\s\u3000]+/g, ' ').trim())
+    .filter((l) => l && !/^[-—_=*~·•.。、,，!！?？❤♡★☆✨🔥\s]+$/.test(l) && !seen.has(l) && seen.add(l))
+    .slice(0, 40)
+    .join('\n')
+    .slice(0, 4000);
 }
 
 function friendlyError(err) {
@@ -257,8 +287,9 @@ function friendlyError(err) {
 /**
  * Fetch + draft a batch of items. → { results: [{ itemId, ok, draft?, notes, error?, existing? }], translated }
  */
-async function importItems({ ids, weidian, translator, cfg = {}, products = [], categories = [], translate = true, sleep = realSleep }) {
+async function importItems({ ids, weidian, translator, cfg = {}, products = [], categories = [], translate = true, sizeChart = true, sleep = realSleep }) {
   const results = [];
+  const claude = translator && translator.claudeConfig ? translator.claudeConfig() : null;
   for (let i = 0; i < ids.length; i++) {
     const itemId = ids[i];
     const existing = products.find((p) => String((p.weidian && p.weidian.itemId) || '') === String(itemId));
@@ -268,10 +299,13 @@ async function importItems({ ids, weidian, translator, cfg = {}, products = [], 
     }
     try {
       if (i > 0 && cfg.delayMs) await sleep(Math.min(Number(cfg.delayMs) || 0, 5000));
-      const { item, json } = await weidian.fetchItem(itemId, { ...cfg, provider: cfg.provider === 'open-api' ? 'open-api' : 'public-item' });
+      let got;
+      if (cfg.provider === 'open-api') got = { ...(await weidian.fetchItem(itemId, cfg)), sources: { skus: 'open-api' }, notes: [] };
+      else got = await scrape.fetchFullItem(weidian, itemId, { cfg, claude: cfg.claudeFetch === false ? null : claude });
+      const { item, json } = got;
       if (!item || !(item.skus || []).length) throw new Error('Weidian returned no colours/sizes for this item');
       const r = draftFromItem(item, json, { itemId, cfg, categories });
-      results.push({ itemId, ok: true, draft: r.draft, notes: r.notes, original: r.original });
+      results.push({ itemId, ok: true, draft: r.draft, notes: [...r.notes, ...(got.notes || [])], original: r.original, sources: got.sources, visionCandidates: r.visionCandidates });
     } catch (err) {
       results.push({ itemId, ok: false, error: friendlyError(err), notes: [] });
     }
@@ -309,6 +343,7 @@ async function importItems({ ids, weidian, translator, cfg = {}, products = [], 
             c.name = v;
             c.hex = COLOR_HEX[v.toLowerCase()] || c.hex;
             ref.r.draft.variants.forEach((x) => x.color === old && (x.color = v));
+            (ref.r.draft.images || []).forEach((x) => x.color === old && (x.color = v));
           }
         });
       }
@@ -316,6 +351,46 @@ async function importItems({ ids, weidian, translator, cfg = {}, products = [], 
       for (const r of drafts) r.notes.push(`Translation failed (${err.message}) — Chinese text kept`);
     }
   }
+  // Descriptions: one call per product (they are longer), Chinese paragraphs only.
+  if (translate && translator && translator.translateLines) {
+    for (const r of drafts) {
+      const paras = r.draft.description ? r.draft.description.split('\n') : [];
+      if (!paras.some((x) => CJK.test(x))) continue;
+      try {
+        const out = await translator.translateLines(paras, { kind: 'product description lines', prose: true });
+        if (out) r.draft.description = out.filter((x) => x && x.trim()).join('\n');
+        else r.notes.push('Description is in Chinese — add a translation key to translate it');
+      } catch (err) {
+        r.notes.push(`Description not translated (${err.message.slice(0, 80)})`);
+      }
+    }
+  }
+
+  // Size chart: let Claude find and read it among the detail photos.
+  const vision = sizeChart && translator && translator.readSizeChart && translator.claudeConfig && translator.claudeConfig();
+  for (const r of drafts) {
+    r.sizeChart = false;
+    if (!vision || !(r.visionCandidates || []).length) continue;
+    try {
+      const imgs = await scrape.downloadForVision(weidian.fetch, r.visionCandidates.slice(0, 16), { max: 10 });
+      const chart = imgs.length ? await translator.readSizeChart(imgs, { title: r.original.title, sizes: r.draft.sizes }) : null;
+      if (!chart) continue;
+      const sizeAliases = { ...DEFAULT_SIZE_ALIASES, ...(cfg.sizeAliases || {}) };
+      const url = proxied(imgs[chart.index].url);
+      r.draft.sizeChartImage = url;
+      r.draft.detailImages = [{ url }, ...(r.draft.detailImages || []).filter((x) => x.url !== url)];
+      const rows = chart.rows.map((row) => ({ size: sizeToken(row.size, sizeAliases) || row.size, values: row.values }));
+      const ours = rows.filter((row) => r.draft.sizes.includes(row.size));
+      if (chart.columns.length && rows.length) {
+        r.draft.measurements = { unit: chart.unit, columns: chart.columns, rows: ours.length ? ours : rows };
+        r.sizeChart = true;
+        if (!ours.length) r.notes.push('Size chart sizes differ from the Weidian sizes — check the size chart in the editor');
+      }
+    } catch (err) {
+      r.notes.push(`Size chart not read (${String(err.message).slice(0, 80)})`);
+    }
+  }
+
   const catIds = new Set(categories.map((c) => c.id));
   for (const r of drafts) {
     // A second guess on the English title when the Chinese one gave nothing.
@@ -334,7 +409,8 @@ async function importItems({ ids, weidian, translator, cfg = {}, products = [], 
     if (cjkColors.length) r.notes.push(`Colour names to translate: ${cjkColors.join(', ')} (or add them as colour aliases)`);
     if (!r.draft.category) r.notes.push('No category recognised — pick one before publishing');
   }
+  for (const r of results) delete r.visionCandidates;
   return { results, translated };
 }
 
-module.exports = { extractItemIds, splitSkuTitle, sizeToken, attrDims, sortSizes, draftFromItem, importItems, cleanTitle };
+module.exports = { extractItemIds, splitSkuTitle, sizeToken, attrDims, sortSizes, draftFromItem, importItems, cleanTitle, cleanDescription };

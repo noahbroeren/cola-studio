@@ -283,6 +283,28 @@ staan ze als `/media/weibo?u=…`. Video-links van Weibo verlopen na een paar
 uur; daarom downloadt de server video's direct bij het importeren (tot
 `WEIBO_VIDEO_MAX_MB`).
 
+### Oudere posts importeren
+
+De gewone fetch haalt alleen nieuwe posts op. **Admin → Integrations → Weibo →
+Import older posts** gaat terug in de tijd (nieuwste eerst) en zet oudere posts
+als Studio Updates op de site. Kies een aantal (standaard **100**; het telt
+alleen *nieuwe* posts, posts die er al staan worden overgeslagen) en druk op
+*Import*. Het draait op de achtergrond — je kunt de pagina sluiten.
+
+- Eerst worden alle posts met hun Chinese tekst opgehaald (± 3 s per pagina van
+  10 posts), daarna vertaald (3 tegelijk) en — als *Publish automatically* aan
+  staat — gepubliceerd.
+- Zonder vertaal-key komen ze binnen als *pending*; later vertaal je ze met
+  **Translate waiting posts**, of vink *Publish them straight away, in Chinese* aan.
+- De positie wordt bewaard (`db.meta.weiboHistory`): **Import the next 100
+  older posts** gaat verder waar de vorige stopte.
+- Weibo geeft zonder cookie soms maar een paar pagina's terug; met de cookie
+  (hieronder) kom je verder terug.
+- Draait alleen op een vaste server (Render, Railway, VPS), niet serverless.
+
+In **Studio updates** staan nieuwe pending posts in het tabblad *Pending*, met
+de knop **Publish all**; de lijst laadt per 50.
+
 ### Als Weibo blokkeert (cookie instellen)
 
 Zie je in het log `Could not get valid JSON from Weibo` of
@@ -382,11 +404,32 @@ er een vertaalprovider is ingesteld. Elke variant krijgt meteen zijn
 alle productlinks van je eigen winkelpagina. Het voorbeeld wordt pas na
 bevestigen opgeslagen, via `POST /api/admin/products/bulk` (met snapshot).
 
-**Als Weidian de server blokkeert** (HTTP 403/429): zet bij *Integrations →
-Weidian* een *Scraping service* (`fetchVia`, of env `WEIDIAN_FETCH_VIA`), bv.
-`https://api.scraperapi.com/?api_key=KEY&url={url}`. `{url}` wordt het
-Weidian-verzoek; zonder `{url}` wordt de URL erachter geplakt. Alleen voor de
-provider `public-item`.
+**Wat de import overneemt.** Per product haalt de server drie bronnen op
+(`server/services/weidian-scrape.js`):
+
+1. `getItemSkuInfo` — kleuren, maten, voorraad, prijs, hoofdfoto en kleurfoto's (verplicht);
+2. `getDetailDesc` — de beschrijving van de verkoper: tekst en detailfoto's;
+3. de productpagina (`weidian.com/item.html`) — de fotogalerij en titel.
+
+Bron 2 en 3 zijn optioneel; lukt er één niet, dan gaat de import gewoon door
+(het voorbeeld meldt het). Kleurfoto's krijgen de kleurnaam mee, zodat de site
+van foto wisselt als je een kleur kiest. De beschrijving wordt vertaald; de
+detailfoto's komen onder *Detail photos* op de productpagina.
+
+**Maattabel.** Staat er een Anthropic-key (Integrations → Translation, of
+`ANTHROPIC_API_KEY`), dan zoekt Claude de maattabel tussen de detailfoto's,
+leest hem uit en vult de maattabel van het product (kolommen in het Engels,
+maten zoals de site ze gebruikt). Die foto wordt ook bij *Size & fit*
+getoond. Kosten: ongeveer 1–3 cent per product. Zonder key markeer je de
+maattabel zelf in de editor (*Images → Detail photos → Size chart?*).
+
+**Als Weidian de server blokkeert** (HTTP 403/429, captcha): elke aanvraag
+probeert eerst direct, dan via de *Scraping service* (`fetchVia`, env
+`WEIDIAN_FETCH_VIA`, bv. `https://api.scraperapi.com/?api_key=KEY&url={url}`)
+en daarna — alleen bij importeren, nooit bij de voorraad-sync — via Claude's
+*web fetch* met je eigen Anthropic-key (`claudeFetch`, standaard aan). Dan doet
+Anthropic het verzoek, dus een geblokkeerd server-IP maakt niet uit. **Test
+item** (links of item-ID) laat per bron zien wat er binnenkwam en via welke weg.
 
 Pas als dat klopt, laat je de echte sync (of de planner) zijn werk doen. Elke
 wijziging komt als `inventoryEvent` (bron `weidian`) in de live-stock-ticker.
@@ -455,7 +498,36 @@ in fen (centen); `priceUnit` (`auto`/`cent`/`yuan`) stuurt dat bij.
 
 ---
 
-## 7. Overig
+## 7. Vindbaarheid (SEO)
+
+De server schrijft voor elke pagina de zoekmachine-gegevens zelf
+(`server/lib/seo.js`):
+
+- titel, beschrijving, `robots`, canonieke URL (vanaf `SITE_URL`), Open Graph
+  en Twitter-kaart (met productfoto of postfoto waar dat kan);
+- één JSON-LD-graaf: Organization (met je socials, e-mail en WhatsApp),
+  WebSite (met zoekfunctie), WebPage + BreadcrumbList, en per pagina Product,
+  ItemList (shop en categorieën), FAQPage, Blog en BlogPosting;
+- echte inhoud in de HTML (`<!--ssr:…-->`-blokken): de productlijst met links,
+  productnaam, prijs en beschrijving, de laatste updates, de FAQ en de
+  verzendtabel — zoekmachines en linkvoorbeelden zien dat zonder JavaScript;
+- elke Studio Update heeft een eigen pagina: `/updates/<id>`, plus RSS op
+  `/updates/feed.xml`;
+- `sitemap.xml` met pagina's, categorieën, producten (met foto's) en updates;
+  `robots.txt` laat `/api` crawlbaar (Google heeft het nodig om de pagina's te
+  renderen) en sluit alleen `/admin`, `/api/admin` en `/order` uit;
+- `products.html`, `about.html` … sturen met een 301 door naar `/products`,
+  `/about` …, zodat elke pagina één adres heeft;
+- demoproducten en demoposts krijgen `noindex` en staan niet in de sitemap.
+
+Teksten aanpassen: **Settings → SEO** (homepage, elke pagina apart, deelfoto,
+Google Search Console- en Bing-code) en per product in de editor (*Story &
+details → Search engines*). Leeg = de ingebouwde tekst. De paginafragmenten
+staan in `tools/pages/`; na een wijziging `npm run build:pages`.
+
+---
+
+## 8. Overig
 
 **Wisselkoersen.** Als `settings.currency.autoUpdate` aan staat, haalt de
 server één keer per dag de koersen op bij open.er-api.com (basis CNY), alleen
@@ -483,7 +555,7 @@ beschrijving, Open Graph-tags, canonical-link en gestructureerde data
 
 ---
 
-## 8. Bekende beperkingen
+## 9. Bekende beperkingen
 
 - **Weibo heeft geen officiële publieke API.** `m.weibo.cn` kan zijn
   structuur veranderen of IP-adressen van datacenters (AWS, Google Cloud,
@@ -509,7 +581,7 @@ beschrijving, Open Graph-tags, canonical-link en gestructureerde data
 
 ---
 
-## 9. Problemen oplossen
+## 10. Problemen oplossen
 
 | Symptoom | Oplossing |
 |---|---|

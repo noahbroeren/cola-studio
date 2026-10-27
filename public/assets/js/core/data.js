@@ -101,6 +101,17 @@
       });
     },
 
+    /** One update plus its newer/older neighbours: { update, newer, older }. */
+    update: function (id) {
+      if (Cola.isServer) return getJSON('/api/updates/' + encodeURIComponent(id)).catch(function () { return { update: null }; });
+      return data.updates({}).then(function (r) {
+        var list = (r.updates || []).slice().sort(function (a, b) { return String(b.publishedAt).localeCompare(String(a.publishedAt)); });
+        var i = list.findIndex(function (u) { return u.id === id; });
+        var brief = function (u) { return u ? { id: u.id, title: u.title, publishedAt: u.publishedAt } : null; };
+        return i < 0 ? { update: null } : { update: list[i], newer: brief(list[i - 1]), older: brief(list[i + 1]) };
+      });
+    },
+
     /** Merge fresh inventory (variants/stock) into full product objects. */
     withStock: function (products, inv) {
       if (!inv || !inv.products) return products;

@@ -12,8 +12,10 @@ const { DEFAULT_SETTINGS, normalizeDb } = require('../lib/store');
 const { CATEGORIES: UPDATE_CATEGORIES, PROVIDERS: TRANSLATION_PROVIDERS } = require('../services/translate');
 const { PROVIDERS: WEIDIAN_PROVIDERS } = require('../services/weidian');
 const { extractItemIds, importItems } = require('../services/weidian-import');
+const { shortLinks, resolveShortLink, fetchFullItem } = require('../services/weidian-scrape');
 const { ENV_OVERRIDES } = require('../config');
 const { byOrder } = require('./public');
+const seo = require('../lib/seo');
 
 const UPDATE_STATUSES = ['published', 'pending', 'hidden'];
 const MASK = '••••';
@@ -60,6 +62,7 @@ const SCHEMA = {
     delayMs: ['number', 0, 60000],
     priceUnit: ['enum', ['auto', 'cent', 'yuan']],
     fetchVia: 'secret',
+    claudeFetch: 'bool',
   },
 };
 
@@ -425,6 +428,25 @@ function registerAdmin(router, app) {
 
   router.get('/api/admin/settings', () => ({ settings: db().settings }));
 
+  /** Built-in page titles/descriptions (shown as placeholders in Settings → SEO) and the crawler URLs. */
+  router.get('/api/admin/seo', () => {
+    const settings = db().settings;
+    const brand = (settings.brand && settings.brand.name) || 'Cola Studio';
+    const fillBrand = (t) => String(t || '').replace(/\{brand\}/g, brand);
+    return {
+      siteUrl: config.siteUrl,
+      sitemap: `${config.siteUrl}/sitemap.xml`,
+      robots: `${config.siteUrl}/robots.txt`,
+      feed: `${config.siteUrl}/updates/feed.xml`,
+      indexed: {
+        products: seo.indexableProducts(db()).length,
+        updates: seo.visibleUpdates(db()).filter((u) => !u.demo).length,
+        demoProducts: db().products.filter((p) => p.status === 'published' && p.demo).length,
+      },
+      pages: seo.EDITABLE_PAGES.map((route) => ({ route, label: seo.PAGES[route].label, title: fillBrand(seo.PAGES[route].title), description: fillBrand(seo.PAGES[route].description) })),
+    };
+  });
+
   router.put('/api/admin/settings', async (ctx) => {
     const body = await ctx.body();
     const s = isObj(body) && isObj(body.settings) && Object.keys(body).length === 1 ? body.settings : body;
@@ -537,6 +559,27 @@ function registerAdmin(router, app) {
     return { update };
   });
 
+  /** Change the status of many updates at once: { ids?: [...], fromStatus?: 'pending', source?: 'weibo', status } */
+  router.post('/api/admin/updates/bulk', async (ctx) => {
+    const b = await ctx.body();
+    if (!isObj(b) || !UPDATE_STATUSES.includes(b.status)) throw new HttpError(400, `status must be one of ${UPDATE_STATUSES.join(', ')}`);
+    const ids = Array.isArray(b.ids) ? new Set(b.ids.map(String)) : null;
+    if (!ids && !b.fromStatus) throw new HttpError(400, 'Send ids or fromStatus');
+    const at = now();
+    let changed = 0;
+    for (const u of db().updates) {
+      if (ids && !ids.has(u.id)) continue;
+      if (b.fromStatus && u.status !== b.fromStatus) continue;
+      if (b.source && u.source !== b.source) continue;
+      if (u.status === b.status) continue;
+      u.status = b.status;
+      u.updatedAt = at;
+      changed++;
+    }
+    if (changed) store.save();
+    return { ok: true, changed };
+  });
+
   router.put('/api/admin/updates/:id', async (ctx) => {
     const update = db().updates.find((u) => u.id === ctx.params.id);
     if (!update) throw new HttpError(404, 'Update not found');
@@ -578,6 +621,26 @@ function registerAdmin(router, app) {
     }
   });
 
+  /* History import: older posts, page by page, in the background (server runtime only). */
+  router.get('/api/admin/weibo/history', () => weibo.historyStatus());
+  router.post('/api/admin/weibo/history', async (ctx) => {
+    if (config.jobBudgetMs) throw new HttpError(501, 'The history import needs the always-on server (Render, Railway or a VPS); it cannot run on serverless hosting.');
+    const b = (await ctx.body()) || {};
+    try {
+      return weibo.startHistory({
+        limit: toNumber(b.limit, 100),
+        translate: b.translate !== false,
+        resume: !!b.resume,
+        translateOnly: !!b.translateOnly,
+        publishUntranslated: !!b.publishUntranslated,
+      });
+    } catch (err) {
+      if (err.status === 409) throw new HttpError(409, err.message);
+      throw err;
+    }
+  });
+  router.post('/api/admin/weibo/history/stop', () => weibo.stopHistory());
+
   router.post('/api/admin/weibo/retranslate/:id', async (ctx) => {
     const update = await weibo.retranslate(ctx.params.id);
     if (!update) throw new HttpError(404, 'Update not found');
@@ -616,13 +679,35 @@ function registerAdmin(router, app) {
 
   router.post('/api/admin/weidian/test', async (ctx) => {
     const b = await ctx.body();
-    const itemId = str(isObj(b) ? b.itemId : '', 60).trim();
-    if (!itemId) throw new HttpError(400, 'itemId is required');
+    const input = str(isObj(b) ? b.itemId : '', 2000).trim();
+    if (!input) throw new HttpError(400, 'itemId is required');
+    // A full Weidian link works too.
+    const itemId = /^\d+$/.test(input) ? input : extractItemIds(input)[0] || input.slice(0, 60);
+    const cfg = getPrivate().weidian || {};
+    let out;
     try {
-      return await weidian.test(itemId);
+      out = await weidian.test(itemId);
     } catch (err) {
       throw new HttpError(502, err.message);
     }
+    // What "Import from Weidian" would get: photos, description, detail photos.
+    if ((cfg.provider || 'public-item') === 'public-item' && /^\d{6,14}$/.test(itemId)) {
+      try {
+        const claude = cfg.claudeFetch === false ? null : translator.claudeConfig();
+        const full = await fetchFullItem(weidian, itemId, { cfg, claude });
+        out.scrape = {
+          sources: full.sources,
+          notes: full.notes,
+          images: full.item.images,
+          detailImages: full.item.descImages,
+          description: String(full.item.description || '').slice(0, 600),
+          colorImages: Object.keys(full.item.colorImages || {}).length,
+        };
+      } catch (err) {
+        out.scrape = { error: err.message };
+      }
+    }
+    return out;
   });
 
   /**
@@ -632,7 +717,22 @@ function registerAdmin(router, app) {
    */
   router.post('/api/admin/weidian/import', async (ctx) => {
     const b = await ctx.body();
-    const ids = extractItemIds(isObj(b) ? (b.items ?? b.text ?? b.itemIds ?? '') : b);
+    const raw = isObj(b) ? (b.items ?? b.text ?? b.itemIds ?? '') : b;
+    const ids = extractItemIds(raw);
+    // Share links (k.youshop10.com/…) are followed to the item page.
+    const shorts = shortLinks([].concat(raw, isObj(b) && b.links ? b.links : []).join('\n'));
+    const unresolved = [];
+    for (const link of shorts.slice(0, 10)) {
+      try {
+        const id = await resolveShortLink(weidian.fetch, link);
+        if (id && !ids.includes(id)) ids.push(id);
+        else if (!id) unresolved.push(link);
+      } catch {
+        unresolved.push(link);
+      }
+    }
+    const linkError = (link) => ({ itemId: link, ok: false, error: 'This share link does not open a product (for a whole shop, use the bookmark button).', notes: [] });
+    if (!ids.length && unresolved.length) return { results: unresolved.map(linkError), translated: false };
     if (!ids.length) throw new HttpError(400, 'No Weidian item links or item IDs found');
     if (ids.length > 10) throw new HttpError(400, 'Send at most 10 items per request');
     const cfg = getPrivate().weidian || {};
@@ -640,7 +740,9 @@ function registerAdmin(router, app) {
       throw new HttpError(400, 'Importing needs the Weidian provider “Public item page” or “Open API” (Integrations → Weidian).');
     }
     const d = db();
-    return importItems({ ids, weidian, translator, cfg, products: d.products, categories: d.categories, translate: !(isObj(b) && b.translate === false) });
+    const out = await importItems({ ids, weidian, translator, cfg, products: d.products, categories: d.categories, translate: !(isObj(b) && b.translate === false), sizeChart: !(isObj(b) && b.sizeChart === false) });
+    if (unresolved.length) out.results.push(...unresolved.map(linkError));
+    return out;
   });
 
   /* ---------------------------------------------------- submissions */

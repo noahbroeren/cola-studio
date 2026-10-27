@@ -24,6 +24,18 @@
       "destination": "/api/index?__route=/products/:slug"
     },
     {
+      "source": "/updates/feed.xml",
+      "destination": "/api/index?__route=/updates/feed.xml"
+    },
+    {
+      "source": "/updates/:id",
+      "destination": "/api/index?__route=/updates/:id"
+    },
+    {
+      "source": "/media/img",
+      "destination": "/api/index?__route=/media/img"
+    },
+    {
       "source": "/uploads/:name",
       "destination": "/api/index?__route=/uploads/:name"
     },

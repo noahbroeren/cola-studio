@@ -212,7 +212,7 @@
       '<div class="empty__ic">' + icon(o.icon || 'info', 22) + '</div>' +
       '<h3>' + esc(o.title || '') + '</h3>' +
       (o.body ? '<p>' + o.body + '</p>' : '') +
-      (o.actions || '') +
+      (o.actions ? '<div class="empty__actions' + (o.actionsGrid ? ' empty__actions--grid' : '') + '">' + o.actions + '</div>' : '') +
       '</div>'
     );
   };

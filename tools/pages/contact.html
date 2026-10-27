@@ -1,0 +1,37 @@
+  <main id="main" class="contact">
+    <section class="page-hero">
+      <div class="container page-hero__inner">
+        <div>
+          <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span>Contact</span></nav>
+          <h1 class="h1 page-hero__title">Let's <b>talk.</b></h1>
+        </div>
+        <div class="page-hero__aside"><p class="lead">The quickest way to reach the studio is WhatsApp. Every message reaches a real person.</p></div>
+      </div>
+    </section>
+
+    <div class="band bg-white">
+    <section class="container contact-channels" data-channels></section>
+
+    <section class="section section--line">
+      <div class="container contact-grid contact-grid--art">
+        <div class="contact-form-wrap">
+          <h2 class="h3">Send a message</h2>
+          <form class="contact-form mt-4" data-contact-form novalidate>
+            <div class="form-grid">
+              <div class="field"><label for="c-name">Name</label><input class="input" id="c-name" name="name" required autocomplete="name"></div>
+              <div class="field"><label for="c-email">Email</label><input class="input" id="c-email" name="email" type="email" required autocomplete="email"></div>
+              <div class="field"><label for="c-topic">Topic</label><select class="select" id="c-topic" name="topic"><option>Order question</option><option>Sizing &amp; fit</option><option>Shipping</option><option>Stock &amp; restocks</option><option>Collaboration</option><option>Press</option><option>Wholesale</option><option>Something else</option></select></div>
+              <div class="field"><label for="c-ref">Order reference <span class="subtle">(optional)</span></label><input class="input" id="c-ref" name="ref" placeholder="CS-000000-XXXX"></div>
+              <div class="field span-2"><label for="c-wa">WhatsApp number <span class="subtle">(optional)</span></label><input class="input" id="c-wa" name="whatsapp" autocomplete="tel" placeholder="+31 6…"></div>
+              <div class="field span-2"><label for="c-msg">Message</label><textarea class="textarea" id="c-msg" name="message" required rows="6"></textarea></div>
+              <div class="vh" aria-hidden="true"><label for="c-web">Website</label><input id="c-web" name="website" tabindex="-1" autocomplete="off"></div>
+            </div>
+            <div class="row row--wrap mt-3" style="justify-content:space-between"><p class="tiny subtle" style="max-width:40ch">We only use your details to answer your message.</p><button class="btn" type="submit">Send message <svg class="btn__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12h15M13 6l6 6-6 6"/></svg></button></div>
+          </form>
+          <div class="contact-done" data-contact-done hidden></div>
+        </div>
+        <span class="engraving engraving--pincushion contact-art" aria-hidden="true"></span>
+      </div>
+    </section>
+    </div>
+  </main>

@@ -383,8 +383,31 @@
         ui.field('Restock date', '<input class="input" id="f-restock" type="date" data-f="restockDate" data-type="date" value="' + esc(p.restockDate ? String(p.restockDate).slice(0, 10) : '') + '">', { for: 'f-restock', hint: 'Sold-out sizes show “Restocking” with this date.' }) +
         ui.field('Tags', '<div class="chip-input" data-tags>' + p.tags.map((t, i) => '<span class="chip chip--tag">' + esc(t) + '<button type="button" class="chip__x" data-act="tag-del" data-i="' + i + '" aria-label="Remove tag ' + esc(t) + '">' + icon('x', 12) + '</button></span>').join('') + '<input data-tag-input placeholder="' + (p.tags.length ? 'Add tag' : 'Type a tag and press Enter') + '" aria-label="Add tag"></div>', { hint: 'Used for search and related products.' }) +
         ui.field('Weight', '<div class="ig"><input class="input input--num" id="f-weight" type="number" min="0" step="0.05" data-f="weightKg" data-type="nnum" value="' + esc(p.weightKg == null ? '' : p.weightKg) + '" placeholder="—"><span class="ig__post">kg</span></div>', { for: 'f-weight', hint: 'Helps agents estimate shipping.' }) +
+        '<div class="field span-2"><details class="adv"' + (p.seoTitle || p.seoDescription ? ' open' : '') + '><summary>' + icon('chevronRight', 14) + 'Search engines (optional)</summary><div class="adv__body form-grid">' +
+        ui.field('Search title', '<input class="input" id="f-seo-title" data-f="seoTitle" maxlength="120" value="' + esc(p.seoTitle || '') + '" placeholder="' + esc(seoTitleDefault()) + '">', { cls: 'span-2', for: 'f-seo-title', aside: '<span data-seo-count="seoTitle">' + (p.seoTitle || '').length + ' / 60</span>', hint: 'Leave empty to use the product name, category and studio name.' }) +
+        ui.field('Search description', '<textarea class="input" id="f-seo-desc" data-f="seoDescription" rows="2" maxlength="320" style="min-height:64px" placeholder="' + esc(seoDescDefault()) + '">' + esc(p.seoDescription || '') + '</textarea>', { cls: 'span-2', for: 'f-seo-desc', aside: '<span data-seo-count="seoDescription">' + (p.seoDescription || '').length + ' / 160</span>', hint: 'Leave empty to use the subtitle and description.' }) +
+        '<div class="field span-2"><div class="label">Google preview</div><div class="example serp" data-seo-serp>' + serpHtml() + '</div></div>' +
+        '</div></details></div>' +
         '</div>';
       ['details', 'care'].forEach((key) => attachRepSortable(key));
+    }
+    function seoTitleDefault() {
+      const cat = (categories || []).find((c) => c.id === p.category);
+      const brand = (init.settings && init.settings.brand && init.settings.brand.name) || 'Cola Studio';
+      const t = cat ? (p.name || 'Product') + ' — ' + cat.name + ' | ' + brand : (p.name || 'Product') + ' | ' + brand;
+      return t.length <= 65 ? t : (p.name || 'Product') + ' | ' + brand;
+    }
+    function seoDescDefault() {
+      const parts = [];
+      if (p.subtitle) parts.push(String(p.subtitle).trim().replace(/[.\s]+$/, '') + '.');
+      if (p.description) parts.push(String(p.description).replace(/\s+/g, ' ').trim());
+      const t = parts.join(' ');
+      return t.length > 160 ? t.slice(0, 157).replace(/\s+\S*$/, '') + '…' : t;
+    }
+    function serpHtml() {
+      const title = (p.seoTitle || seoTitleDefault()).slice(0, 70);
+      const d = p.seoDescription || seoDescDefault() || 'Add a description so search engines have something to show.';
+      return '<div class="serp__title">' + esc(title) + '</div><div class="serp__url">' + esc((init.settings && init.settings.brand && init.settings.brand.domain) || 'colastudio.com') + ' › products › ' + esc(p.slug || 'new-product') + '</div><div class="serp__desc">' + esc(d.length > 165 ? d.slice(0, 162) + '…' : d) + '</div>';
     }
     function attachRepSortable(key) {
       const host = root.querySelector('[data-rep="' + key + '"]');
@@ -709,6 +732,7 @@
               .join('') +
             '</div>'
           : '') +
+        detailHtml() +
         '<div class="ed-sub"><div class="ed-sub__title">Placeholder illustration</div>' +
         '<div class="img-fallback"><div class="img-fallback__art" data-fallback-art>' + A.garmentSvg(p.garment, { color: firstColor.hex || '#8F857A', print: p.print }) + '</div>' +
         '<div class="stack"><div class="garment-pick">' +
@@ -787,12 +811,37 @@
       });
     }
 
+    function chartHtml() {
+      if (!p.sizeChartImage) return '';
+      return '<div class="chart-img"><a href="' + esc(p.sizeChartImage) + '" target="_blank" rel="noopener" class="chart-img__thumb"><img src="' + esc(p.sizeChartImage) + '" alt="Size chart photo" loading="lazy"></a><div class="stack--sm stack"><b>Size chart photo</b><p class="hint" style="margin:0">Shown on the product page under “Size &amp; fit”, next to the table below.</p><div><button type="button" class="btn btn--sm btn--ghost" data-act="chart-del">' + icon('trash', 15) + 'Remove photo</button></div></div></div>';
+    }
+    function detailHtml() {
+      const list = p.detailImages || [];
+      return (
+        '<div class="ed-sub"><div class="ed-sub__title">Detail photos<span class="faint">' + (list.length ? esc(list.length) : '') + '</span></div>' +
+        '<p class="hint" style="margin:-4px 0 12px">Photos from the seller’s description (the Weidian import adds them). They appear under “Detail photos” on the product page; mark the size chart so it shows with the measurements.</p>' +
+        (list.length
+          ? '<div class="dimgs">' +
+            list
+              .map((d, i) => {
+                const chart = d.url === p.sizeChartImage;
+                return '<div class="dimg' + (chart ? ' is-chart' : '') + '"><a class="dimg__media" href="' + esc(d.url) + '" target="_blank" rel="noopener"><img src="' + esc(d.url) + '" alt="" loading="lazy"></a>' +
+                  '<div class="dimg__tools"><button type="button" class="btn btn--sm ' + (chart ? 'btn--primary' : 'btn--secondary') + '" data-act="dimg-chart" data-i="' + i + '" aria-pressed="' + chart + '">' + (chart ? icon('check', 14) + 'Size chart' : 'Size chart?') + '</button>' +
+                  '<button type="button" class="icon-btn icon-btn--sm icon-btn--danger" data-act="dimg-del" data-i="' + i + '" aria-label="Remove detail photo">' + icon('trash', 14) + '</button></div></div>';
+              })
+              .join('') +
+            '</div>'
+          : '') +
+        '<div class="url-add"><input class="input" data-dimg-url placeholder="Add a detail photo URL (https:// or /uploads/…)" aria-label="Detail photo URL"><button type="button" class="btn btn--secondary" data-act="dimg-url">' + icon('link', 15) + 'Add</button></div></div>'
+      );
+    }
+
     function renderMeasure() {
       desc('measurements', 'Garment measurements per size, shown in the size guide.');
       const m = p.measurements;
       head('measurements').innerHTML = m ? '<button type="button" class="btn btn--sm btn--ghost" data-act="m-remove">' + icon('trash', 15) + 'Remove chart</button>' : '';
       if (!m) {
-        body('measurements').innerHTML = ui.empty({
+        body('measurements').innerHTML = chartHtml() + ui.empty({
           icon: 'calendar',
           title: 'No size chart',
           body: 'Add one and the rows follow your sizes automatically. Columns start from a ' + esc(A.GARMENT_LABEL[p.garment] || 'garment') + ' template.',
@@ -802,6 +851,7 @@
         return;
       }
       body('measurements').innerHTML =
+        chartHtml() +
         '<div class="row row--wrap" style="margin-bottom:14px"><span class="label mb-0">Unit</span>' + ui.segmented('m-unit', [{ value: 'cm', label: 'cm' }, { value: 'in', label: 'inches' }], m.unit || 'cm', 'data-m-unit aria-label="Unit"') +
         '<span class="sp"></span><button type="button" class="btn btn--sm btn--secondary" data-act="m-col-add">' + icon('plus', 15) + 'Column</button></div>' +
         '<div class="measure-wrap"><table class="measure"><thead><tr><th style="text-align:left;padding-left:14px" class="small muted">Size</th>' +
@@ -1131,7 +1181,18 @@
         if (art) art.innerHTML = A.garmentSvg(p.garment, { color: (p.colors[0] && p.colors[0].hex) || '#8F857A', print: p.print });
       } else if (path === 'weidian.itemId' || path === 'weidian.url') renderLinkHints();
       else if (path === 'restockDate') updateMatrixTotals();
-      else if (path === 'description') {
+      if (['seoTitle', 'seoDescription', 'name', 'subtitle', 'description', 'slug', 'category'].includes(path)) {
+        const serp = root.querySelector('[data-seo-serp]');
+        if (serp) serp.innerHTML = serpHtml();
+        const cnt = root.querySelector('[data-seo-count="' + path + '"]');
+        if (cnt) {
+          const max = path === 'seoTitle' ? 60 : 160;
+          const n = (p[path] || '').length;
+          cnt.textContent = n + ' / ' + max;
+          cnt.classList.toggle('is-over', n > max);
+        }
+      }
+      if (path === 'description') {
         const c = root.querySelector('[data-desc-count]');
         if (c) {
           const n = (p.description || '').length;
@@ -1405,6 +1466,45 @@
         }
         case 'img-url':
           addImageUrl();
+          break;
+        case 'dimg-url': {
+          const inp = root.querySelector('[data-dimg-url]');
+          const url = (inp.value || '').trim();
+          if (!/^(https?:\/\/|\/)/.test(url)) {
+            ui.toast('Paste a full image URL (https://…) or a /uploads/ path', { type: 'error' });
+            inp.focus();
+            break;
+          }
+          p.detailImages = (p.detailImages || []).concat({ url });
+          renderImages();
+          changed();
+          break;
+        }
+        case 'dimg-del': {
+          const list = p.detailImages || [];
+          const gone = list[i];
+          p.detailImages = list.filter((_, k) => k !== i);
+          if (gone && gone.url === p.sizeChartImage) p.sizeChartImage = '';
+          renderImages();
+          renderMeasure();
+          changed();
+          break;
+        }
+        case 'dimg-chart': {
+          const d = (p.detailImages || [])[i];
+          if (!d) break;
+          p.sizeChartImage = p.sizeChartImage === d.url ? '' : d.url;
+          renderImages();
+          renderMeasure();
+          changed();
+          if (p.sizeChartImage) ui.toast('Shown as the size chart on the product page');
+          break;
+        }
+        case 'chart-del':
+          p.sizeChartImage = '';
+          renderImages();
+          renderMeasure();
+          changed();
           break;
         case 'img-del': {
           const img = p.images[i];

@@ -144,6 +144,22 @@ function registerPublic(router, app) {
     { publicCache: true }
   );
 
+  router.get(
+    '/api/updates/:id',
+    (ctx) => {
+      const update = db().updates.find((u) => u.id === ctx.params.id && u.status === 'published');
+      if (!update) throw new HttpError(404, 'Update not found');
+      // Neighbours in time (pinned or not) for "newer / older" links.
+      let list = db().updates.filter((u) => u.status === 'published');
+      if (list.some((u) => !u.demo)) list = list.filter((u) => !u.demo || u.id === update.id);
+      list.sort((a, b) => ts(b.publishedAt) - ts(a.publishedAt));
+      const i = list.indexOf(update);
+      const brief = (u) => (u ? { id: u.id, title: u.title, publishedAt: u.publishedAt } : null);
+      return { update: publicUpdate(update), newer: brief(list[i - 1]), older: brief(list[i + 1]) };
+    },
+    { publicCache: true }
+  );
+
   router.post('/api/contact', async (ctx) => {
     await limit(ctx, 'contact');
     const b = await ctx.body();

@@ -1,13 +1,15 @@
 'use strict';
 /**
  * Page routes + static files (see docs/API.md → "Page routes").
- * Every HTML document gets the runtime marker and <base href="/">;
- * /products/:slug additionally gets product SEO + JSON-LD.
+ * Every HTML document gets the runtime marker and <base href="/">, and every
+ * public page its search-engine layer from lib/seo.js (title, description,
+ * canonical, Open Graph, JSON-LD, server-rendered content, pretty links).
  */
 const fs = require('node:fs');
 const path = require('node:path');
 const { respond, serveFile, safeJoin, statFile, redirect, HTML_CSP } = require('../lib/http');
-const { injectRuntime, injectProduct, sitemapXml, robotsTxt } = require('../lib/html');
+const { injectRuntime } = require('../lib/html');
+const seo = require('../lib/seo');
 const { publishedProducts } = require('./public');
 
 const PAGE_ROUTES = {
@@ -26,12 +28,8 @@ const PAGE_ROUTES = {
   '/admin': 'admin/index.html',
 };
 
-const SITEMAP_META = {
-  '/': ['1.0', 'daily'],
-  '/products': ['0.9', 'daily'],
-  '/live-stock': ['0.8', 'hourly'],
-  '/updates': ['0.8', 'daily'],
-};
+// Static-mode file names → pretty URLs (301), so every page has exactly one address.
+const HTML_ALIASES = Object.fromEntries(Object.entries(PAGE_ROUTES).filter(([p]) => p !== '/admin').map(([p, f]) => ['/' + f, p]));
 
 const FALLBACK_404 =
   '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Not found — Cola Studio</title></head><body style="font-family:system-ui,sans-serif;padding:4rem 1.5rem;text-align:center;background:#F3EEE6;color:#130D0A"><h1 style="font-weight:300">Page not found</h1><p><a href="/" style="color:inherit">Back to Cola Studio</a></p></body></html>';
@@ -69,17 +67,47 @@ function createPages(app) {
     return true;
   }
 
-  function sendPage(ctx, file, { status = 200, transform } = {}) {
+  let faqCache = null;
+  function faqData() {
+    const file = path.join(publicDir, 'data', 'faq.json');
+    const st = statFile(file);
+    if (!st) return null;
+    if (faqCache && faqCache.mtimeMs === st.mtimeMs) return faqCache.data;
+    try {
+      faqCache = { mtimeMs: st.mtimeMs, data: JSON.parse(fs.readFileSync(file, 'utf8')) };
+    } catch {
+      faqCache = { mtimeMs: st.mtimeMs, data: null };
+    }
+    return faqCache.data;
+  }
+
+  /** SEO layer for a public route ('/', '/products', '/products/:slug', '/updates/:id', …). */
+  function seoTransform(ctx, route, extra = {}) {
+    return (html) => {
+      try {
+        const page = seo.buildPage({ route, db: store.db, siteUrl: config.siteUrl, query: ctx.query || {}, faq: route === '/faq' ? faqData() : null, ...extra });
+        return seo.applyPage(html, page, store.db.settings);
+      } catch (err) {
+        (app.log || console).error(`SEO for ${ctx.path} failed: ${err.message}`);
+        return seo.prettyLinks(html);
+      }
+    };
+  }
+
+  function sendPage(ctx, file, { status = 200, transform, route } = {}) {
     const html = readHtml(file);
     if (html == null) return false;
     let out = injectRuntime(html);
+    if (route) out = seoTransform(ctx, route)(out);
     if (transform) out = transform(out);
     if (typeof config.htmlTransform === 'function') out = config.htmlTransform(out);
     return sendHtml(ctx, out, status);
   }
 
+  const noindex = (html) => seo.prettyLinks(html.replace(/<meta\s+name="robots"[^>]*>\s*/gi, '').replace(/<link\s+rel="canonical"[^>]*>\s*/gi, '').replace(/<\/head>/i, '<meta name="robots" content="noindex, nofollow">\n</head>'));
+
   function notFound(ctx) {
-    if (!sendPage(ctx, path.join(publicDir, '404.html'), { status: 404 })) sendHtml(ctx, injectRuntime(FALLBACK_404), 404);
+    if (!sendPage(ctx, path.join(publicDir, '404.html'), { status: 404, transform: noindex })) sendHtml(ctx, injectRuntime(FALLBACK_404), 404);
   }
 
   function cacheControlFor(urlPath, query) {
@@ -94,23 +122,29 @@ function createPages(app) {
     const list = publishedProducts(d);
     const product = list.find((p) => p.slug === slug) || list.find((p) => p.id === slug);
     if (!product) return notFound(ctx);
-    if (product.slug !== slug) return redirect(ctx.res, `/products/${encodeURIComponent(product.slug)}`, 301);
-    const ok = sendPage(ctx, path.join(publicDir, 'product.html'), {
-      transform: (html) => injectProduct(html, product, { settings: d.settings, siteUrl: config.siteUrl, categories: d.categories }),
-    });
+    if (product.slug !== slug) return redirect(ctx.res, `/products/${encodeURIComponent(product.slug)}` + (ctx.url.search || ''), 301);
+    const ok = sendPage(ctx, path.join(publicDir, 'product.html'), { transform: seoTransform(ctx, '/products/:slug', { product }) });
     if (!ok) notFound(ctx);
+  }
+
+  /** One studio update on its own URL (/updates/:id) — rendered from updates.html. */
+  function updatePage(ctx, id) {
+    const update = store.db.updates.find((u) => u.id === id && u.status === 'published');
+    if (!update) return notFound(ctx);
+    const ok = sendPage(ctx, path.join(publicDir, 'updates.html'), { transform: seoTransform(ctx, '/updates/:id', { update }) });
+    if (!ok) notFound(ctx);
+  }
+
+  function xml(ctx, body, type = 'application/xml; charset=utf-8') {
+    respond(ctx.req, ctx.res, { body, type, cacheControl: 'public, max-age=900', etag: true });
+    return true;
   }
 
   function sitemap(ctx) {
     const pages = Object.entries(PAGE_ROUTES)
-      .filter(([p, file]) => p !== '/admin' && (p === '/' || statFile(path.join(publicDir, file))))
-      .map(([p]) => ({ path: p === '/' ? '/' : p, priority: (SITEMAP_META[p] || ['0.5'])[0], changefreq: (SITEMAP_META[p] || [null, 'monthly'])[1] }));
-    respond(ctx.req, ctx.res, {
-      body: sitemapXml({ siteUrl: config.siteUrl, pages, products: publishedProducts(store.db) }),
-      type: 'application/xml; charset=utf-8',
-      cacheControl: 'public, max-age=3600',
-      etag: true,
-    });
+      .filter(([p, file]) => p !== '/admin' && statFile(path.join(publicDir, file)))
+      .map(([p]) => p);
+    return xml(ctx, seo.sitemapXml({ db: store.db, siteUrl: config.siteUrl, pages }));
   }
 
   async function handle(ctx) {
@@ -123,17 +157,43 @@ function createPages(app) {
     }
 
     if (p === '/robots.txt') {
-      return respond(req, res, { body: robotsTxt({ siteUrl: config.siteUrl }), type: 'text/plain; charset=utf-8', cacheControl: 'public, max-age=3600' });
+      return respond(req, res, { body: seo.robotsTxt({ siteUrl: config.siteUrl }), type: 'text/plain; charset=utf-8', cacheControl: 'public, max-age=3600' });
     }
     if (p === '/sitemap.xml') return sitemap(ctx);
+    if (p === '/updates/feed.xml') return xml(ctx, seo.rssXml({ db: store.db, siteUrl: config.siteUrl }), 'application/rss+xml; charset=utf-8');
+
+    // products.html, about.html … (static-mode addresses) → one canonical pretty URL
+    if (HTML_ALIASES[p] || p === '/index.html' || p === '/product.html') {
+      const q = new URLSearchParams(ctx.url.search || '');
+      if (p === '/product.html' && q.get('slug')) {
+        const slug = q.get('slug');
+        q.delete('slug');
+        const rest = q.toString();
+        return redirect(res, `/products/${encodeURIComponent(slug)}${rest ? '?' + rest : ''}`, 301);
+      }
+      if (p === '/updates.html' && q.get('post')) return redirect(res, `/updates/${encodeURIComponent(q.get('post'))}`, 301);
+      if (p === '/product.html') return redirect(res, '/products', 301);
+      return redirect(res, (p === '/index.html' ? '/' : HTML_ALIASES[p]) + (ctx.url.search || ''), 301);
+    }
 
     // Pretty URLs without trailing slash (except "/" and "/admin/").
     if (p.length > 1 && p.endsWith('/') && p !== '/admin/') {
       const trimmed = p.replace(/\/+$/, '');
-      if (PAGE_ROUTES[trimmed] || /^\/products\/[^/]+$/.test(trimmed)) return redirect(res, trimmed + (ctx.url.search || ''), 301);
+      if (PAGE_ROUTES[trimmed] || /^\/(products|updates)\/[^/]+$/.test(trimmed)) return redirect(res, trimmed + (ctx.url.search || ''), 301);
     }
-    if (p === '/admin/') return sendPage(ctx, path.join(publicDir, 'admin/index.html')) || notFound(ctx);
-    if (PAGE_ROUTES[p]) return sendPage(ctx, path.join(publicDir, PAGE_ROUTES[p])) || notFound(ctx);
+    if (p === '/admin/' || p === '/admin') return sendPage(ctx, path.join(publicDir, 'admin/index.html'), { transform: noindex }) || notFound(ctx);
+    if (PAGE_ROUTES[p]) return sendPage(ctx, path.join(publicDir, PAGE_ROUTES[p]), { route: p }) || notFound(ctx);
+
+    const um = /^\/updates\/([^/]+)$/.exec(p);
+    if (um) {
+      let id;
+      try {
+        id = decodeURIComponent(um[1]);
+      } catch {
+        return notFound(ctx);
+      }
+      return updatePage(ctx, id);
+    }
 
     const m = /^\/products\/([^/]+)$/.exec(p);
     if (m) {
@@ -175,7 +235,7 @@ function createPages(app) {
       }
       return notFound(ctx);
     }
-    if (/\.html?$/i.test(file)) return sendPage(ctx, file) || notFound(ctx);
+    if (/\.html?$/i.test(file)) return sendPage(ctx, file, { transform: noindex }) || notFound(ctx);
 
     serveFile(req, res, file, { cacheControl: cacheControlFor(p, ctx.query), stat: st });
   }

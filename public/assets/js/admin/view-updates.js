@@ -29,6 +29,8 @@
 
   /* ================================================================= list */
 
+  const PAGE = 50;
+
   A.views.updates = {
     title: 'Studio updates',
     skeleton: 'table',
@@ -36,7 +38,7 @@
       let updates = await A.data.getUpdates();
       if (ctx.stale()) return null;
       const server = A.data.mode === 'server';
-      const st = { status: ['published', 'pending', 'hidden'].includes(ctx.query.status) ? ctx.query.status : 'all', source: '', q: '' };
+      const st = { status: ['published', 'pending', 'hidden'].includes(ctx.query.status) ? ctx.query.status : 'all', source: '', q: '', shown: PAGE };
 
       root.innerHTML =
         '<header class="page-head"><div class="page-head__text"><h1 data-count></h1><p class="lead">Posts from the studio’s Weibo, translated to English, plus your own studio posts. Pinned posts stay on top.</p></div>' +
@@ -47,7 +49,7 @@
         '<div class="card"><div class="tabs" role="tablist" data-tabs></div>' +
         '<div class="toolbar"><label class="search">' + icon('search', 16) + '<input class="input" type="search" data-search data-q placeholder="Search titles and text" aria-label="Search updates"><kbd>/</kbd></label>' +
         ui.segmented('src', [{ value: '', label: 'All sources' }, { value: 'weibo', label: 'Weibo' }, { value: 'studio', label: 'Studio' }], '', 'aria-label="Source"') +
-        '</div><div data-list></div></div>';
+        '</div><div data-bulk></div><div data-list></div></div>';
 
       function counts() {
         const c = { all: 0, published: 0, pending: 0, hidden: 0 };
@@ -72,20 +74,30 @@
           .join('');
         const q = st.q.trim().toLowerCase();
         const list = updates.filter((u) => (st.status === 'all' || u.status === st.status) && (!st.source || u.source === st.source) && (!q || (u.title + ' ' + u.textEnglish + ' ' + u.textOriginal).toLowerCase().includes(q)));
+        const pending = updates.filter((u) => u.status === 'pending' && (!st.source || u.source === st.source));
+        const queued = pending.filter((u) => u.translation && u.translation.queued).length;
+        root.querySelector('[data-bulk]').innerHTML =
+          st.status === 'pending' && pending.length > 1
+            ? '<div class="bulk-bar"><span>' + esc(A.plural(pending.length, 'post') + ' waiting for review') + (queued ? ' · ' + esc(queued) + ' not translated yet' : '') + '</span><div class="row row--wrap">' +
+              (queued && server ? '<a class="btn btn--sm btn--ghost" href="' + A.href('/integrations?section=weibo-history') + '">' + icon('wand', 15) + 'Translate</a>' : '') +
+              '<button type="button" class="btn btn--sm btn--primary" data-act="publish-all">' + icon('eye', 15) + 'Publish all ' + esc(pending.length) + '</button></div></div>'
+            : '';
+        const page = list.slice(0, st.shown);
         root.querySelector('[data-list]').innerHTML = list.length
-          ? list
+          ? page
               .map(
                 (u) =>
                   '<div class="u-row is-clickable" data-id="' + esc(u.id) + '">' + thumbFor(u) +
                   '<div style="min-width:0"><div class="u-title">' + (u.pinned ? icon('pin', 14) : '') + '<a class="u-link" href="' + A.href('/updates/' + encodeURIComponent(u.id)) + '">' + esc(u.title || '(untitled)') + '</a></div>' +
                   '<div class="u-excerpt">' + esc(u.textEnglish || u.textOriginal || '') + '</div>' +
                   '<div class="u-meta"><span class="pill pill--outline">' + esc(CAT_LABEL[u.category] || u.category) + '</span><span>' + esc(u.source === 'weibo' ? 'Weibo' : 'Studio') + '</span><span>·</span><span title="' + esc(A.dateTime(u.publishedAt)) + '">' + esc(A.date(u.publishedAt)) + '</span>' +
-                  (u.translation && u.translation.provider && u.translation.provider !== 'none' ? '<span>· translated by ' + esc(u.translation.provider) + (u.translation.edited ? ', edited' : '') + '</span>' : u.source === 'weibo' && u.translation && u.translation.error ? '<span class="diff-down">· translation failed</span>' : '') +
+                  (u.translation && u.translation.provider && u.translation.provider !== 'none' ? '<span>· translated by ' + esc(u.translation.provider) + (u.translation.edited ? ', edited' : '') + '</span>' : u.source === 'weibo' && u.translation && u.translation.error ? '<span class="diff-down">· translation failed</span>' : u.source === 'weibo' && u.translation && u.translation.queued ? '<span class="u-queue">· waiting for translation</span>' : '') +
                   ((u.media || []).length ? '<span>· ' + esc(A.plural(u.media.length, 'media item', 'media items')) + '</span>' : '') +
                   '</div></div>' +
                   '<div class="u-end">' + A.statusPill(u.status) + '<button type="button" class="icon-btn icon-btn--sm" data-more aria-label="Actions for ' + esc(u.title || 'update') + '">' + icon('more', 16) + '</button></div></div>'
               )
-              .join('')
+              .join('') +
+            (list.length > page.length ? '<div class="list-more"><button type="button" class="btn btn--secondary" data-act="more">Show more<span class="faint" style="margin-left:6px">' + esc(page.length + ' of ' + list.length) + '</span></button></div>' : '')
           : ui.empty({
               icon: 'updates',
               title: updates.length ? 'Nothing in this view' : 'No updates yet',
@@ -99,6 +111,7 @@
         const tab = e.target.closest('[data-status]');
         if (tab && tab.classList.contains('tab')) {
           st.status = tab.dataset.status;
+          st.shown = PAGE;
           A.router.replace('/updates' + (st.status !== 'all' ? '?status=' + st.status : ''));
           return draw();
         }
@@ -146,6 +159,33 @@
           A.go('/updates/' + encodeURIComponent(row.dataset.id));
           return;
         }
+        const moreBtn = e.target.closest('[data-act="more"]');
+        if (moreBtn) {
+          st.shown += PAGE;
+          draw();
+          return;
+        }
+        const all = e.target.closest('[data-act="publish-all"]');
+        if (all) {
+          const pending = updates.filter((u) => u.status === 'pending' && (!st.source || u.source === st.source));
+          const queued = pending.filter((u) => u.translation && u.translation.queued).length;
+          const ok = await ui.confirm({
+            title: 'Publish ' + A.plural(pending.length, 'post') + '?',
+            body: 'They appear on the Studio Updates page straight away.' + (queued ? ' <b>' + esc(A.plural(queued, 'post is', 'posts are')) + ' not translated yet</b> and will show the Chinese text.' : ''),
+            confirmText: 'Publish all',
+          });
+          if (!ok) return;
+          try {
+            const r = await ui.busy(all, () => A.data.bulkUpdates({ fromStatus: 'pending', status: 'published', ...(st.source ? { source: st.source } : {}) }), 'Publishing…');
+            ui.toast(A.plural(r.changed || 0, 'post') + ' published');
+            updates = await A.data.getUpdates();
+            draw();
+            A.app.refreshBadges();
+          } catch (err) {
+            ui.error(err);
+          }
+          return;
+        }
         const b = e.target.closest('[data-act="fetch"]');
         if (b) {
           const target = root.querySelector('[data-console]');
@@ -158,10 +198,12 @@
       });
       root.querySelector('[data-q]').addEventListener('input', A.debounce((e) => {
         st.q = e.target.value;
+        st.shown = PAGE;
         draw();
       }, 120));
       root.querySelector('.seg').addEventListener('change', (e) => {
         st.source = e.target.value;
+        st.shown = PAGE;
         draw();
       });
       draw();

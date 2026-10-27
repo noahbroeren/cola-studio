@@ -99,7 +99,11 @@
     }
     $('[data-cat-desc]').textContent = cat ? cat.description : state.category === 'new' ? 'The latest additions from the studio — fresh out of production.' : state.category === 'saved' ? 'Pieces you saved on this device.' : 'Every piece designed, patterned and produced by the studio — in small runs, with stock that updates live.';
     $('[data-crumb]').textContent = cat ? cat.name : state.category === 'new' ? 'New in' : 'Shop';
-    document.title = (cat ? cat.name : 'The Collection') + ' — Cola Studio';
+    // The server already wrote the right <title> (incl. admin overrides); only change it when the view changes here.
+    if (!(first && Cola.isServer)) {
+      var brand = (Cola.data.settings && Cola.data.settings.brand && Cola.data.settings.brand.name) || 'Cola Studio';
+      document.title = (cat ? cat.name : state.category === 'new' ? 'New in' : state.category === 'saved' ? 'Saved pieces' : 'Shop the Collection') + ' — ' + brand;
+    }
     if (!list.length) {
       grid.innerHTML = ''; empty.hidden = false;
       empty.innerHTML = Cola.c.empty('Nothing matches — yet', 'Try removing a filter, or check the live stock page for restocks.', '<button class="btn btn--sm" type="button" data-clear>Clear all filters</button>');

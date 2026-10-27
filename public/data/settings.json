@@ -35,7 +35,7 @@
     "refreshSeconds": 30
   },
   "whatsapp": {
-    "number": "31600000000",
+    "number": "8618060779381",
     "enabled": true,
     "greeting": "Hello Cola Studio",
     "orderPrefix": "CS"
@@ -76,7 +76,8 @@
     "tiktok": "",
     "whatsappChannel": "",
     "discord": "",
-    "xiaohongshu": ""
+    "xiaohongshu": "",
+    "yupoo": ""
   },
   "nextDrop": {
     "enabled": true,
@@ -114,7 +115,11 @@
     "note": "Times are indicative after dispatch from our partner warehouse and depend on the shipping line you choose."
   },
   "seo": {
-    "title": "Cola Studio — International Fashion Studio",
-    "description": "Cola Studio designs and produces garments with obsessive attention to construction, fabric and craftsmanship. Live stock, studio updates and worldwide ordering."
+    "title": "",
+    "description": "",
+    "image": "",
+    "googleVerification": "",
+    "bingVerification": "",
+    "pages": {}
   }
 }

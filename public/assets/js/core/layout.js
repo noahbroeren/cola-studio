@@ -82,7 +82,7 @@
 
   L.footer = function () {
     var s = Cola.data.settings || {}, so = s.social || {};
-    var socials = [['instagram', 'Instagram'], ['weibo', 'Weibo'], ['tiktok', 'TikTok'], ['xiaohongshu', 'Xiaohongshu'], ['discord', 'Discord'], ['whatsappChannel', 'WhatsApp channel']]
+    var socials = [['instagram', 'Instagram'], ['weibo', 'Weibo'], ['yupoo', 'Yupoo'], ['tiktok', 'TikTok'], ['xiaohongshu', 'Xiaohongshu'], ['discord', 'Discord'], ['whatsappChannel', 'WhatsApp channel']]
       .map(function (x) { return so[x[0]] ? '<li><a href="' + esc(so[x[0]]) + '" target="_blank" rel="noopener">' + x[1] + '</a></li>' : ''; }).join('');
     var col = function (title, links) { return '<div class="footer__col"><h4>' + title + '</h4><ul>' + links.map(function (l) { return '<li><a href="' + Cola.url(l[0]) + '">' + l[1] + '</a></li>'; }).join('') + '</ul></div>'; };
     var year = new Date().getFullYear();

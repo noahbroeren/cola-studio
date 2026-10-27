@@ -20,6 +20,7 @@ const { stockStatus, productAvailability, totalStock } = require('./stock');
 
 const LIMITS = { inventoryEvents: 2000, messages: 5000, orders: 5000, notify: 5000, updates: 3000 };
 
+const DEMO_WHATSAPP = '31600000000'; // placeholder number of the first demo seed
 const DEFAULT_SETTINGS = {
   demo: false,
   brand: {
@@ -42,13 +43,11 @@ const DEFAULT_SETTINGS = {
   whatsapp: { number: '', enabled: true, greeting: 'Hello Cola Studio', orderPrefix: 'CS' },
   agents: [],
   weidian: { shopUrl: '', itemUrlTemplate: 'https://weidian.com/item.html?itemID={itemId}' },
-  social: { instagram: '', weibo: '', tiktok: '', whatsappChannel: '', discord: '', xiaohongshu: '' },
+  social: { instagram: '', weibo: '', tiktok: '', whatsappChannel: '', discord: '', xiaohongshu: '', yupoo: '' },
   nextDrop: { enabled: false, title: '', subtitle: '', date: null },
   shipping: { regions: [], note: '' },
-  seo: {
-    title: 'Cola Studio — International Fashion Studio',
-    description: 'Cola Studio is an international fashion studio focused on design, production and craftsmanship.',
-  },
+  // Empty = the built-in copy in server/lib/seo.js. pages: { '/products': { title, description }, … }
+  seo: { title: '', description: '', image: '', googleVerification: '', bingVerification: '', pages: {} },
 };
 
 const DEFAULT_PUBLIC_ITEM_URL = 'https://thor.weidian.com/detail/getItemSkuInfo/1.0?param={param}';
@@ -86,6 +85,7 @@ const DEFAULT_PRIVATE = {
     delayMs: 1500,
     priceUnit: 'auto',
     fetchVia: '', // optional scraping-service URL (with API key) for the public-item provider
+    claudeFetch: true, // imports: when Weidian blocks the server, fetch through Claude (needs the Anthropic key)
   },
 };
 
@@ -181,6 +181,7 @@ class Store {
         this.writeNow();
       } else {
         this.data = normalizeDb(raw);
+        this.applySeedFixes();
       }
     } else {
       this.data = this.seed();
@@ -193,6 +194,22 @@ class Store {
 
     this.dailyBackup();
     return this;
+  }
+
+  /**
+   * Older seeds shipped a placeholder WhatsApp number. When the live db still
+   * has that placeholder (or nothing) and public/data/settings.json now has the
+   * studio's real number, take it over once.
+   */
+  applySeedFixes() {
+    const wa = this.data && this.data.settings && this.data.settings.whatsapp;
+    if (!wa || (wa.number && String(wa.number) !== DEMO_WHATSAPP)) return;
+    const seed = readJsonFile(path.join(this.publicDir, 'data', 'settings.json'), null);
+    const n = seed && seed.whatsapp ? String(seed.whatsapp.number || '') : '';
+    if (!/^\d{7,15}$/.test(n) || n === DEMO_WHATSAPP) return;
+    wa.number = n;
+    this.log.info(`WhatsApp number taken over from public/data/settings.json (+${n})`);
+    this.writeNow();
   }
 
   /** Build a fresh db from public/data/*.json (tolerant of missing files). */

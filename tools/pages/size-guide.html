@@ -1,0 +1,47 @@
+  <main id="main" class="sizeguide">
+    <section class="page-hero">
+      <div class="container page-hero__inner">
+        <div>
+          <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span>Size guide</span></nav>
+          <h1 class="h1 page-hero__title">Size <b>guide</b></h1>
+          <p class="lead mt-3" data-reveal>Our pieces are cut with intent — mostly boxy and oversized. Find your size with the fit finder, or compare our garment measurements with something you already own.</p>
+        </div>
+        <div class="page-hero__aside"><div class="segmented" role="group" aria-label="Units" data-units><button type="button" aria-pressed="true" data-unit="cm">Centimetres</button><button type="button" aria-pressed="false" data-unit="in">Inches</button></div></div>
+      </div>
+    </section>
+
+    <div class="band bg-white">
+    <section class="container fitfinder-wrap">
+      <div class="fitfinder" data-reveal>
+        <div class="fitfinder__intro"><p class="eyebrow">Fit finder</p><h2 class="h3 mt-2">Your size in <b>ten seconds.</b></h2><p class="small muted mt-2">An estimate based on height and weight. For the most accurate result, compare measurements below.</p></div>
+        <form class="fitfinder__form" data-fit-form>
+          <div class="field"><label for="ff-h">Height <span data-h-unit>(cm)</span></label><input class="input" id="ff-h" name="h" type="number" inputmode="numeric" min="140" max="220" placeholder="180"></div>
+          <div class="field"><label for="ff-w">Weight (kg)</label><input class="input" id="ff-w" name="w" type="number" inputmode="numeric" min="35" max="160" placeholder="75"></div>
+          <div class="field"><label for="ff-p">Preferred fit</label><select class="select" id="ff-p" name="p"><option value="0">As designed (boxy / oversized)</option><option value="-1">Closer to the body</option><option value="1">Extra roomy</option></select></div>
+          <button class="btn" type="submit">Find my size</button>
+        </form>
+        <div class="fitfinder__result" data-fit-result aria-live="polite"><p class="small subtle">Enter your height and weight to see a recommendation.</p></div>
+      </div>
+    </section>
+
+    <section class="section section--tight">
+      <div class="container">
+        <div class="section-head"><div><p class="eyebrow">Measurements</p><h2 class="h2 mt-2">Garment <b>measurements</b></h2></div>
+          <div class="field" style="min-width:280px"><label for="sg-product">Choose a product</label><select class="select" id="sg-product" data-sg-product></select></div></div>
+        <div class="sg-table" data-sg-table></div>
+        <p class="tiny subtle mt-2" data-sg-fit></p>
+      </div>
+    </section>
+
+    </div>
+
+    <section class="section bg-grid">
+      <div class="container">
+        <div class="section-head"><div><p class="eyebrow">How to measure</p><h2 class="h2 mt-2">Lay it flat. <b>Measure twice.</b></h2></div><p class="body-lg" style="max-width:44ch">Take a piece you love the fit of, lay it flat without stretching, and measure it the way we do.</p></div>
+        <div class="measure-grid">
+          <figure class="measure" data-reveal><div class="measure__art" data-measure="top"></div><figcaption><ol class="measure__list"><li><b>A</b> Chest (½) — straight across, 2 cm below the armholes</li><li><b>B</b> Length — from the highest point of the shoulder to the hem</li><li><b>C</b> Shoulder — seam to seam across the back</li><li><b>D</b> Sleeve — from the shoulder seam to the cuff</li></ol></figcaption></figure>
+          <figure class="measure" data-reveal style="--d:.08s"><div class="measure__art" data-measure="bottom"></div><figcaption><ol class="measure__list"><li><b>A</b> Waist (½) — straight across the top of the waistband</li><li><b>B</b> Hip (½) — across the widest point below the fly</li><li><b>C</b> Inseam — from the crotch seam to the hem</li><li><b>D</b> Rise — from the crotch seam to the top of the waistband</li><li><b>E</b> Leg opening — straight across the hem</li></ol></figcaption></figure>
+        </div>
+      </div>
+    </section>
+  </main>

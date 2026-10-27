@@ -12,16 +12,20 @@ The server injects `<meta name="cola-runtime" content="server">` and `<base href
 |---|---|
 | `/` | `public/index.html` |
 | `/products` | `public/products.html` (`?category=` supported) |
-| `/products/:slug` | `public/product.html` (server injects product title/description/OG/JSON-LD) |
+| `/products/:slug` | `public/product.html` |
+| `/updates/:id` | `public/updates.html` rendered for one published update (404 otherwise) |
 | `/live-stock` | `public/live-stock.html` |
 | `/updates` | `public/updates.html` |
 | `/how-to-order` | `public/how-to-order.html` |
 | `/order` | `public/order.html` |
 | `/about`, `/contact`, `/faq`, `/size-guide`, `/lookbook`, `/brand` | matching `.html` |
 | `/admin` | `public/admin/index.html` |
-| `*.html` | served as-is (static links keep working) |
-| unknown | `public/404.html` with status 404 |
-| `/sitemap.xml`, `/robots.txt` | generated |
+| `/index.html`, `/products.html`, `/about.html` … | 301 → pretty URL (`/product.html?slug=x` → `/products/x`, `/updates.html?post=id` → `/updates/id`) |
+| other `*.html` | served with `noindex` |
+| unknown | `public/404.html` with status 404 (`noindex`) |
+| `/sitemap.xml`, `/robots.txt`, `/updates/feed.xml` | generated (sitemap incl. categories, product photos and updates; RSS of the last 30 updates) |
+
+Every public page goes through `server/lib/seo.js`: title, description, robots, canonical (from `SITE_URL`), Open Graph/Twitter, one JSON-LD `@graph`, server-rendered content in the `<!--ssr:name-->` slots and pretty internal links. Admin overrides: `settings.seo.pages[route] = { title, description }`, `settings.seo.{title,description,image,googleVerification,bingVerification}`, product `seoTitle` / `seoDescription`.
 
 ## Media proxy
 
@@ -37,6 +41,7 @@ The server injects `<meta name="cola-runtime" content="server">` and `<base href
 | GET | `/api/products/:slug` | `{ product, related: [...] }` |
 | GET | `/api/inventory` | `{ updatedAt, sync: { at, status, source, message }, products: [ { id, slug, name, category, garment, colors, price, variants:[{sku,color,size,stock,preorder}] } ], events: [last 40 inventoryEvents] }` |
 | GET | `/api/updates?limit=&category=&before=` | `{ updates: [...], total }` — published only, pinned first, newest first |
+| GET | `/api/updates/:id` | `{ update, newer, older }` — one published update with its neighbours in time (404 otherwise) |
 | POST | `/api/contact` | body `{ name, email, topic, message, whatsapp? }` → `{ ok, id }` |
 | POST | `/api/orders` | body `{ ref, items:[{productId,sku,name,color,size,qty,price}], customer:{name,email,phone,address,postcode,city,country}, channel:"whatsapp"|"agent", currency }` → `{ ok }` (logs an order intent for the dashboard; the customer still completes on WhatsApp) |
 | POST | `/api/notify` | body `{ productId, sku, contact }` → `{ ok }` (restock alert request) |
@@ -62,12 +67,16 @@ Auth: `POST /api/admin/login { password }` → `{ token, expiresAt }`. Send `Aut
 | GET / DELETE | `/api/admin/uploads[/:name]` | list / remove uploaded files |
 | GET / POST | `/api/admin/updates` | all updates incl. pending/hidden / create manual post |
 | PUT / DELETE | `/api/admin/updates/:id` | edit (title, textEnglish, status, pinned, category, relatedProducts) / delete |
+| POST | `/api/admin/updates/bulk` | `{ ids?:[…], fromStatus?, source?, status }` → `{ changed }` (e.g. publish all pending) |
+| GET / POST | `/api/admin/weibo/history` | status / start a background import of older posts: `{ limit?: 100, translate?, resume?, translateOnly?, publishUntranslated? }` (409 while running, 501 on serverless) |
+| POST | `/api/admin/weibo/history/stop` | stop after the current step |
+| GET | `/api/admin/seo` | built-in page titles/descriptions (placeholders), sitemap/robots/feed URLs, indexed counts |
 | POST | `/api/admin/weibo/fetch` | `{ force?: n }` → `{ fetched, added, skipped, errors, log:[…] }` |
 | POST | `/api/admin/weibo/retranslate/:id` | re-run translation for one post |
 | POST | `/api/admin/translate/test` | `{ text }` → `{ provider, translation }` |
 | POST | `/api/admin/weidian/sync` | `{ dryRun?: bool, productId?: id }` → `{ changes:[{productId,sku,from,to}], unmatched:[…], errors:[…], applied }` |
-| POST | `/api/admin/weidian/test` | `{ itemId }` → raw mapped result for one item |
-| POST | `/api/admin/weidian/import` | `{ items: "links/ids" \| [..], translate?: bool }` (max 10 per call) → `{ results:[{ itemId, ok, draft?, notes, error?, skipped?, existing? }], translated }`. Builds draft products (colour/size from SKU titles, stock, Weidian SKU ids, photos via `/media/img`); nothing is saved — create them with `/products/bulk` |
+| POST | `/api/admin/weidian/test` | `{ itemId }` (id or link) → raw mapped result for one item, plus `scrape: { sources, images, detailImages, description, notes }` (what an import would take over) |
+| POST | `/api/admin/weidian/import` | `{ items: "links/ids" \| [..], links?: [share links], translate?: bool, sizeChart?: bool }` (max 10 per call) → `{ results:[{ itemId, ok, draft?, notes, sources?, sizeChart?, error?, skipped?, existing? }], translated }`. Full scrape: gallery + colour photos, description (translated), detail photos, size chart read by Claude into `measurements` + `sizeChartImage`; requests fall back to the scraping service and Claude web fetch. Nothing is saved — create them with `/products/bulk` |
 | GET | `/api/admin/messages`, `/api/admin/orders`, `/api/admin/notify` | stored submissions |
 | GET | `/api/admin/logs` | last 300 log lines |
 | GET | `/api/admin/export` | full backup JSON (no secrets) |

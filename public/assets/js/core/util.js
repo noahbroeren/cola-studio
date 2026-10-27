@@ -7,7 +7,7 @@
   var Cola = (window.Cola = window.Cola || {});
   document.documentElement.classList.add('js');
 
-  Cola.version = '1.2.0';
+  Cola.version = '1.3.0';
   Cola.$ = function (s, r) { return (r || document).querySelector(s); };
   Cola.$$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   Cola.esc = function (s) {
@@ -69,6 +69,8 @@
     return (Cola.isServer ? p[0] : p[1]) + qs(params);
   };
   Cola.productUrl = function (p, params) { return Cola.url('product', Object.assign({ slug: p.slug }, params || {})); };
+  /** Own page for one studio update: /updates/<id> (server) or updates.html?post=<id> (static). */
+  Cola.updateUrl = function (u) { var id = typeof u === 'string' ? u : u.id; return Cola.isServer ? '/updates/' + encodeURIComponent(id) : 'updates.html' + qs({ post: id }); };
   Cola.param = function (k) { try { return new URLSearchParams(location.search).get(k); } catch (e) { return null; } };
   /** In server mode, rewrite hard-coded "page.html" links to pretty URLs. */
   Cola.rewriteLinks = function (root) {
@@ -154,6 +156,7 @@
     play: '<path d="M8 5l11 7-11 7z"/>',
     pause: '<path d="M8 5v14M16 5v14"/>',
     instagram: '<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".6" fill="currentColor"/>',
+    album: '<rect x="3.5" y="6.5" width="14" height="13" rx="1"/><path d="M7 3.5h13.5V17"/><circle cx="8.5" cy="11" r="1.5"/><path d="m4 18 4.5-4.5 3 3 2-2 3.5 3.5"/>',
     weibo: '<path d="M10.2 19.5c-4 0-7.2-2-7.2-4.6 0-1.4.9-3 2.4-4.5 2-2 4.4-3 5.3-2.1.4.4.4 1.1.2 1.9-.1.4.4.2.4.2 1.7-.7 3.2-.7 3.7 0 .3.4.3 1 0 1.6-.1.3 0 .3.3.4 1.3.4 2.7 1.3 2.7 2.9 0 2.6-3.8 4.2-7.8 4.2z"/><path d="M16 4.5a4.5 4.5 0 014.5 5.2M15.6 7a2 2 0 012.1 2.4"/>',
     tiktok: '<path d="M14 4v10.5a3.5 3.5 0 11-3.5-3.5"/><path d="M14 4c.4 2.6 2.2 4.4 5 4.6"/>',
     discord: '<path d="M8 7.5a14 14 0 018 0l1.2-1.5c2 .7 3.3 1.6 3.3 1.6s1.7 4.4 1 9.2c0 0-1.8 1.7-4.5 2.2l-1.1-1.6M8 7.5L6.8 6s-1.3.9-3.3 1.6c0 0-1.7 4.4-1 9.2 0 0 1.8 1.7 4.5 2.2L8 17.4"/><path d="M7.5 15.5c3 1.4 6 1.4 9 0"/><circle cx="9.3" cy="12.3" r="1.1"/><circle cx="14.7" cy="12.3" r="1.1"/>',

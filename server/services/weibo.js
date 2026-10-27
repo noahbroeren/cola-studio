@@ -15,7 +15,7 @@
  * an `updates` item. Media URLs point at our /media/weibo proxy.
  */
 const { compareIds, sleep: realSleep } = require('../lib/util');
-const { decodeEntities } = require('./translate');
+const { decodeEntities, categorize, CATEGORY_LABELS } = require('./translate');
 const { MediaCache, allowedMediaUrl, MOBILE_UA } = require('./media');
 
 const WEIBO_HEADERS = {
@@ -360,6 +360,10 @@ class WeiboService {
    * Never throws for upstream problems; they are reported in `errors`.
    */
   async run({ force = 0, trigger = 'manual' } = {}) {
+    if (this.history && this.history.state === 'running') {
+      // The history import already talks to Weibo; the regular fetch waits for the next tick.
+      return { ok: true, fetched: 0, added: 0, skipped: 0, errors: [], log: ['History import running — regular fetch skipped.'], deferred: true };
+    }
     if (this.running) {
       const err = new Error('A Weibo fetch is already running');
       err.status = 409;
@@ -479,6 +483,254 @@ class WeiboService {
       this.finish(result, { lastId: cfg.lastId ?? null, uid, error: err.message });
     }
     return result;
+  }
+
+  /* ------------------------------------------------------ history import */
+
+  /**
+   * Import older posts page by page (newest → oldest) in the background.
+   * Phase 1 stores every post as `pending` with its Chinese text (fast, a few
+   * seconds per page). Phase 2 translates the queued posts, newest first, and
+   * publishes them when auto-publish is on. A cursor in db.meta.weiboHistory
+   * lets a stopped or failed import continue where it left off.
+   * opts: { limit, translate, resume, translateOnly, publishUntranslated }
+   */
+  startHistory(opts = {}) {
+    if (this.history && this.history.state === 'running') throw Object.assign(new Error('A history import is already running'), { status: 409 });
+    if (this.running) throw Object.assign(new Error('A Weibo fetch is running right now — try again in a minute'), { status: 409 });
+    const cursor = this.store.db.meta.weiboHistory || null;
+    const h = {
+      state: 'running',
+      phase: opts.translateOnly ? 'translate' : 'fetch',
+      limit: Math.max(10, Math.min(3000, Math.round(Number(opts.limit) || 100))),
+      translate: opts.translate !== false,
+      publishUntranslated: !!opts.publishUntranslated,
+      translateOnly: !!opts.translateOnly,
+      resumeFrom: opts.resume && cursor && cursor.sinceId ? String(cursor.sinceId) : null,
+      startedAt: new Date().toISOString(),
+      finishedAt: null,
+      pages: 0,
+      seen: 0,
+      added: 0,
+      skipped: 0,
+      toTranslate: 0,
+      translated: 0,
+      translationFailed: 0,
+      errors: [],
+      log: [],
+      message: 'Starting…',
+      stop: false,
+    };
+    this.history = h;
+    this.historyJob = this._history(h)
+      .catch((err) => {
+        h.errors.push(err.message);
+        h.state = 'error';
+        h.message = err.message;
+      })
+      .finally(() => {
+        if (h.state === 'running') h.state = h.stop ? 'stopped' : 'done';
+        h.finishedAt = new Date().toISOString();
+        try {
+          this.store.save();
+        } catch {
+          /* reported on the next save */
+        }
+      });
+    return this.historyStatus();
+  }
+
+  stopHistory() {
+    if (this.history && this.history.state === 'running') {
+      this.history.stop = true;
+      this.history.message = 'Stopping after the current step…';
+    }
+    return this.historyStatus();
+  }
+
+  historyStatus() {
+    const db = this.store.db;
+    const queued = db.updates.filter((u) => u.source === 'weibo' && u.translation && u.translation.queued).length;
+    const weibo = db.updates.filter((u) => u.source === 'weibo').length;
+    const base = { cursor: db.meta.weiboHistory || null, queued, weiboPosts: weibo, translator: !!(this.translator && this.translator.configured && this.translator.configured()) };
+    if (!this.history) return { state: 'idle', ...base };
+    const { stop, log, ...rest } = this.history; // eslint-disable-line no-unused-vars
+    return { ...rest, log: log.slice(-40), ...base };
+  }
+
+  async _history(h) {
+    const log = this.log.capture ? this.log.capture(h.log, 'weibo') : this.log;
+    const cfg = this.getConfig() || {};
+    const db = this.store.db;
+    const uid = String(cfg.uid || '').trim();
+    if (!uid) throw new Error('Weibo uid is not configured (Admin → Integrations or WEIBO_UID)');
+
+    if (!h.translateOnly) {
+      log.info(`History import for uid ${uid}: up to ${h.limit} posts${h.resumeFrom ? ', continuing from the saved position' : ''}.`);
+      h.message = 'Connecting to Weibo…';
+      await this.warmUp(uid, log);
+      const containerid = await this.getContainerId(uid, log);
+      const existing = new Set(db.updates.filter((u) => u.source === 'weibo').map((u) => String(u.sourceId)));
+      const deleted = new Set((db.meta.weiboDeleted || []).map(String));
+      let sinceId = h.resumeFrom;
+      let newest = null;
+      let emptyPages = 0;
+      const prev = db.meta.weiboHistory || {};
+      // `limit` counts *new* posts. Posts already on the site are skipped and
+      // don't count, so a page cap keeps a fully imported account from being
+      // paged through forever.
+      const maxPages = Math.ceil(h.limit / 5) + 50;
+      while (h.added < h.limit && !h.stop) {
+        if (h.pages >= maxPages) {
+          log.warn(`Stopped after ${h.pages} pages; press Continue to read further back.`);
+          break;
+        }
+        let page;
+        try {
+          page = await this.getPosts(uid, containerid, log, sinceId ? { since_id: sinceId } : {});
+        } catch (err) {
+          h.errors.push(err.message);
+          log.error(`Page ${h.pages + 1} failed: ${err.message}`);
+          h.message = 'Weibo stopped answering. Wait a while (or set the Weibo cookie) and press Continue.';
+          break;
+        }
+        h.pages++;
+        const posts = page.posts.filter((p) => p && p.id != null);
+        if (!posts.length) {
+          if (++emptyPages >= 2 || !page.sinceId) {
+            log.info('Weibo returned no older posts.');
+            break;
+          }
+        } else emptyPages = 0;
+        let processedAll = true;
+        for (const post of posts) {
+          if (h.added >= h.limit || h.stop) {
+            processedAll = false;
+            break;
+          }
+          const pid = String(post.id);
+          if (!newest || compareIds(pid, newest) > 0) newest = pid;
+          h.seen++;
+          if (existing.has(pid) || deleted.has(pid)) {
+            h.skipped++;
+            continue;
+          }
+          try {
+            const raw = post.isLongText || String(post.text || '').includes('全文');
+            const own = cleanText(await this.getFullText(post, log));
+            if (raw) await this.sleep(700);
+            if (post.retweeted_status && isTrivialRepost(own)) {
+              h.skipped++;
+              continue;
+            }
+            const media = extractMedia(post);
+            const category = categorize(own);
+            const tr = { ok: false, provider: 'none', model: null, title: CATEGORY_LABELS[category], category, translation: own, relatedProductIds: [] };
+            const update = this.buildUpdate(post, own, media, tr, cfg);
+            update.translation = { provider: 'none', model: null, edited: false, queued: true };
+            update.status = h.publishUntranslated ? 'published' : 'pending';
+            update.history = true;
+            db.updates.push(update);
+            existing.add(pid);
+            h.added++;
+          } catch (err) {
+            h.errors.push(`post ${pid}: ${err.message}`);
+          }
+        }
+        const next = page.sinceId ? String(page.sinceId) : null;
+        const last = processedAll && (!next || next === sinceId);
+        // Stopped halfway through a page? Then Continue re-reads this page (the
+        // posts we already have are skipped) instead of jumping past the rest.
+        db.meta.weiboHistory = {
+          sinceId: last ? null : processedAll ? next : sinceId,
+          at: new Date().toISOString(),
+          imported: (Number(prev.imported) || 0) + h.added,
+          pages: (Number(prev.pages) || 0) + h.pages,
+          ...(last ? { complete: true } : {}),
+        };
+        this.store.save();
+        h.message = `Page ${h.pages}: ${h.added} new post(s), ${h.skipped} skipped (already on the site or plain reposts).`;
+        if (last) {
+          log.info('Reached the oldest post Weibo serves.');
+          break;
+        }
+        if (!processedAll) break;
+        sinceId = next;
+        if (h.added < h.limit && !h.stop) await this.sleep(2500 + Math.round(Math.random() * 1500));
+      }
+      // Keep the regular fetch from re-importing what we just stored.
+      if (newest) {
+        const priv = this.store.private;
+        if (!priv.weibo.lastId || compareIds(newest, priv.weibo.lastId) > 0) {
+          priv.weibo.lastId = newest;
+          try {
+            this.store.savePrivate();
+          } catch (err) {
+            h.errors.push(`could not save lastId: ${err.message}`);
+          }
+        }
+      }
+      log.info(`Fetch phase done: ${h.added} new post(s) from ${h.pages} page(s), ${h.skipped} skipped.`);
+    }
+
+    // ---- phase 2: translate the queue (newest first)
+    if (h.stop) return;
+    if (!h.translate) {
+      h.message = `Imported ${h.added} post(s) without translation.`;
+      return;
+    }
+    if (!this.translator || !this.translator.configured || !this.translator.configured()) {
+      h.message = `Imported ${h.added} post(s). Add a translation key under Translation, then press “Translate queued posts”.`;
+      log.warn('No translation provider configured — posts stay queued.');
+      return;
+    }
+    h.phase = 'translate';
+    const queue = db.updates
+      .filter((u) => u.source === 'weibo' && u.translation && u.translation.queued)
+      .sort((a, b) => Date.parse(b.publishedAt || 0) - Date.parse(a.publishedAt || 0));
+    h.toTranslate = queue.length;
+    const products = db.products.filter((p) => p.status !== 'archived');
+    let i = 0;
+    let streak = 0;
+    let lastError = '';
+    const worker = async () => {
+      while (i < queue.length && !h.stop) {
+        const u = queue[i++];
+        const tr = await this.translator.translatePost(u.textOriginal || '', { products });
+        if (!db.updates.includes(u)) continue; // deleted meanwhile
+        if (tr.ok) {
+          streak = 0;
+          u.title = tr.title;
+          u.category = tr.category;
+          u.textEnglish = tr.translation;
+          u.relatedProducts = tr.relatedProductIds || [];
+          u.translation = { provider: tr.provider, model: tr.model || null, edited: false };
+          if (u.status === 'pending' && cfg.autoPublish !== false) u.status = 'published';
+          h.translated++;
+        } else {
+          h.translationFailed++;
+          lastError = tr.error || 'translation failed';
+          if (++streak >= 5) {
+            h.stop = true;
+            h.errors.push(`Translation keeps failing (${lastError}) — stopped. Check the key and press “Translate queued posts”.`);
+          }
+        }
+        if ((h.translated + h.translationFailed) % 10 === 0) this.store.save();
+        h.message = `Translating: ${h.translated} of ${h.toTranslate} done${h.translationFailed ? `, ${h.translationFailed} failed` : ''}.`;
+      }
+    };
+    await Promise.all([worker(), worker(), worker()]);
+    this.store.save();
+    if (!h.stop) {
+      const failed = h.translationFailed ? `, ${h.translationFailed} could not be translated` : '';
+      h.message = h.translateOnly
+        ? h.toTranslate
+          ? `Done: ${h.translated} post(s) translated${failed}.`
+          : 'No posts were waiting for translation.'
+        : `Done: ${h.added} new post(s), ${h.translated} translated${failed}.`;
+    }
+    else if (h.errors.length) h.message = h.errors[h.errors.length - 1];
+    log.info(h.message);
   }
 
   finish(result, { lastId, uid, error }) {

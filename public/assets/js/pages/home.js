@@ -63,7 +63,7 @@
     return '<article class="ucard" data-reveal style="--d:' + (i * 0.06) + 's">' +
       (m ? '<div class="ucard__media" style="--m:1"><div style="--bg-m:' + Cola.media.updateMediaBg(m) + '">' + Cola.media.updateMedia(m) + '</div></div>' : '') +
       '<div class="ucard__body"><time class="tiny subtle" datetime="' + esc(u.publishedAt) + '">' + Cola.timeAgo(u.publishedAt) + '</time>' +
-      '<h3 class="ucard__title"><a href="' + Cola.url('updates') + '#' + esc(u.id) + '">' + esc(u.title) + '</a></h3>' +
+      '<h3 class="ucard__title"><a href="' + Cola.updateUrl(u) + '">' + esc(u.title) + '</a></h3>' +
       '<p class="ucard__text">' + esc(u.textEnglish || u.textOriginal || '') + '</p></div></article>';
   }
 })();

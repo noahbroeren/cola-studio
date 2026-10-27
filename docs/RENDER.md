@@ -105,6 +105,10 @@ Weibo staat al standaard aan met het account `7354109778` (<https://weibo.com/u/
 6. **Integrations → Weidian:** provider *Public item page*, **Enabled** aan, interval bijvoorbeeld 10 minuten. Doe eerst één keer **Dry run**. Vanaf dan loopt de voorraad automatisch mee.
 7. **Of via een spreadsheet:** **Products → Import / export → Download empty template**, invullen in Excel of Google Sheets, en weer importeren.
 8. **Backup & logs → Remove all demo content:** haalt alle demoproducten, demoposts en het demolabel weg. Er wordt eerst een snapshot gemaakt.
+9. **Oudere Weibo-posts:** **Integrations → Weibo → Import older posts** — kies bijvoorbeeld 100 en druk op *Import*. Het loopt op de achtergrond; daarna kun je steeds *de volgende 100* ophalen.
+10. **Google:** **Settings → SEO** → plak de code van Google Search Console (*HTML tag*), sla op, druk in Search Console op *Verify* en dien daar `sitemap.xml` in. Nieuwe producten en updates komen er vanzelf in.
+
+Bij het importeren uit Weidian neemt de site foto's, kleurfoto's, de beschrijving en de detailfoto's over. Met een Anthropic-key (stap 4) leest Claude ook de maattabel uit en vult hij de maattabel van het product; blokkeert Weidian de server, dan haalt Claude het product op met dezelfde key (alleen bij importeren).
 
 ---
 

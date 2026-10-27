@@ -150,22 +150,60 @@ test('server integration', async (t) => {
 
     const page = await get('/products/construction-work-jacket');
     assert.equal(page.status, 200);
-    assert.match(page.text, /<title>Construction Work Jacket — Cola Studio<\/title>/);
-    assert.match(page.text, /<meta name="description" content="A boxy work jacket cut from 12 oz waxed cotton canvas with triple-stitched seams &amp; a corduroy collar\. &quot;Built to age&quot;\.">/);
+    assert.match(page.text, /<title>Construction Work Jacket — Outerwear \| Cola Studio<\/title>/);
+    assert.match(page.text, /<meta name="description" content="[^"]*A boxy work jacket cut from 12 oz waxed cotton canvas with triple-stitched seams &amp; a corduroy collar\. &quot;Built to age&quot;\.">/);
+    assert.match(page.text, /<link rel="canonical" href="https:\/\/colastudio.com\/products\/construction-work-jacket">/);
     assert.match(page.text, /<meta property="og:url" content="https:\/\/colastudio.com\/products\/construction-work-jacket">/);
     assert.match(page.text, /<meta property="og:image" content="https:\/\/colastudio.com\/uploads\/jacket-front.jpg">/);
+    assert.match(page.text, /<meta name="robots" content="index, follow/);
     assert.equal((page.text.match(/cola-runtime/g) || []).length, 1, 'static marker replaced, not duplicated');
-    const ld = JSON.parse(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/.exec(page.text)[1]);
+    assert.equal((page.text.match(/application\/ld\+json/g) || []).length, 1, 'one JSON-LD block');
+    const graph = JSON.parse(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/.exec(page.text)[1])['@graph'];
+    const ld = graph.find((n) => n['@type'] === 'Product');
     assert.equal(ld.name, 'Construction Work Jacket');
     assert.equal(ld.offers.price, '689.00');
     assert.equal(ld.offers.priceCurrency, 'CNY');
     assert.equal(ld.offers.availability, 'https://schema.org/InStock');
+    assert.ok(graph.some((n) => n['@type'] === 'Organization') && graph.some((n) => n['@type'] === 'WebSite'));
+    const crumbs = graph.find((n) => n['@type'] === 'BreadcrumbList');
+    assert.deepEqual(crumbs.itemListElement.map((x) => x.name), ['Home', 'Shop', 'Outerwear', 'Construction Work Jacket']);
 
     const byId = await get('/products/cs-002');
     assert.equal(byId.status, 301);
     assert.equal(byId.headers.location, '/products/heavyweight-hoodie');
     const hoodie = await get('/products/heavyweight-hoodie');
-    assert.doesNotMatch(hoodie.text, /og:image/, 'no og:image without product images');
+    assert.match(hoodie.text, /<meta property="og:image" content="https:\/\/colastudio.com\/assets\/brand\/og-image.png">/, 'brand image without product photos');
+
+    // Pretty URLs: static-mode file names redirect once to the canonical address.
+    for (const [from, to] of [['/index.html', '/'], ['/products.html?category=tops', '/products?category=tops'], ['/product.html?slug=heavyweight-hoodie&color=Black', '/products/heavyweight-hoodie?color=Black'], ['/updates.html?post=su-pinned', '/updates/su-pinned']]) {
+      const r = await get(from);
+      assert.equal(r.status, 301, from);
+      assert.equal(r.headers.location, to, from);
+    }
+    // Server-rendered catalogue with crawlable links, category landing pages.
+    const shop = await get('/products');
+    assert.match(shop.text, /<a href="\/products\/construction-work-jacket">Construction Work Jacket<\/a>/);
+    assert.match(shop.text, /<title>Shop the Collection — Cola Studio<\/title>/);
+    const outer = await get('/products?category=outerwear&sort=price-asc');
+    assert.match(outer.text, /<link rel="canonical" href="https:\/\/colastudio.com\/products\?category=outerwear">/);
+    assert.match(outer.text, /<title>Outerwear — Cola Studio<\/title>/);
+    assert.doesNotMatch(outer.text, /heavyweight-hoodie"/);
+
+    // One page per studio update + RSS.
+    const post = await get('/updates/wb-5356000000000003');
+    assert.equal(post.status, 200);
+    assert.match(post.text, /<meta property="og:type" content="article">/);
+    assert.match(post.text, /<link rel="canonical" href="https:\/\/colastudio.com\/updates\/wb-5356000000000003">/);
+    assert.ok(JSON.parse(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/.exec(post.text)[1])['@graph'].some((n) => n['@type'] === 'BlogPosting'));
+    assert.equal((await get('/updates/wb-5356000000000002')).status, 404, 'pending posts have no page');
+    const api1 = await get('/api/updates/wb-5356000000000003');
+    assert.equal(api1.json.update.id, 'wb-5356000000000003');
+    assert.ok('newer' in api1.json && 'older' in api1.json);
+    assert.equal((await get('/api/updates/wb-5356000000000002')).status, 404);
+    const feed = await get('/updates/feed.xml');
+    assert.match(feed.headers['content-type'], /rss\+xml/);
+    assert.match(feed.text, /<link>https:\/\/colastudio.com\/updates\/wb-5356000000000003<\/link>/);
+    assert.doesNotMatch(feed.text, /wb-5356000000000002/);
 
     for (const p of ['/products/secret-draft-tee', '/products/nope', '/definitely-missing', '/missing.css']) {
       const r = await get(p);
@@ -181,15 +219,20 @@ test('server integration', async (t) => {
     assert.equal((await get('/products?category=tops')).status, 200);
     assert.match((await get('/admin')).text, /Admin/);
     assert.match((await get('/admin/')).text, /<base href="\/">/);
-    assert.match((await get('/index.html')).text, /cola-runtime/);
+    assert.match((await get('/admin/')).text, /<meta name="robots" content="noindex, nofollow">/);
+    assert.match((await get('/definitely-missing')).text, /<meta name="robots" content="noindex/);
 
     const sm = await get('/sitemap.xml');
     assert.match(sm.headers['content-type'], /xml/);
     assert.match(sm.text, /<loc>https:\/\/colastudio.com\/products\/construction-work-jacket<\/loc><lastmod>2026-10-20<\/lastmod>/);
     assert.match(sm.text, /<loc>https:\/\/colastudio.com\/products<\/loc>/);
-    assert.doesNotMatch(sm.text, /secret-draft-tee|\/admin|\/about/);
+    assert.match(sm.text, /<image:image><image:loc>https:\/\/colastudio.com\/uploads\/jacket-front.jpg<\/image:loc><\/image:image>/);
+    assert.match(sm.text, /<loc>https:\/\/colastudio.com\/updates\/wb-5356000000000003<\/loc>/);
+    assert.match(sm.text, /<loc>https:\/\/colastudio.com\/products\?category=outerwear<\/loc>/);
+    assert.doesNotMatch(sm.text, /secret-draft-tee|\/admin|\/about|wb-5356000000000002/);
     const robots = await get('/robots.txt');
-    assert.match(robots.text, /Disallow: \/admin\nDisallow: \/api/);
+    assert.match(robots.text, /Disallow: \/admin\nDisallow: \/api\/admin/);
+    assert.doesNotMatch(robots.text, /Disallow: \/api\n/, 'public API stays crawlable for rendering');
     assert.match(robots.text, /Sitemap: https:\/\/colastudio.com\/sitemap.xml/);
 
     const css = await get('/assets/css/site.css', { headers: { 'accept-encoding': 'gzip, br' }, raw: true });
@@ -282,7 +325,7 @@ test('server integration', async (t) => {
     await admin('DELETE', '/api/admin/products/cs-006');
 
     const page = await get('/products/field-jacket');
-    assert.match(page.text, /<title>Field Jacket — Cola Studio<\/title>/);
+    assert.match(page.text, /<title>Field Jacket (— \w+ )?\| Cola Studio<\/title>/);
   });
 
   await t.test('admin categories, settings, integrations (masked secrets, env overrides)', async () => {
@@ -421,6 +464,35 @@ test('server integration', async (t) => {
     const refetch = await admin('POST', '/api/admin/weibo/fetch', {});
     assert.ok(!(await admin('GET', '/api/admin/updates')).json.updates.some((u) => u.id === 'wb-5356970000000005'));
     assert.ok(refetch.json.skipped >= 1);
+
+    // Older posts: background history import with status polling.
+    const hs0 = await admin('GET', '/api/admin/weibo/history');
+    assert.equal(hs0.status, 200);
+    assert.equal(hs0.json.translator, true);
+    const hs = await admin('POST', '/api/admin/weibo/history', { limit: 50 });
+    assert.equal(hs.status, 200, hs.text);
+    assert.equal(hs.json.limit, 50);
+    let status = hs.json;
+    for (let i = 0; i < 100 && status.state === 'running'; i++) {
+      await new Promise((r) => setTimeout(r, 10));
+      status = (await admin('GET', '/api/admin/weibo/history')).json;
+    }
+    assert.equal(status.state, 'done', status.message);
+    assert.equal(status.queued, 0);
+    assert.ok(status.cursor && status.cursor.at);
+    assert.equal((await admin('POST', '/api/admin/weibo/history/stop')).json.state, 'done');
+    assert.equal((await request(base, 'GET', '/api/admin/weibo/history')).status, 401);
+
+    // Bulk status change (Publish all pending).
+    const ups = (await admin('GET', '/api/admin/updates')).json.updates;
+    const wbIds = ups.filter((u) => u.source === 'weibo').map((u) => u.id);
+    const hid = await admin('POST', '/api/admin/updates/bulk', { ids: wbIds.slice(0, 2), status: 'pending' });
+    assert.deepEqual(hid.json, { ok: true, changed: 2 });
+    const pubAll = await admin('POST', '/api/admin/updates/bulk', { fromStatus: 'pending', source: 'weibo', status: 'published' });
+    assert.ok(pubAll.json.changed >= 2);
+    assert.ok(!(await admin('GET', '/api/admin/updates')).json.updates.some((u) => u.source === 'weibo' && u.status === 'pending'));
+    assert.equal((await admin('POST', '/api/admin/updates/bulk', { status: 'nope', fromStatus: 'pending' })).status, 400);
+    assert.equal((await admin('POST', '/api/admin/updates/bulk', { status: 'published' })).status, 400);
 
     const imgUrl = 'https://wx2.sinaimg.cn/large/006hoodie01.jpg';
     const m1 = await get(`/media/weibo?u=${encodeURIComponent(imgUrl)}`);

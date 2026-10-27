@@ -5,8 +5,18 @@
   var PAGE = 6, cat = 'all', lang = Cola.store.get('cola.lang', 'en') === 'zh' ? 'zh' : 'en', loaded = [], total = 0;
   var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
+  function postIdFromUrl() {
+    var q = Cola.param('post'); if (q) return q;
+    var m = location.pathname.match(/\/updates\/([^/?#]+)/);
+    return m ? decodeURIComponent(m[1]) : '';
+  }
+
   Cola.boot(function () {
     setLang(lang);
+    $('[data-lang]').addEventListener('click', function (e) { var b = e.target.closest('[data-l]'); if (b) setLang(b.getAttribute('data-l')); });
+    bindTimeline();
+    var single = postIdFromUrl();
+    if (single) return loadSingle(single);
     bind();
     return load(true).then(function () {
       if (location.hash) {
@@ -35,7 +45,38 @@
     Cola.ui.enhance(host);
   }
 
-  function post(u) {
+  // ------------------------------------------------------------ one post (/updates/<id>)
+  function loadSingle(id) {
+    var tabs = $('[data-u-tabs]'); if (tabs) tabs.hidden = true;
+    return Cola.data.update(id).then(function (r) {
+      var u = r && r.update;
+      var host = $('[data-timeline]'), more = $('[data-u-more]');
+      if (!u) {
+        host.innerHTML = '<li>' + Cola.c.empty('This update could not be found', 'It may have been removed by the studio.', '<a class="btn btn--sm" href="' + Cola.url('updates') + '">All studio updates</a>') + '</li>';
+        if (more) more.innerHTML = '';
+        return;
+      }
+      loaded = [u];
+      var title = u.title || 'Studio update';
+      if (!Cola.isServer) document.title = title + ' — Studio Updates | ' + ((Cola.data.settings && Cola.data.settings.brand && Cola.data.settings.brand.name) || 'Cola Studio');
+      var t = $('[data-u-title]'); if (t) t.innerHTML = '<span class="post-title">' + esc(title) + '</span>';
+      var c = $('[data-u-crumbs]'); if (c) c.innerHTML = '<a href="' + Cola.url('home') + '">Home</a><span aria-hidden="true">/</span><a href="' + Cola.url('updates') + '">Studio updates</a><span aria-hidden="true">/</span><span>' + esc(title.length > 60 ? title.slice(0, 57) + '…' : title) + '</span>';
+      var d = new Date(u.publishedAt);
+      var l = $('[data-u-lead]'); if (l) l.innerHTML = '<time datetime="' + esc(u.publishedAt) + '">' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear() + '</time> · ' + (u.source === 'weibo' ? 'From the studio’s Weibo, translated into English.' : 'From the studio.');
+      host.innerHTML = post(u, { single: true });
+      Cola.ui.enhance(host);
+      if (more) {
+        more.innerHTML = '<nav class="post-nav" aria-label="More updates">' +
+          (r.newer ? '<a class="post-nav__link" href="' + Cola.updateUrl(r.newer) + '" rel="prev"><span class="tiny subtle">Newer</span><span>' + esc(r.newer.title || 'Studio update') + '</span></a>' : '<span></span>') +
+          '<a class="btn btn--ghost" href="' + Cola.url('updates') + '">All studio updates</a>' +
+          (r.older ? '<a class="post-nav__link post-nav__link--older" href="' + Cola.updateUrl(r.older) + '" rel="next"><span class="tiny subtle">Older</span><span>' + esc(r.older.title || 'Studio update') + '</span></a>' : '<span></span>') +
+          '</nav>';
+      }
+    });
+  }
+
+  function post(u, opts) {
+    opts = opts || {};
     var d = new Date(u.publishedAt);
     var media = (u.media || []).filter(function (m) { return m && (m.type !== 'image' || m.url); });
     var isWeibo = u.source === 'weibo';
@@ -46,13 +87,13 @@
       '<div class="tl-date"><span class="tl-date__day">' + String(d.getDate()).padStart(2, '0') + '</span><span class="tl-date__mon">' + MONTHS[d.getMonth()].slice(0, 3) + ' ' + d.getFullYear() + '</span></div>' +
       '<article class="tl-card">' +
         '<header class="tl-card__head"><div class="row row--wrap" style="--row-gap:12px">' + (u.pinned ? '<span class="badge badge--dark">Pinned</span>' : '') + '<span class="cat-chip cat-' + esc(u.category) + '">' + esc(u.category || 'update') + '</span></div></header>' +
-        '<h2 class="tl-card__title">' + esc(u.title || 'Studio update') + '</h2>' +
-        '<div class="tl-text' + ((u.textEnglish || u.textOriginal || '').length > 260 ? ' is-clamped' : '') + '">' +
+        (opts.single ? '' : '<h2 class="tl-card__title"><a href="' + Cola.updateUrl(u) + '">' + esc(u.title || 'Studio update') + '</a></h2>') +
+        '<div class="tl-text' + (!opts.single && (u.textEnglish || u.textOriginal || '').length > 260 ? ' is-clamped' : '') + '">' +
           '<div class="tl-en"><p>' + esc(u.textEnglish || u.textOriginal || '').replace(/\n+/g, '</p><p>') + '</p></div>' +
           (u.textOriginal && isWeibo ? '<div class="tl-zh zh"><span class="tl-zh__lbl">原文 · Original</span><p>' + esc(u.textOriginal).replace(/\n+/g, '</p><p>') + '</p></div>' : '') +
         '</div>' +
-        ((u.textEnglish || u.textOriginal || '').length > 260 ? '<button class="link link--quiet small tl-more" type="button" data-more-text>Read more</button>' : '') +
-        (media.length ? '<div class="tl-media" style="--m:' + Math.min(media.length, 3) + '">' + media.slice(0, 3).map(function (m, i) { return '<button type="button" class="tl-media__item' + (m.type === 'pattern' ? ' is-pattern' : '') + '" style="--bg-m:' + Cola.media.updateMediaBg(m) + '" data-media="' + esc(u.id) + '|' + i + '" aria-label="Open image ' + (i + 1) + '">' + Cola.media.updateMedia(m) + '</button>'; }).join('') + '</div>' : '') +
+        (!opts.single && (u.textEnglish || u.textOriginal || '').length > 260 ? '<button class="link link--quiet small tl-more" type="button" data-more-text>Read more</button>' : '') +
+        (media.length ? '<div class="tl-media" style="--m:' + Math.min(media.length, 3) + '">' + media.slice(0, opts.single ? 9 : 3).map(function (m, i) { return '<button type="button" class="tl-media__item' + (m.type === 'pattern' ? ' is-pattern' : '') + '" style="--bg-m:' + Cola.media.updateMediaBg(m) + '" data-media="' + esc(u.id) + '|' + i + '" aria-label="Open image ' + (i + 1) + '">' + Cola.media.updateMedia(m) + '</button>'; }).join('') + '</div>' : '') +
         (u.video && u.video.url ? '<div class="tl-video"><video src="' + esc(u.video.url) + '"' + (u.video.poster ? ' poster="' + esc(u.video.poster) + '"' : '') + ' controls playsinline preload="none"></video></div>' : '') +
         '<footer class="tl-card__foot">' +
           '<span class="tiny subtle">' + (isWeibo ? 'Translated from Chinese' + (tr.edited ? ' · edited by the studio' : '') : 'From the studio') + '</span>' +
@@ -67,7 +108,6 @@
   }
 
   function bind() {
-    $('[data-lang]').addEventListener('click', function (e) { var b = e.target.closest('[data-l]'); if (b) setLang(b.getAttribute('data-l')); });
     $('[data-u-tabs]').addEventListener('click', function (e) {
       var b = e.target.closest('[data-uc]'); if (!b) return;
       cat = b.getAttribute('data-uc');
@@ -75,6 +115,9 @@
       load(true);
     });
     $('[data-more]').addEventListener('click', function (e) { var b = e.currentTarget; b.classList.add('is-loading'); load(false).then(function () { b.classList.remove('is-loading'); }); });
+  }
+
+  function bindTimeline() {
     $('[data-timeline]').addEventListener('click', function (e) {
       var m = e.target.closest('[data-media]');
       if (m) {

@@ -10,6 +10,7 @@
     ch.push({ icon: 'whatsapp', title: 'WhatsApp', text: 'Orders, sizing and anything urgent.', cta: Cola.order.enabled() ? '<a class="btn btn--sm btn--wa" target="_blank" rel="noopener" href="' + esc(Cola.order.waLink(greet + ' 👋\n')) + '">' + Cola.icon('whatsapp', 'btn__icon') + 'Start a chat</a>' : '<span class="tiny subtle">Coming soon</span>', primary: true });
     ch.push({ icon: 'mail', title: 'Email', text: email || 'studio@colastudio.com', cta: email ? '<a class="btn btn--sm btn--ghost" href="mailto:' + esc(email) + '">Write an email</a>' : '' });
     ch.push({ icon: 'weibo', title: 'Weibo', text: 'News and drops from the studio.', cta: '<a class="btn btn--sm btn--ghost" href="' + esc(so.weibo || Cola.url('updates')) + '"' + (so.weibo ? ' target="_blank" rel="noopener"' : '') + '>' + (so.weibo ? 'Open Weibo' : 'Studio updates') + '</a>' });
+    if (so.yupoo) ch.push({ icon: 'album', title: 'Yupoo', text: 'Photo albums of every piece.', cta: '<a class="btn btn--sm btn--ghost" href="' + esc(so.yupoo) + '" target="_blank" rel="noopener">Open Yupoo</a>' });
     $('[data-channels]').innerHTML = ch.map(function (c, i) {
       return '<article class="channel' + (c.primary ? ' channel--primary theme-dark' : '') + '"><span class="channel__icon">' + Cola.icon(c.icon) + '</span><h2 class="h4">' + c.title + '</h2><p class="small muted">' + esc(c.text) + '</p><div class="channel__cta">' + c.cta + '</div></article>';
     }).join('');

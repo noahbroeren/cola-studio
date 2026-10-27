@@ -213,6 +213,22 @@ function normalizeProduct(input, { existing = null, products = [], nextId, now =
     createdAt: existing?.createdAt || now,
     updatedAt: now,
   };
+  // Photos from the seller's description (Weidian import) and the size-chart photo.
+  if (merged.detailImages !== undefined) {
+    product.detailImages = normImages(Array.isArray(merged.detailImages) ? merged.detailImages : []).map((im) => ({ url: im.url })).slice(0, 30);
+    delete merged.detailImages;
+  }
+  if (merged.sizeChartImage !== undefined) {
+    product.sizeChartImage = safeUrl(merged.sizeChartImage);
+    delete merged.sizeChartImage;
+  }
+  // Optional search-engine overrides (Admin → product → Story & details → Search engines).
+  for (const [k, max] of [['seoTitle', 120], ['seoDescription', 320]]) {
+    if (merged[k] === undefined) continue;
+    const v = str(merged[k], max).replace(/\s+/g, ' ').trim();
+    if (v) product[k] = v;
+    delete merged[k];
+  }
   for (const [k, v] of Object.entries(merged)) if (!(k in product)) product[k] = v;
   return product;
 }

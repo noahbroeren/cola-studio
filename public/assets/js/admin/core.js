@@ -7,7 +7,7 @@
   'use strict';
 
   const A = (window.ColaAdmin = window.ColaAdmin || {});
-  A.version = '1.2.0';
+  A.version = '1.3.0';
   A.views = A.views || {};
 
   /* ------------------------------------------------------------------ DOM */
