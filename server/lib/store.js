@@ -44,6 +44,7 @@ const DEFAULT_SETTINGS = {
   agents: [],
   weidian: { shopUrl: '', itemUrlTemplate: 'https://weidian.com/item.html?itemID={itemId}' },
   social: { instagram: '', weibo: '', tiktok: '', whatsappChannel: '', discord: '', xiaohongshu: '', yupoo: '' },
+  socialIcons: {}, // optional uploaded logos per social channel (contact page)
   nextDrop: { enabled: false, title: '', subtitle: '', date: null },
   shipping: { regions: [], note: '' },
   // Empty = the built-in copy in server/lib/seo.js. pages: { '/products': { title, description }, … }

@@ -748,3 +748,5 @@ body:not([data-lang="zh"]) .tl-text.is-clamped .tl-zh { display: none; }
 .pdp-detail { display: grid; gap: 6px; }
 .pdp-detail__img { display: block; width: 100%; padding: 0; border: 0; background: #fff; cursor: zoom-in; }
 .pdp-detail__img img { display: block; width: 100%; height: auto; }
+.channel__icon--logo { padding: 0; overflow: hidden; background: #fff; }
+.channel__icon--logo img { width: 100%; height: 100%; object-fit: cover; }

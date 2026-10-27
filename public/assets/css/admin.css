@@ -1086,3 +1086,4 @@ input[type="search"]::-webkit-search-cancel-button {
 .wd-thumbs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .wd-thumbs a { display: block; width: 64px; height: 80px; border: 1px solid var(--hl-soft); background: var(--tint); overflow: hidden; }
 .wd-thumbs img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.soc-logo img { width: 18px; height: 18px; object-fit: contain; border-radius: 50%; }

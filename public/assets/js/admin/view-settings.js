@@ -42,6 +42,7 @@
     x.agents = Array.isArray(x.agents) ? x.agents : [];
     x.weidian = Object.assign({ shopUrl: '', itemUrlTemplate: 'https://weidian.com/item.html?itemID={itemId}' }, x.weidian || {});
     x.social = Object.assign({}, x.social || {});
+    x.socialIcons = A.isObj(x.socialIcons) ? x.socialIcons : {};
     x.nextDrop = Object.assign({ enabled: false, title: '', subtitle: '', date: '' }, x.nextDrop || {});
     x.shipping = Object.assign({ regions: [], note: '' }, x.shipping || {});
     x.shipping.regions = Array.isArray(x.shipping.regions) ? x.shipping.regions : [];
@@ -230,8 +231,7 @@
             f('Title', 'nextDrop.title', { cls: '', ph: 'Vol. 04 — Winter Construction' }) +
             ui.field('Date & time', '<input class="input" type="datetime-local" id="s-drop-date" data-drop-date value="' + esc(A.toLocalInput(s.nextDrop.date)) + '">', { for: 's-drop-date', hint: '<span data-drop-hint>' + esc(s.nextDrop.date ? 'Your local time · ' + A.ago(s.nextDrop.date) : 'Your local time') + '</span>' }) +
             ui.field('Subtitle', '<textarea class="input" id="s-nextDrop-subtitle" data-s="nextDrop.subtitle" rows="2" style="min-height:64px">' + esc(s.nextDrop.subtitle || '') + '</textarea>', { cls: 'span-2', for: 's-nextDrop-subtitle' }) + '</div>') +
-          card('social', 'Social links', 'Shown in the footer. Leave empty to hide.',
-            '<div class="form-grid">' + SOCIAL.map(([k, label, ph]) => f(label, 'social.' + k, { ph })).join('') + extraSocial.map((k) => f(k, 'social.' + k)).join('') + '</div>') +
+          card('social', 'Social links', 'Shown in the footer and on the contact page. Leave empty to hide.', socialHtml(extraSocial)) +
           card('shipping', 'Shipping', 'Indicative delivery times after dispatch.',
             shippingHtml() + '<div style="margin-top:18px">' + ui.field('Note', '<textarea class="input" id="s-shipping-note" data-s="shipping.note" rows="2" style="min-height:64px">' + esc(s.shipping.note || '') + '</textarea>', { for: 's-shipping-note' }) + '</div>') +
           card('seo', 'SEO', 'How the site appears in Google and in link previews. Titles, descriptions, structured data and the sitemap are generated for every page automatically.', seoHtml()) +
@@ -272,8 +272,26 @@
         } }));
       }
 
+      function socialHtml(extra) {
+        const field = (k, label, ph) => {
+          const logo = s.socialIcons[k];
+          return ui.field(
+            label,
+            '<div class="ig">' + input('social.' + k, { ph }) +
+              '<button type="button" class="btn btn--secondary soc-logo" data-act="social-logo" data-k="' + esc(k) + '" title="Upload the official ' + esc(label) + ' logo">' + (logo ? '<img src="' + esc(logo) + '" alt="">' : icon('upload', 15)) + (logo ? 'Change' : 'Logo') + '</button>' +
+              (logo ? '<button type="button" class="btn btn--secondary" data-act="social-logo-del" data-k="' + esc(k) + '" aria-label="Remove the ' + esc(label) + ' logo">' + icon('x', 14) + '</button>' : '') + '</div>',
+            { for: 's-social-' + k }
+          );
+        };
+        return '<div class="form-grid" data-social>' + SOCIAL.map(([k, label, ph]) => field(k, label, ph)).join('') + extra.map((k) => field(k, k, '')).join('') + '</div>' +
+          '<p class="hint" style="margin-top:14px">Logo: upload the official logo of the platform (from its website or press kit). It is shown in the round icon on the contact page; without one a simple line icon is used.</p>';
+      }
+
       function redrawPart(which) {
-        if (which === 'agents') {
+        if (which === 'social') {
+          const host = root.querySelector('[data-body="social"]');
+          host.innerHTML = socialHtml(Object.keys(s.social).filter((k) => !SOCIAL.some(([key]) => key === k)));
+        } else if (which === 'agents') {
           const host = root.querySelector('[data-body="agents"]');
           const wrap = host.querySelector('[data-agents]');
           const add = wrap.nextElementSibling;
@@ -490,6 +508,27 @@
             s = withDefaults(JSON.parse(baseline));
             draw();
             break;
+          case 'social-logo': {
+            const k = b.dataset.k;
+            const files = await ui.pickFiles({ accept: 'image/png,image/jpeg,image/webp,image/svg+xml', multiple: false });
+            if (!files.length) break;
+            try {
+              const r = await ui.busy(b, () => A.data.upload(files[0], { forceResize: true }), 'Uploading…');
+              s.socialIcons = Object.assign({}, s.socialIcons, { [k]: r.url });
+              redrawPart('social');
+              ui.toast('Logo added — save the settings to put it live');
+            } catch (err) {
+              ui.error(err, 'Upload failed');
+            }
+            break;
+          }
+          case 'social-logo-del': {
+            const next = Object.assign({}, s.socialIcons);
+            delete next[b.dataset.k];
+            s.socialIcons = next;
+            redrawPart('social');
+            break;
+          }
           case 'agent-add': {
             let n = s.agents.length + 1;
             while (s.agents.some((a) => a.id === 'agent-' + n)) n++;

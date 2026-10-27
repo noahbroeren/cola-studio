@@ -99,7 +99,7 @@ Weibo staat al standaard aan met het account `7354109778` (<https://weibo.com/u/
 
 1. **Settings → WhatsApp ordering:** vul je nummer in, internationaal en zonder `+`, bijvoorbeeld `31612345678`.
 2. **Settings → Agents & Weidian:** vul per agent een naam en een URL-sjabloon in, bijvoorbeeld `https://agent.example/item?url={weidianUrl}`. Zonder sjabloon toont de knop "Link soon".
-3. **Settings → Brand** en **Social links:** controleer e-mail en socials. Weibo staat al ingevuld.
+3. **Settings → Brand** en **Social links:** controleer e-mail en socials. Weibo staat al ingevuld; vul ook je Yupoo-link in. Met de knop **Logo** naast elk kanaal upload je het officiële logo (van de site of persmap van dat platform); dat komt in het rondje op de contactpagina.
 4. **Integrations → Translation:** vul een vertaal-key in, of gebruik `ANTHROPIC_API_KEY` uit stap 4. Zonder key komen Weibo-posts binnen als *pending*: je ziet ze in **Studio updates** en kunt ze daar zelf publiceren.
 5. **Producten uit je Weidian-winkel:** **Products → Import / export → Import from Weidian**. Plak de productlinks (of gebruik de bladwijzer-knop in dat venster om alle links uit je winkel te kopiëren), bekijk het voorbeeld en bevestig. Ze komen binnen als *draft*, met voorraad-sync aan. Loop ze na en publiceer ze (selecteren → *Publish*).
 6. **Integrations → Weidian:** provider *Public item page*, **Enabled** aan, interval bijvoorbeeld 10 minuten. Doe eerst één keer **Dry run**. Vanaf dan loopt de voorraad automatisch mee.
