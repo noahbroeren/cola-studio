@@ -60,7 +60,8 @@
       loaded = [u];
       var title = u.title || 'Studio update';
       if (!Cola.isServer) document.title = title + ' — Studio Updates | ' + ((Cola.data.settings && Cola.data.settings.brand && Cola.data.settings.brand.name) || 'Cola Studio');
-      var t = $('[data-u-title]'); if (t) t.innerHTML = '<span class="post-title">' + esc(title) + '</span>';
+      var pt = Cola.c.postTitle(u);
+      var t = $('[data-u-title]'); if (t) t.innerHTML = (pt.kicker ? '<span class="post-kicker">' + esc(pt.kicker) + '</span>' : '') + '<span class="post-title">' + esc(pt.title) + '</span>';
       var c = $('[data-u-crumbs]'); if (c) c.innerHTML = '<a href="' + Cola.url('home') + '">Home</a><span aria-hidden="true">/</span><a href="' + Cola.url('updates') + '">Studio updates</a><span aria-hidden="true">/</span><span>' + esc(title.length > 60 ? title.slice(0, 57) + '…' : title) + '</span>';
       var d = new Date(u.publishedAt);
       var l = $('[data-u-lead]'); if (l) l.innerHTML = '<time datetime="' + esc(u.publishedAt) + '">' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear() + '</time> · ' + (u.source === 'weibo' ? 'From the studio’s Weibo, translated into English.' : 'From the studio.');

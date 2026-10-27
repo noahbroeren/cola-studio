@@ -30,7 +30,8 @@
     },
     colorHex: function (p, name) {
       var c = (p.colors || []).find(function (x) { return x.name === name; }) || (p.colors || [])[0];
-      return c ? c.hex : '#D9D2C5';
+      if (!c) return '#D9D2C5';
+      return Cola.colors ? Cola.colors.resolve(c).hex : c.hex;
     },
     texture: function (p) {
       var s = ((p.subtitle || '') + ' ' + (p.materials || '') + ' ' + (p.name || '')).toLowerCase();
@@ -64,9 +65,21 @@
         var forColor = imgs.filter(function (im) { return !im.color || im.color === color; });
         var list = forColor.length ? forColor : imgs;
         var im = opts.view === 'back' ? (list[1] || list[0]) : list[0];
-        return '<img src="' + Cola.esc(im.url) + '" alt="' + Cola.esc(im.alt || p.name) + '" loading="lazy" decoding="async">';
+        return '<img src="' + Cola.esc(im.url) + '" alt="' + Cola.esc(im.alt || p.name) + '"' + media.fitClass(im.url) + ' loading="lazy" decoding="async">';
       }
       return media.garment(p.garment, { color: media.colorHex(p, color), view: opts.view, print: p.print, title: p.name + (color ? ' — ' + color : '') });
+    },
+    /** ' class="is-fill"' when a photo is (almost) 4:5, read from Weidian's "_W_H" file names — it may fill the frame. */
+    fitClass: function (url) {
+      var r = media.photoRatio(url);
+      return r && r > 0.765 && r < 0.835 ? ' class="is-fill"' : '';
+    },
+    /** width / height of a photo when its file name carries it ("…_2560_3838.jpg"), else null. */
+    photoRatio: function (url) {
+      var s = String(url || '');
+      try { s = decodeURIComponent(s); } catch (e) { /* keep as is */ }
+      var m = /_(\d{3,5})_(\d{3,5})\.(?:jpe?g|png|webp)/i.exec(s);
+      return m ? +m[1] / +m[2] : null;
     },
     hasPhotos: function (p) { return (p.images || []).some(function (im) { return im && im.url; }); },
 
@@ -77,7 +90,7 @@
       if (imgs.length) {
         var forColor = imgs.filter(function (im) { return !im.color || im.color === color; });
         return (forColor.length ? forColor : imgs).map(function (im, i) {
-          return { html: '<img src="' + Cola.esc(im.url) + '" alt="' + Cola.esc(im.alt || p.name) + '" loading="' + (i ? 'lazy' : 'eager') + '">', caption: im.alt || p.name, kind: 'photo', bg: bg };
+          return { html: '<img src="' + Cola.esc(im.url) + '" alt="' + Cola.esc(im.alt || p.name) + '"' + media.fitClass(im.url) + ' loading="' + (i ? 'lazy' : 'eager') + '">', caption: im.alt || p.name, kind: 'photo', bg: bg };
         });
       }
       var items = [

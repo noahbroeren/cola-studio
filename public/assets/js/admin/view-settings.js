@@ -29,6 +29,7 @@
     ['discord', 'Discord', 'https://discord.gg/…'],
     ['xiaohongshu', 'Xiaohongshu (RED)', 'https://xiaohongshu.com/user/profile/…'],
     ['yupoo', 'Yupoo', 'https://colastudio.x.yupoo.com/albums'],
+    ['weidian', 'Weidian store', 'https://weidian.com/?userid=…'],
   ];
 
   function withDefaults(s) {

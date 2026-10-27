@@ -137,7 +137,7 @@
     var hits = PRODUCTS.filter(function (p) { return (p.name + ' ' + p.subtitle + ' ' + p.category).toLowerCase().indexOf(q) >= 0; }).slice(0, 6);
     box.hidden = false;
     box.innerHTML = hits.length ? hits.map(function (p) {
-      return '<div class="add-hit" data-add-id="' + esc(p.id) + '"><span class="add-hit__img" style="--tint:' + Cola.media.tint(p.colors[0].hex) + '">' + Cola.media.productImage(p) + '</span><div class="add-hit__main"><b>' + esc(p.name) + '</b><div class="row row--wrap" style="--row-gap:6px">' +
+      return '<div class="add-hit" data-add-id="' + esc(p.id) + '"><span class="add-hit__img" style="--tint:' + Cola.media.tint(Cola.media.colorHex(p)) + '">' + Cola.media.productImage(p) + '</span><div class="add-hit__main"><b>' + esc(p.name) + '</b><div class="row row--wrap" style="--row-gap:6px">' +
         '<select class="select select--mini" data-add-color aria-label="Colour">' + p.colors.map(function (c) { return '<option>' + esc(c.name) + '</option>'; }).join('') + '</select>' +
         (p.sizes.length > 1 ? '<select class="select select--mini" data-add-size aria-label="Size">' + p.sizes.map(function (s) { return '<option>' + esc(s) + '</option>'; }).join('') + '</select>' : '') +
         '</div></div><button class="btn btn--sm" type="button" data-add-go>Add</button></div>';

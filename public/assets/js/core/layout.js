@@ -54,7 +54,7 @@
         '<button class="hdr-btn" type="button" data-bag-open aria-label="Open order list">' + Cola.icon('bag') + '<span class="hide-sm">Order</span><span class="hdr-btn__count" data-bag-count></span></button>' +
       '</div></div></header>';
     // menu
-    frag += '<div class="menu" id="site-menu" aria-hidden="true"><div class="menu__inner"><nav class="menu__list" aria-label="Menu">' + MENU.map(function (m, i) {
+    frag += '<div class="menu theme-dark" id="site-menu" aria-hidden="true"><div class="menu__inner"><nav class="menu__list" aria-label="Menu">' + MENU.map(function (m, i) {
       return '<a class="menu__link" href="' + Cola.url(m.id) + '" style="--i:' + i + '"' + (page === m.id ? ' aria-current="page"' : '') + '>' + m.label + '</a>';
     }).join('') + '</nav><div class="menu__foot"><a href="' + Cola.url('faq') + '">FAQ</a><a href="' + Cola.url('size-guide') + '">Size guide</a><a href="' + Cola.url('order') + '">Your order list</a></div></div></div>';
     // drawer + overlay + search + to-top
@@ -73,16 +73,35 @@
     });
     // footer
     var foot = $('[data-footer]');
-    if (foot) foot.outerHTML = L.footer();
+    if (foot) {
+      if (['order', 'notfound', 'brand', 'faq', 'contact'].indexOf(page) < 0 && !document.body.hasAttribute('data-no-cta')) foot.insertAdjacentHTML('beforebegin', L.endCta());
+      foot.outerHTML = L.footer();
+    }
 
     bindHeader(); bindBag(); bindSearch(); L.renderBag(); updateCount();
     $('[data-to-top]').addEventListener('click', function () { window.scrollTo({ top: 0, behavior: Cola.reducedMotion ? 'auto' : 'smooth' }); });
     var di = $('[data-demo-info]'); if (di) di.addEventListener('click', L.demoInfo);
   };
 
+  /** Closing call to action above the footer: an arch cut like the outer ring of the monogram. */
+  L.endCta = function () {
+    var s = Cola.data.settings || {};
+    var wa = Cola.order.enabled() ? Cola.order.waLink(((s.whatsapp && s.whatsapp.greeting) || 'Hello Cola Studio') + ' 👋\n') : '';
+    return '<section class="end-cta" aria-labelledby="end-cta-title"><div class="container"><div class="end-cta__arch theme-dark pattern-paper" data-header="dark">' +
+      '<span class="end-cta__seam" aria-hidden="true"></span>' +
+      '<div class="end-cta__body">' + Cola.brand.mono({ cls: 'end-cta__mark' }) +
+        '<p class="eyebrow end-cta__eyebrow">Order directly</p>' +
+        '<h2 class="end-cta__title" id="end-cta-title"><span class="thin">Found the one?</span><br><b>Let’s make it yours.</b></h2>' +
+        '<p class="end-cta__text">Send your order list on WhatsApp — we confirm stock, shipping and your total, usually within a few hours.</p>' +
+        '<div class="end-cta__actions">' +
+          (wa ? '<a class="btn btn--light btn--wa" href="' + esc(wa) + '" target="_blank" rel="noopener">' + Cola.icon('whatsapp', 'btn__icon') + 'Chat with the studio</a>' : '') +
+          '<a class="btn btn--ghost" href="' + Cola.url('products') + '">Shop the collection</a>' +
+        '</div></div></div></div></section>';
+  };
+
   L.footer = function () {
     var s = Cola.data.settings || {}, so = s.social || {};
-    var socials = [['instagram', 'Instagram'], ['weibo', 'Weibo'], ['yupoo', 'Yupoo'], ['tiktok', 'TikTok'], ['xiaohongshu', 'Xiaohongshu'], ['discord', 'Discord'], ['whatsappChannel', 'WhatsApp channel']]
+    var socials = [['instagram', 'Instagram'], ['weibo', 'Weibo'], ['discord', 'Discord'], ['weidian', 'Weidian'], ['yupoo', 'Yupoo'], ['tiktok', 'TikTok'], ['xiaohongshu', 'Xiaohongshu'], ['whatsappChannel', 'WhatsApp channel']]
       .map(function (x) { return so[x[0]] ? '<li><a href="' + esc(so[x[0]]) + '" target="_blank" rel="noopener">' + x[1] + '</a></li>' : ''; }).join('');
     var col = function (title, links) { return '<div class="footer__col"><h4>' + title + '</h4><ul>' + links.map(function (l) { return '<li><a href="' + Cola.url(l[0]) + '">' + l[1] + '</a></li>'; }).join('') + '</ul></div>'; };
     var year = new Date().getFullYear();
@@ -157,7 +176,7 @@
       if (saved.length) products().then(function (list) {
         var body = d.querySelector('[data-saved-body]'); if (!body) return;
         var map = {}; list.forEach(function (p) { map[p.id] = p; });
-        body.innerHTML = saved.map(function (id) { var p = map[id]; if (!p) return ''; var c = p.colors[0]; return '<div class="line-item"><a class="line-item__img" href="' + Cola.productUrl(p) + '" style="--tint:' + Cola.media.tint(c.hex) + '">' + Cola.media.productImage(p) + '</a><div><div class="line-item__top"><div><a class="line-item__name" href="' + Cola.productUrl(p) + '">' + esc(p.name) + '</a><p class="line-item__meta">' + esc(p.subtitle || '') + '</p></div><span class="small">' + Cola.c.price(p.price) + '</span></div><div class="line-item__bottom">' + Cola.stock.html(Cola.stock.product(p)) + '<button class="line-item__remove" type="button" data-unsave="' + esc(p.id) + '">Remove</button></div></div></div>'; }).join('');
+        body.innerHTML = saved.map(function (id) { var p = map[id]; if (!p) return ''; var c = p.colors[0]; return '<div class="line-item"><a class="line-item__img" href="' + Cola.productUrl(p) + '" style="--tint:' + Cola.media.tint(Cola.media.colorHex(p, c && c.name)) + '">' + Cola.media.productImage(p) + '</a><div><div class="line-item__top"><div><a class="line-item__name" href="' + Cola.productUrl(p) + '">' + esc(p.name) + '</a><p class="line-item__meta">' + esc(p.subtitle || '') + '</p></div><span class="small">' + Cola.c.price(p.price) + '</span></div><div class="line-item__bottom">' + Cola.stock.html(Cola.stock.product(p)) + '<button class="line-item__remove" type="button" data-unsave="' + esc(p.id) + '">Remove</button></div></div></div>'; }).join('');
         Cola.rewriteLinks(body);
       });
     }
@@ -235,7 +254,12 @@
         var shown = 0;
         $$('[data-search-pages] a').forEach(function (a) { var hit = !q || a.textContent.toLowerCase().indexOf(q) >= 0 || a.getAttribute('href').toLowerCase().indexOf(q) >= 0; a.hidden = !hit; if (hit) shown++; });
         $('[data-search-pages]').parentNode.hidden = !shown;
-        if (!q) { hits = list.filter(function (p) { return p.featured; }).slice(0, 6); label.textContent = 'Popular right now'; }
+        if (!q) {
+          // Featured pieces first, then bestsellers and the newest in-stock pieces — never an empty block.
+          var rank = function (p) { return (p.featured ? 4 : 0) + ((p.badges || []).indexOf('bestseller') >= 0 ? 2 : 0) + (Cola.stock.product(p) === 'soldout' ? -3 : 0); };
+          hits = list.slice().sort(function (a, b) { return rank(b) - rank(a) || String(b.createdAt || '').localeCompare(String(a.createdAt || '')); }).slice(0, 6);
+          label.textContent = 'Popular right now';
+        }
         else {
           var terms = q.split(/\s+/);
           hits = list.map(function (p) {

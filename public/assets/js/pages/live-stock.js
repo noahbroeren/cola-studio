@@ -51,14 +51,15 @@
     if (f.st !== 'all') return p.variants.some(function (v) { var s = Cola.stock.variant(v, p); return f.st === 'soldout' ? (s === 'soldout' || s === 'restocking') : s === f.st; });
     return true;
   }
+  function swatch(c) { return Cola.colors.resolve(c).real ? '<span class="swatch swatch--sm" style="' + Cola.c.swatchVars(c) + '"></span>' : ''; }
   function cellMatches(st) { return f.st === 'all' || st === f.st || (f.st === 'soldout' && st === 'restocking'); }
 
-  function cell(p, color, size, changed) {
+  function cell(p, color, size, changed, bare) {
     var v = Cola.stock.find(p, color, size);
-    if (!v) return '<span class="cell cell--na" aria-hidden="true"><span class="cell__size">' + esc(size) + '</span><span class="cell__n">·</span></span>';
+    if (!v) return '<span class="cell cell--na" aria-hidden="true">' + (bare ? '' : '<span class="cell__size">' + esc(size) + '</span>') + '</span>';
     var st = Cola.stock.variant(v, p), n = Number(v.stock) || 0;
     var label = size + ' · ' + color + ' · ' + Cola.stock.labels[st] + (Cola.stock.available(st) ? ' — click to add' : ' — click to get notified');
-    return '<button type="button" class="cell st-' + st + (changed[v.sku] ? ' is-changed' : '') + (cellMatches(st) ? '' : ' is-dim') + '" data-cell="' + esc(p.id) + '|' + esc(color) + '|' + esc(size) + '" data-tip="' + esc(label) + '" aria-label="' + esc(p.name + ', ' + label) + '"><span class="cell__size">' + esc(size) + '</span><span class="cell__n">' + (st === 'preorder' ? 'PRE' : n) + '</span></button>';
+    return '<button type="button" class="cell st-' + st + (changed[v.sku] ? ' is-changed' : '') + (cellMatches(st) ? '' : ' is-dim') + '" data-cell="' + esc(p.id) + '|' + esc(color) + '|' + esc(size) + '" data-tip="' + esc(label) + '" aria-label="' + esc(p.name + ', ' + label) + '">' + (bare ? (st === 'preorder' ? '<span class="cell__pre">Pre</span>' : '') : '<span class="cell__size">' + esc(size) + '</span>') + '</button>';
   }
 
   function render(changed) {
@@ -67,14 +68,22 @@
     var list = PRODUCTS.filter(visible);
     if (!list.length) { host.innerHTML = Cola.c.empty('No matching stock', 'Try another filter.'); return; }
     if (view === 'board') {
+      // Compact matrix per product: sizes across the top once, one row per colour, a coloured block per size.
       host.innerHTML = '<div class="sboard">' + list.map(function (p) {
-        var st = Cola.stock.product(p);
+        var st = Cola.stock.product(p), single = p.colors.length === 1 && !Cola.colors.resolve(p.colors[0]).real;
         return '<article class="sb-card">' +
-          '<a class="sb-card__img" href="' + Cola.productUrl(p) + '" style="--tint:' + Cola.media.tint(p.colors[0].hex) + '" aria-label="' + esc(p.name) + '">' + Cola.media.productImage(p) + '</a>' +
-          '<div class="sb-card__body"><div class="sb-card__head"><div><h3 class="sb-card__name"><a href="' + Cola.productUrl(p) + '">' + esc(p.name) + '</a></h3><p class="tiny subtle">' + esc(Cola.c.code(p)) + ' · ' + Cola.c.price(p.price) + '</p></div>' + Cola.stock.html(st) + '</div>' +
-          '<div class="sb-matrix" style="--n:' + p.sizes.length + '">' + p.colors.map(function (c) {
-            return '<div class="sb-row"><span class="sb-row__color"><span class="swatch swatch--sm" style="--c:' + esc(c.hex) + '"></span>' + esc(c.name) + '</span><div class="cells" style="--n:' + p.sizes.length + '">' + p.sizes.map(function (s) { return cell(p, c.name, s, changed); }).join('') + '</div></div>';
-          }).join('') + '</div></div></article>';
+          '<div class="sb-card__top">' +
+            '<a class="sb-card__img" href="' + Cola.productUrl(p) + '" style="--tint:' + Cola.media.tint(Cola.media.colorHex(p)) + '" aria-label="' + esc(p.name) + '">' + Cola.media.productImage(p) + '</a>' +
+            '<div class="sb-card__head"><h3 class="sb-card__name"><a href="' + Cola.productUrl(p) + '" title="' + esc(p.name) + '">' + esc(p.name) + '</a></h3>' +
+              '<p class="tiny subtle">' + esc(Cola.c.code(p)) + ' · ' + Cola.c.price(p.price) + '</p>' + Cola.stock.html(st) + '</div>' +
+          '</div>' +
+          '<div class="sb-grid' + (single ? ' sb-grid--single' : '') + '" style="--n:' + p.sizes.length + '">' +
+            (single ? '' : '<span class="sb-grid__corner" aria-hidden="true"></span>') + p.sizes.map(function (s) { return '<span class="sb-grid__size">' + esc(s) + '</span>'; }).join('') +
+            p.colors.map(function (c) {
+              return (single ? '' : '<span class="sb-grid__color" title="' + esc(c.name) + '">' + swatch(c) + '<span>' + esc(Cola.colors.label(c.name)) + '</span></span>') +
+                p.sizes.map(function (s) { return cell(p, c.name, s, changed, true); }).join('');
+            }).join('') +
+          '</div></article>';
       }).join('') + '</div>';
     } else {
       host.innerHTML = '<div class="table-wrap"><table class="table stable"><thead><tr><th>Product</th><th>Colour</th><th>Sizes</th><th>Status</th></tr></thead><tbody>' +
@@ -83,7 +92,7 @@
             var st = Cola.stock.product(p, c.name);
             if (f.st !== 'all' && !p.variants.some(function (v) { return v.color === c.name && cellMatches(Cola.stock.variant(v, p)); })) return '';
             return '<tr><td>' + (i === 0 ? '<a class="stable__name" href="' + Cola.productUrl(p) + '">' + esc(p.name) + '</a><span class="tiny subtle"> · ' + esc(Cola.c.code(p)) + '</span>' : '') + '</td>' +
-              '<td><span class="row" style="--row-gap:8px"><span class="swatch swatch--sm" style="--c:' + esc(c.hex) + '"></span>' + esc(c.name) + '</span></td>' +
+              '<td><span class="row" style="--row-gap:8px">' + swatch(c) + esc(Cola.colors.label(c.name)) + '</span></td>' +
               '<td><div class="cells cells--inline">' + p.sizes.map(function (s) { return cell(p, c.name, s, changed); }).join('') + '</div></td>' +
               '<td>' + Cola.stock.html(st) + '</td></tr>';
           }).join('');

@@ -41,7 +41,11 @@
   function gallery() {
     items = Cola.media.gallery(P, state.color);
     var host = $('[data-gallery]');
-    host.innerHTML = '<div class="gal" data-gal>' + items.map(function (it, i) {
+    // The gallery takes the shape of the first photo (2:3, 4:5 or square), so a product's photos fill their frames.
+    var first = (Cola.media.hasPhotos(P) && (P.images || []).find(function (im) { return im && im.url; })) || null;
+    var ratio = first ? Cola.media.photoRatio(first.url) : null;
+    ratio = ratio ? Math.min(1, Math.max(2 / 3, ratio)) : null;
+    host.innerHTML = '<div class="gal" data-gal' + (ratio ? ' style="--gal-ratio:' + ratio.toFixed(4) + '"' : '') + '>' + items.map(function (it, i) {
       return '<figure class="gal__item gal__item--' + it.kind + (i === 0 ? ' gal__item--lead' : '') + '" style="--bg:' + it.bg + '" data-gal-i="' + i + '"><div class="gal__frame">' + it.html + '</div></figure>';
     }).join('') + '</div><div class="gal__dots" data-gal-dots>' + items.map(function (_, i) { return '<span' + (i ? '' : ' class="is-on"') + '></span>'; }).join('') + '</div>' +
       (Cola.c.isDemo(P) && !Cola.media.hasPhotos(P) ? '<p class="gal__demo tiny subtle">Demo product — illustration until real photos are added.</p>' : '');
@@ -68,7 +72,7 @@
         '<span class="tiny subtle" data-cny-note>' + cnyNote() + '</span></div>' +
       Cola.c.buyPanel(P, state) +
       '<div class="acc pdp__acc" data-acc>' +
-        acc('Description', '<div class="pdp-desc">' + Cola.c.richText(P.description || '') + legacyDetails() + '</div>', true) +
+        acc('Description', descBlock(), true) +
         acc('Size & fit', (P.fit ? '<p>' + esc(P.fit) + '</p>' : '') +
           (P.sizeChartImage && !P.measurements ? '<button type="button" class="pdp-chart" data-chart aria-label="Enlarge the size chart"><img src="' + esc(P.sizeChartImage) + '" alt="Size chart — ' + esc(P.name) + '" loading="lazy" decoding="async"></button>' : '') + (P.measurements ? '<div class="row row--between mt-2 mb-1"><span class="tiny subtle">Garment measurements</span><div class="segmented" data-units><button type="button" aria-pressed="true" data-unit="cm">cm</button><button type="button" aria-pressed="false" data-unit="in">inch</button></div></div><div data-mtable>' + Cola.c.sizeTable(P.measurements, 'cm') + '</div>' : '') + '<a class="link small mt-2" href="' + Cola.url('size-guide') + '">Full size guide & fit finder ' + Cola.icon('arrow-right') + '</a>') +
         (detailImgs().length ? acc('Detail photos <span class="tiny subtle">' + detailImgs().length + '</span>', detailGrid()) : '') +
@@ -81,12 +85,25 @@
       var u = e.target.closest('[data-unit]');
       if (u) { $$('[data-unit]', host).forEach(function (x) { x.setAttribute('aria-pressed', x === u); }); $('[data-mtable]', host).innerHTML = Cola.c.sizeTable(P.measurements, u.getAttribute('data-unit')); }
       if (e.target.closest('[data-share]')) share();
+      var more = e.target.closest('[data-desc-more]');
+      if (more) {
+        var d = $('[data-desc]', host), open = d.classList.toggle('is-open');
+        more.setAttribute('aria-expanded', open);
+        more.innerHTML = (open ? 'Show less ' : 'Read more ') + Cola.icon('chevron-down');
+        if (!open) d.scrollIntoView({ block: 'nearest' });
+      }
       var ch = e.target.closest('[data-chart]');
       if (ch) Cola.ui.lightbox([{ html: '<img src="' + esc(P.sizeChartImage) + '" alt="Size chart">', caption: 'Size chart — ' + P.name, kind: 'photo', bg: '#fff' }], 0);
       var dt = e.target.closest('[data-detail]');
       if (dt) Cola.ui.lightbox(detailImgs().map(function (d, i, all) { return { html: '<img src="' + esc(d.url) + '" alt="">', caption: P.name + ' — detail ' + (i + 1) + '/' + all.length, kind: 'photo', bg: 'transparent' }; }), +dt.getAttribute('data-detail'));
     });
     Cola.rewriteLinks(host);
+  }
+  /** Long seller texts fold after a few lines, with "Read more". */
+  function descBlock() {
+    var long = String(P.description || '').length > 650;
+    return '<div class="pdp-desc' + (long ? ' is-long' : '') + '" data-desc>' + Cola.c.richText(P.description || '') + legacyDetails() + '</div>' +
+      (long ? '<button type="button" class="link link--quiet tiny pdp-desc__more" data-desc-more aria-expanded="false">Read more ' + Cola.icon('chevron-down') + '</button>' : '');
   }
   /** Detail photos without the size chart — that one lives under Size & fit (or is replaced by the table). */
   function detailImgs() { return (P.detailImages || []).filter(function (d) { return d && d.url && d.url !== P.sizeChartImage; }); }

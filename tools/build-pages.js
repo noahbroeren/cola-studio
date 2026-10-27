@@ -35,7 +35,7 @@ const FILES = {
   brand: { page: 'brand', route: '/brand', js: 'brand' },
   '404': { page: 'notfound', route: '/404', js: 'notfound', title: 'Page not found — {brand}', desc: 'This page does not exist.', noindex: true },
 };
-const CORE = ['util', 'data', 'brand', 'media', 'cart', 'ui', 'components', 'layout'];
+const CORE = ['util', 'colors', 'data', 'brand', 'media', 'cart', 'ui', 'components', 'layout'];
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const fill = (s) => String(s || '').replace(/\{brand\}/g, BRAND);
@@ -89,12 +89,12 @@ ${noindex ? '' : `  <link rel="canonical" href="${url}">\n`}  <meta name="theme-
   <meta property="og:title" content="${esc(title)}">
   <meta property="og:description" content="${esc(desc)}">
   <meta property="og:url" content="${url}">
-  <meta property="og:image" content="${SITE}/assets/brand/og-image.png">
+  <meta property="og:image" content="${SITE}/assets/brand/${def.og ? "og/" + def.og : "og-image"}.png">
   <meta property="og:image:alt" content="${BRAND} — International Fashion Studio">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${esc(title)}">
   <meta name="twitter:description" content="${esc(desc)}">
-  <meta name="twitter:image" content="${SITE}/assets/brand/og-image.png">
+  <meta name="twitter:image" content="${SITE}/assets/brand/${def.og ? "og/" + def.og : "og-image"}.png">
   <link rel="icon" href="assets/brand/favicon.svg?v=${V}" type="image/svg+xml">
   <link rel="icon" href="assets/brand/favicon-32.png?v=${V}" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">

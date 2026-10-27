@@ -17,7 +17,7 @@ test('seeds db.json from public/data on first boot and creates private.json with
   assert.equal(db.categories.length, 2);
   assert.equal(db.updates.length, 4);
   assert.equal(db.settings.brand.name, 'Cola Studio');
-  assert.deepEqual(db.settings.social, { instagram: '', weibo: '', tiktok: '', whatsappChannel: '', discord: '', xiaohongshu: '', yupoo: '' }, 'missing keys filled from defaults');
+  assert.deepEqual(db.settings.social, { instagram: '', weibo: '', tiktok: '', whatsappChannel: '', discord: '', xiaohongshu: '', yupoo: '', weidian: '' }, 'missing keys filled from defaults');
   assert.deepEqual(db.messages, []);
   assert.deepEqual(db.meta.seededFrom.sort(), ['categories.json', 'inventory-events.json', 'products.json', 'settings.json', 'updates.json']);
   // inventory events sorted oldest → newest

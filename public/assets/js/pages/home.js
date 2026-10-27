@@ -12,6 +12,7 @@
         var products = r[0], ups = r[1];
         var hero = featuredList(products).slice(0, 4);
         heroFeatured(hero);
+        channels();
         newIn(products.filter(function (p) { return hero.indexOf(p) < 0; }), products);
         updates(ups.updates || []);
       });
@@ -25,6 +26,10 @@
   var ts = function (p) { return Date.parse(p.createdAt || p.updatedAt || 0) || 0; };
 
   // ---------------------------------------------------------------- hero (the monogram stays; products sit in the strip below)
+  function channels() {
+    var host = $('[data-home-channels]'); if (!host) return;
+    host.innerHTML = Cola.c.channelList(['whatsapp', 'discord', 'weidian', 'yupoo']).map(Cola.c.channelCard).join('');
+  }
   function heroArt() {
     var host = $('[data-hero-art]'); if (!host) return;
     host.innerHTML = Cola.brand.mono({ cls: 'hero__mark' });

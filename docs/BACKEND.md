@@ -421,6 +421,11 @@ er een vertaalprovider is ingesteld. Elke variant krijgt meteen zijn
 alle productlinks van je eigen winkelpagina. Het voorbeeld wordt pas na
 bevestigen opgeslagen, via `POST /api/admin/products/bulk` (met snapshot).
 
+**Weidian-knoppen op de site.** Elk gekoppeld product krijgt op de productpagina
+de knop *View on Weidian*. De winkellink voor de blokken op de homepage en de
+contactpagina staat in *Settings → Social links → Weidian store* (wordt na een
+winkelimport automatisch ingevuld als hij nog leeg is).
+
 **Hele winkel.** Plak je winkellink (`https://shop123.v.weidian.com/?userid=123`):
 de server leest alle producten van de winkel (`decorate/shopDetail.tab.getItemList`)
 en je vinkt aan welke je wilt. Toeslag-links, regels en producten "in
@@ -437,7 +442,11 @@ gehaald als dat kan. "Onbeperkte" voorraad (999999999) wordt 999.
 3. de productpagina (`weidian.com/item.html`) — de fotogalerij en titel.
 
 Bron 2 en 3 zijn optioneel; lukt er één niet, dan gaat de import gewoon door
-(het voorbeeld meldt het). Kleurfoto's krijgen de kleurnaam mee, zodat de site
+(het voorbeeld meldt het). Kleurbolletjes worden uit de kleurnaam afgeleid
+(Engels en Chinees, ook samengesteld: "Brick Red", "Haze Blue", "黑白" wordt
+tweekleurig); een kleur die je zelf kiest blijft staan. Varianten die geen kleur
+zijn ("Default", "Original length") worden op de site als tekstknoppen getoond.
+Kleurfoto's krijgen de kleurnaam mee, zodat de site
 van foto wisselt als je een kleur kiest. De detailfoto's komen als vierkante
 miniaturen onder *Detail photos* op de productpagina (de eerste 12, de rest via
 "+N"; klikken vergroot). SKU's die eigenlijk contactgegevens zijn (`微信：…`,
@@ -575,6 +584,13 @@ Teksten aanpassen: **Settings → SEO** (homepage, elke pagina apart, deelfoto,
 Google Search Console- en Bing-code) en per product in de editor (*Story &
 details → Search engines*). Leeg = de ingebouwde tekst. De paginafragmenten
 staan in `tools/pages/`; na een wijziging `npm run build:pages`.
+
+**Deelafbeeldingen.** Elke pagina heeft een eigen Open Graph-afbeelding
+(`public/assets/brand/og/<pagina>.png`, 1200×630, in de huisstijl). Product-
+en Studio-updatepagina's gebruiken hun eigen foto. De deelfoto uit
+*Settings → SEO* vervangt die van de homepage. Teksten van de afbeeldingen
+aanpassen: `tools/build-og.js`, daarna `node tools/build-og.js` (heeft
+Playwright nodig).
 
 ---
 

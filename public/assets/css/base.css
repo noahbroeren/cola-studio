@@ -153,3 +153,7 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 input[type="search"]::-webkit-search-cancel-button:hover { opacity: .9; }
 .search input[type="search"]::-webkit-search-cancel-button { width: 20px; height: 20px; }
+
+/* Native dropdown lists: always readable (Windows draws them white unless told otherwise) */
+select option, select optgroup { color: #130D0A; background-color: #FFFFFF; }
+.theme-dark select option, .theme-dark select optgroup { color: #130D0A; background-color: #FFFFFF; }

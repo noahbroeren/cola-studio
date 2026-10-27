@@ -53,7 +53,8 @@ function weiboAlternates(u) {
   if (!/(^|\.)sinaimg\.cn$/i.test(u.hostname)) return [u];
   const m = /^\/([a-z0-9]+)\/([^/]+)$/i.exec(u.pathname);
   if (!m) return [u];
-  const sizes = [...new Set([m[1], m[1] === 'large' ? 'mw2000' : 'large', 'mw1024', 'mw2000'])];
+  // The 1024 px version first: a fraction of the size of large/mw2000 and plenty for the site.
+  const sizes = [...new Set(['mw1024', m[1], m[1] === 'large' ? 'mw2000' : 'large', 'mw2000'])];
   const hosts = [...new Set([u.hostname, 'wx1.sinaimg.cn', 'wx3.sinaimg.cn', 'wx4.sinaimg.cn'])];
   const out = [];
   const add = (host, size) => {

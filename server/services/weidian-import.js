@@ -13,6 +13,15 @@
 const { DEFAULT_SIZE_ALIASES, DEFAULT_COLOR_ALIASES } = require('./weidian');
 const scrape = require('./weidian-scrape');
 const { COLOR_HEX } = require('../../public/assets/js/admin/product-sheet.js');
+const colorNames = require('../../public/assets/js/core/colors.js');
+
+/** { name, hex, hex2? } — the swatch worked out from the name (English or Chinese); the old grey when it is not a colour. */
+function swatchFor(name, prevHex) {
+  const f = colorNames.infer(name);
+  if (f) return f.hex2 ? { name, hex: f.hex, hex2: f.hex2 } : { name, hex: f.hex };
+  const known = COLOR_HEX[String(name).toLowerCase()];
+  return { name, hex: known || (prevHex && prevHex !== colorNames.FALLBACK ? prevHex : colorNames.FALLBACK) };
+}
 const { sleep: realSleep } = require('../lib/util');
 
 const CJK = /[㐀-鿿豈-﫿]/;
@@ -262,7 +271,7 @@ function draftFromItem(item, raw, { itemId, cfg = {}, categories = [] } = {}) {
       status: 'draft',
       category,
       price: Math.round(price * 100) / 100,
-      colors: colors.map((name) => ({ name, hex: COLOR_HEX[name.toLowerCase()] || '#9A948E' })),
+      colors: colors.map((name) => swatchFor(name)),
       sizes,
       variants,
       images,
@@ -358,10 +367,13 @@ async function importItems({ ids, weidian, translator, cfg = {}, products = [], 
           else {
             const c = ref.r.draft.colors[ref.i];
             const old = c.name;
-            c.name = v;
-            c.hex = COLOR_HEX[v.toLowerCase()] || c.hex;
-            ref.r.draft.variants.forEach((x) => x.color === old && (x.color = v));
-            (ref.r.draft.images || []).forEach((x) => x.color === old && (x.color = v));
+            // Notes in brackets belong in the description, not in the colour name — unless that makes two names equal.
+            const short = colorNames.label(v);
+            const name = ref.r.draft.colors.some((o, j) => j !== ref.i && colorNames.label(o.name).toLowerCase() === short.toLowerCase()) ? v : short;
+            c.name = name;
+            Object.assign(c, swatchFor(name, c.hex));
+            ref.r.draft.variants.forEach((x) => x.color === old && (x.color = name));
+            (ref.r.draft.images || []).forEach((x) => x.color === old && (x.color = name));
           }
         });
       }

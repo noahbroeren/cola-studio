@@ -3,7 +3,6 @@
   'use strict';
   var Cola = window.Cola, $ = Cola.$, $$ = Cola.$$, esc = Cola.esc;
   var ALL = [], state = null, priceBounds = [0, 0];
-  var SIZE_ORDER = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '28', '30', '32', '34', '36', '39–42', '43–46', 'OS'];
 
   function readState() {
     var q = new URLSearchParams(location.search);
@@ -58,7 +57,7 @@
       if (!state.q.toLowerCase().split(/\s+/).every(function (t) { return hay.indexOf(t) >= 0; })) return false;
     }
     if (state.sizes.length && !state.sizes.some(function (s) { return p.variants.some(function (v) { return v.size === s && Cola.stock.available(Cola.stock.variant(v, p)); }); })) return false;
-    if (state.colors.length && !(p.colors || []).some(function (c) { return state.colors.indexOf(c.name) >= 0; })) return false;
+    if (state.colors.length && !(p.colors || []).some(function (c) { return state.colors.indexOf(c.name) >= 0 || Cola.colors.families(c).some(function (f) { return state.colors.indexOf(f) >= 0; }); })) return false;
     if (state.collections.length && state.collections.indexOf(p.collection) < 0) return false;
     if (state.badges.length && !state.badges.some(function (b) { return (p.badges || []).indexOf(b) >= 0; })) return false;
     var st = Cola.stock.product(p);
@@ -156,8 +155,18 @@
   function filtersPanel() {
     var el = $('[data-filters]');
     var sizes = []; ALL.forEach(function (p) { (p.sizes || []).forEach(function (s) { if (sizes.indexOf(s) < 0) sizes.push(s); }); });
-    sizes.sort(function (a, b) { var x = SIZE_ORDER.indexOf(a), y = SIZE_ORDER.indexOf(b); return (x < 0 ? 99 : x) - (y < 0 ? 99 : y); });
-    var colors = {}; ALL.forEach(function (p) { (p.colors || []).forEach(function (c) { colors[c.name] = c.hex; }); });
+    // Letter sizes first (XXS → 4XL), then numbers from small to large, then everything else
+    var LETTERS = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '2XL', '3XL', 'XXXL', '4XL', 'OS'];
+    var rank = function (s) {
+      var i = LETTERS.indexOf(String(s).toUpperCase()); if (i >= 0) return [0, i];
+      var n = parseFloat(String(s)); if (!isNaN(n) && /^\d/.test(s)) return [1, n];
+      return [2, 0];
+    };
+    sizes.sort(function (a, b) { var x = rank(a), y = rank(b); return x[0] - y[0] || x[1] - y[1] || String(a).localeCompare(String(b)); });
+    // Colour filter by family (Black, Blue, Green…) — names like "Brick Red" or "With Label Black" stay out of the list
+    var colors = {}; ALL.forEach(function (p) { (p.colors || []).forEach(function (c) { Cola.colors.families(c).forEach(function (f) { colors[f] = Cola.colors.FAMILY_HEX[f]; }); }); });
+    var FAM_ORDER = ['Black', 'White', 'Grey', 'Beige', 'Brown', 'Red', 'Pink', 'Orange', 'Yellow', 'Green', 'Blue', 'Purple'];
+    colors = FAM_ORDER.filter(function (f) { return colors[f]; }).reduce(function (o, f) { o[f] = colors[f]; return o; }, {});
     var cols = []; ALL.forEach(function (p) { if (p.collection && cols.indexOf(p.collection) < 0) cols.push(p.collection); });
     cols.sort();
     var lo = Math.floor(cur(priceBounds[0])), hi = Math.ceil(cur(priceBounds[1]));

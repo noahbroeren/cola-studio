@@ -27,6 +27,7 @@ const PAGES = {
     changefreq: 'daily',
   },
   '/products': {
+    og: 'products',
     file: 'products.html',
     title: 'Shop the Collection — {brand}',
     description: 'Every {brand} piece in one place, with prices, live stock per size and colour, and worldwide ordering via WhatsApp, Weidian or your agent.',
@@ -36,6 +37,7 @@ const PAGES = {
     changefreq: 'daily',
   },
   '/live-stock': {
+    og: 'live-stock',
     file: 'live-stock.html',
     title: 'Live Stock — Every Size & Colour | {brand}',
     description: 'Real-time stock for every {brand} size and colour, synced with the official Weidian store. See what is in stock, low, on pre-order or restocking.',
@@ -45,6 +47,7 @@ const PAGES = {
     changefreq: 'hourly',
   },
   '/updates': {
+    og: 'updates',
     file: 'updates.html',
     title: 'Studio Updates — News, Drops & Restocks | {brand}',
     description: 'Production notes, new drops and restocks from the {brand} Weibo, translated into English. Follow what the studio is working on.',
@@ -54,6 +57,7 @@ const PAGES = {
     changefreq: 'daily',
   },
   '/how-to-order': {
+    og: 'how-to-order',
     file: 'how-to-order.html',
     title: 'How to Order — WhatsApp, Weidian & Agents | {brand}',
     description: 'How to order from {brand}: directly on WhatsApp, in the Weidian store or through your buying agent. Payment, shipping times and every step explained.',
@@ -63,6 +67,7 @@ const PAGES = {
     changefreq: 'monthly',
   },
   '/about': {
+    og: 'about',
     file: 'about.html',
     title: 'About {brand} — Design, Production & Craftsmanship',
     description: '{brand} is an international fashion studio that designs, patterns and produces its garments in small runs, with obsessive attention to fabric and construction.',
@@ -72,6 +77,7 @@ const PAGES = {
     changefreq: 'monthly',
   },
   '/contact': {
+    og: 'contact',
     file: 'contact.html',
     title: 'Contact {brand} — WhatsApp, Email & Socials',
     description: 'Questions about an order, sizing, collaborations or press? Reach {brand} on WhatsApp or by email, or follow the studio on its social channels.',
@@ -81,6 +87,7 @@ const PAGES = {
     changefreq: 'monthly',
   },
   '/faq': {
+    og: 'faq',
     file: 'faq.html',
     title: 'FAQ — Ordering, Agents, Shipping & Sizing | {brand}',
     description: 'Answers about ordering from {brand}: WhatsApp orders, buying agents, payment, worldwide shipping, sizing, returns and restocks.',
@@ -90,6 +97,7 @@ const PAGES = {
     changefreq: 'monthly',
   },
   '/size-guide': {
+    og: 'size-guide',
     file: 'size-guide.html',
     title: 'Size Guide & Fit Finder — {brand}',
     description: 'Garment measurements for every {brand} fit, how to measure yourself, and a fit finder that suggests your size.',
@@ -99,6 +107,7 @@ const PAGES = {
     changefreq: 'monthly',
   },
   '/lookbook': {
+    og: 'lookbook',
     file: 'lookbook.html',
     title: 'Lookbook — {brand}',
     description: 'Complete looks styled from the current {brand} collection.',
@@ -108,6 +117,7 @@ const PAGES = {
     changefreq: 'monthly',
   },
   '/brand': {
+    og: 'brand',
     file: 'brand.html',
     title: 'Brand & Logo — {brand}',
     description: 'The {brand} mark, its construction, logo variants, colours and typography.',
@@ -117,6 +127,7 @@ const PAGES = {
     changefreq: 'yearly',
   },
   '/order': {
+    og: 'order',
     file: 'order.html',
     title: 'Your Order — {brand}',
     description: 'Review your order list and send it to the studio in one pre-filled WhatsApp message.',
@@ -532,7 +543,7 @@ function updateCardHtml(u) {
     `<article class="ucard${first ? '' : ' ucard--text'}">` +
     (first ? `<div class="ucard__media"><div><img src="${esc(first.url)}" alt="${esc(postTitle(u))}" loading="lazy" decoding="async"></div>${photos.length > 1 ? `<span class="ucard__count">${photos.length}</span>` : ''}</div>` : '') +
     `<div class="ucard__body"><div class="ucard__meta"><span class="cat-chip cat-${esc(u.category || 'studio')}">${esc(u.category || 'update')}</span><time class="tiny subtle" datetime="${esc(isoDate(u.publishedAt) || '')}">${d.getUTCDate()} ${MONTHS[d.getUTCMonth()].slice(0, 3)} ${d.getUTCFullYear()}</time></div>` +
-    `<h3 class="ucard__title"><a href="${updateUrl(u)}">${esc(postTitle(u))}</a></h3>` +
+    `<h3 class="ucard__title"><a href="${updateUrl(u)}">${esc(postTitle(u).replace(/^[^|]{1,60}\s\|\s/, ''))}</a></h3>` +
     `<p class="ucard__text ucard__text--en">${esc(truncate(postText(u), 260))}</p>` +
     `<span class="ucard__more">Read more</span></div></article>`
   );
@@ -636,8 +647,6 @@ function buildPage(ctx) {
       extraGraph.push(itemList(c2, abs(siteUrl, path), listed));
       pageExtra = { mainEntity: { '@id': `${abs(siteUrl, path)}#items` } };
     }
-    const img = listed.map((p) => photos(p)[0]).find(Boolean);
-    if (img) image = abs(siteUrl, img.url);
   }
 
   if (route === '/products/:slug' && ctx.product) {
@@ -698,8 +707,6 @@ function buildPage(ctx) {
       });
       pageExtra = { mainEntity: { '@id': `${siteUrl}/updates#blog` } };
     }
-    const img = list.map((u) => postImage(u, siteUrl)).find(Boolean);
-    if (img) image = img;
   }
 
   if (route === '/updates/:id' && ctx.update) {
@@ -721,7 +728,8 @@ function buildPage(ctx) {
     if (isoDate(u.updatedAt)) head.push(`<meta property="article:modified_time" content="${isoDate(u.updatedAt)}">`);
     if (u.category) head.push(`<meta property="article:section" content="${esc(u.category)}">`);
     slots.crumbs = crumbsHtml(trail);
-    slots.h1 = `<span class="post-title">${esc(t)}</span>`;
+    const sep = t.indexOf(' | ');
+    slots.h1 = sep > 0 && sep < t.length - 3 ? `<span class="post-kicker">${esc(t.slice(0, sep))}</span><span class="post-title">${esc(t.slice(sep + 3))}</span>` : `<span class="post-title">${esc(t)}</span>`;
     slots.lead = `<time datetime="${esc(isoDate(u.publishedAt) || '')}">${new Date(tsOf(u.publishedAt) || Date.now()).toUTCString().slice(5, 16)}</time> · ${u.source === 'weibo' ? 'From the studio’s Weibo, translated into English.' : 'From the studio.'}`;
     slots.timeline = postHtml(u, { single: true });
     slots.more = `<a class="btn btn--ghost" href="/updates">All studio updates</a>`;
@@ -744,7 +752,11 @@ function buildPage(ctx) {
 
   const canonical = abs(siteUrl, path);
   if (!image) {
-    image = abs(siteUrl, (settings.seo && settings.seo.image) || '/assets/brand/og-image.png');
+    // Every page has its own share image (tools/build-og.js); product and update pages use their photos above.
+    // The share image set in Admin → Settings → SEO replaces the home page's.
+    const own = PAGES[route] && PAGES[route].og;
+    const custom = settings.seo && settings.seo.image;
+    image = abs(siteUrl, own ? `/assets/brand/og/${own}.png` : custom || '/assets/brand/og-image.png');
     imageAlt = imageAlt || `${brand} — ${(settings.brand && settings.brand.tagline) || 'International Fashion Studio'}`;
   }
   const graph = [organization(c2), website(c2), webPage(c2, { url: canonical, type, title, description, image, trail, extra: pageExtra })];

@@ -147,7 +147,7 @@
           '<section class="card ed-section" id="int-weibo" data-sec="weibo"><div class="ed-section__head"><div><h2>Weibo</h2><p>Imports the studio’s Weibo posts as Studio Updates and translates them.</p></div><div class="row"><button type="button" class="btn btn--sm btn--ghost" data-act="weibo-reset" title="Remove imported Weibo posts and forget what was imported">' + icon('trash', 15) + 'Start over…</button><button type="button" class="btn btn--sm btn--primary" data-act="weibo-fetch">' + icon('refresh', 15) + 'Fetch now</button></div></div><div class="ed-section__body">' +
           statusBlock('Weibo import', 'weibo') +
           '<div class="form-grid">' + toggle('weibo.enabled', 'Enabled', 'Fetch on a schedule') + toggle('weibo.autoPublish', 'Publish automatically', 'Off = new posts wait as pending') +
-          toggle('weibo.requirePhotos', 'Only posts with photos', 'Posts without a photo or video are skipped') + '<div class="field"></div>' +
+          toggle('weibo.requirePhotos', 'Only posts with photos', 'Posts without photos are skipped (videos are not imported)') + '<div class="field"></div>' +
           text('Weibo UID', 'weibo.uid', { mono: true, ph: '1234567890', hint: 'The number in m.weibo.cn/u/<b>1234567890</b>.' }) +
           text('Interval (minutes)', 'weibo.intervalMinutes', { type: 'number', dtype: 'num', attrs: 'min="5" max="1440"', hint: 'Minimum 5.' }) +
           text('Backfill', 'weibo.backfill', { type: 'number', dtype: 'num', attrs: 'min="0" max="20"', hint: 'Posts imported on the very first fetch.' }) +

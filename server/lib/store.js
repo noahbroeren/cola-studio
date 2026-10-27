@@ -22,6 +22,7 @@ const LIMITS = { inventoryEvents: 2000, messages: 5000, orders: 5000, notify: 50
 
 const DEMO_WHATSAPP = '31600000000'; // placeholder number of the first demo seed
 /** A Weidian SKU that is really contact details (WeChat / QQ / WhatsApp), not a size or colour. */
+const colorNames = require('../../public/assets/js/core/colors.js');
 const CONTACT_SKU = /微信|weixin|wechat|\bvx\b|\bwx\b|加v|客服|联系|whatsapp|qq[:：]/i;
 const DEFAULT_SETTINGS = {
   demo: false,
@@ -45,7 +46,7 @@ const DEFAULT_SETTINGS = {
   whatsapp: { number: '', enabled: true, greeting: 'Hello Cola Studio', orderPrefix: 'CS' },
   agents: [],
   weidian: { shopUrl: '', itemUrlTemplate: 'https://weidian.com/item.html?itemID={itemId}' },
-  social: { instagram: '', weibo: '', tiktok: '', whatsappChannel: '', discord: '', xiaohongshu: '', yupoo: '' },
+  social: { instagram: '', weibo: '', tiktok: '', whatsappChannel: '', discord: '', xiaohongshu: '', yupoo: '', weidian: '' },
   socialIcons: {}, // optional uploaded logos per social channel (contact page)
   nextDrop: { enabled: false, title: '', subtitle: '', date: null },
   shipping: { regions: [], note: '' },
@@ -206,6 +207,7 @@ class Store {
    */
   applySeedFixes() {
     let dirty = this.removeContactVariants();
+    if (this.fillColourSwatches()) dirty = true;
     const wa = this.data && this.data.settings && this.data.settings.whatsapp;
     if (wa && (!wa.number || String(wa.number) === DEMO_WHATSAPP)) {
       const seed = readJsonFile(path.join(this.publicDir, 'data', 'settings.json'), null);
@@ -217,6 +219,28 @@ class Store {
       }
     }
     if (dirty) this.writeNow();
+  }
+
+  /**
+   * Older imports gave every colour they did not know the same grey. Work the
+   * swatch out from the name instead ("Brick Red", "Haze Blue", "黑白"…).
+   * Colours the owner picked themselves are never touched.
+   */
+  fillColourSwatches() {
+    let fixed = 0;
+    for (const p of (this.data && this.data.products) || []) {
+      for (const c of p.colors || []) {
+        const hex = String(c.hex || '').toUpperCase();
+        if (hex && hex !== colorNames.FALLBACK) continue;
+        const f = colorNames.infer(c.name);
+        if (!f) continue;
+        c.hex = f.hex;
+        if (f.hex2) c.hex2 = f.hex2;
+        fixed++;
+      }
+    }
+    if (fixed) this.log.info(`Worked out ${fixed} colour swatch(es) from their names`);
+    return fixed > 0;
   }
 
   /**

@@ -69,11 +69,48 @@
         '<div class="pcard__meta">' + C.cardSwatches(p, color) + (status !== 'instock' ? Cola.stock.html(status, stLabel) : '') + '</div>' +
       '</div></article>';
   };
+  // ---------------------------------------------------------------------------
+  // Contact / ordering channels (home page and contact page)
+  // ---------------------------------------------------------------------------
+  /** keys: whatsapp, discord, weidian, yupoo, email, weibo → [{ key, icon, logo, title, text, href, cta, primary }] */
+  C.channelList = function (keys) {
+    var s = Cola.data.settings || {}, so = s.social || {}, logos = s.socialIcons || {};
+    var greet = (s.whatsapp && s.whatsapp.greeting) || 'Hello Cola Studio';
+    var email = (s.brand && s.brand.email) || '';
+    var all = {
+      whatsapp: { icon: 'whatsapp', title: 'WhatsApp', text: 'Orders, sizing and anything urgent.', href: Cola.order.enabled() ? Cola.order.waLink(greet + ' 👋\n') : '', cta: 'Start a chat', primary: true },
+      discord: { icon: 'discord', logo: logos.discord, title: 'Discord', text: 'The community: drops, restocks and first looks.', href: so.discord, cta: 'Join the server' },
+      weidian: { icon: 'store', logo: logos.weidian, title: 'Weidian', text: 'The studio’s store — every piece, paid in CNY.', href: so.weidian || (s.weidian && s.weidian.shopUrl) || '', cta: 'Visit the store' },
+      yupoo: { icon: 'album', logo: logos.yupoo, title: 'Yupoo', text: 'Photo albums of every piece.', href: so.yupoo, cta: 'Open Yupoo' },
+      email: { icon: 'mail', title: 'Email', text: email || 'studio@colastudio.com', href: email ? 'mailto:' + email : '', cta: 'Write an email', internal: true },
+      weibo: { icon: 'weibo', logo: logos.weibo, title: 'Weibo', text: 'News and drops from the studio.', href: so.weibo || Cola.url('updates'), cta: so.weibo ? 'Open Weibo' : 'Studio updates', internal: !so.weibo }
+    };
+    return keys.map(function (k) { var c = all[k]; if (c) c.key = k; return c; }).filter(Boolean);
+  };
+  C.channelCard = function (c) {
+    var ic = c.logo ? '<span class="channel__icon channel__icon--logo"><img src="' + esc(c.logo) + '" alt="' + esc(c.title) + ' logo" loading="lazy"></span>' : '<span class="channel__icon">' + Cola.icon(c.icon) + '</span>';
+    var cta = c.href
+      ? '<a class="btn btn--sm ' + (c.primary ? 'btn--wa' : 'btn--ghost') + '" href="' + esc(c.href) + '"' + (c.internal ? '' : ' target="_blank" rel="noopener"') + '>' + (c.primary ? Cola.icon('whatsapp', 'btn__icon') : '') + esc(c.cta) + '</a>'
+      : '<span class="tiny subtle">Coming soon</span>';
+    return '<article class="channel channel--' + c.key + (c.primary ? ' channel--primary theme-dark' : '') + '">' + ic + '<h3 class="h4">' + esc(c.title) + '</h3><p class="small muted">' + esc(c.text) + '</p><div class="channel__cta">' + cta + '</div></article>';
+  };
+
+  /** CSS variables for a colour's swatch (two-tone colours get --c2). */
+  C.swatchVars = function (c) { var r = Cola.colors.resolve(c); return '--c:' + r.hex + (r.hex2 ? ';--c2:' + r.hex2 : ''); };
+  /** True when every option of the product is a real colour (not "Default", "Original length"…). */
+  C.colourOptions = function (p) {
+    var cs = p.colors || [], seen = {};
+    // Every option must be a colour, and every swatch must look different ("With label Black" vs "Without label Black" do not).
+    return cs.length > 0 && cs.every(function (c) { var r = Cola.colors.resolve(c), k = r.hex + r.hex2; if (!r.real || seen[k]) return false; seen[k] = 1; return true; });
+  };
   C.cardSwatches = function (p, color) {
-    if (!(p.colors || []).length) return '<span></span>';
-    return '<div class="swatches" role="radiogroup" aria-label="Colour">' + p.colors.slice(0, 5).map(function (c) {
-      return '<button class="swatch' + (c.name === color ? ' is-active' : '') + '" type="button" role="radio" aria-checked="' + (c.name === color) + '" style="--c:' + esc(c.hex) + '" data-swatch="' + esc(c.name) + '" data-tip="' + esc(c.name) + '" aria-label="' + esc(c.name) + '"></button>';
-    }).join('') + (p.colors.length > 5 ? '<span class="tiny subtle">+' + (p.colors.length - 5) + '</span>' : '') + '</div>';
+    var cs = p.colors || [];
+    if (cs.length < 2) return '<span></span>';
+    if (!C.colourOptions(p)) return '<span class="pcard__opts">' + cs.length + ' options</span>';
+    return '<div class="swatches" role="radiogroup" aria-label="Colour">' + cs.slice(0, 5).map(function (c) {
+      var name = Cola.colors.label(c.name);
+      return '<button class="swatch' + (c.name === color ? ' is-active' : '') + '" type="button" role="radio" aria-checked="' + (c.name === color) + '" style="' + C.swatchVars(c) + '" data-swatch="' + esc(c.name) + '" data-tip="' + esc(name) + '" aria-label="' + esc(name) + '"></button>';
+    }).join('') + (cs.length > 5 ? '<span class="swatches__more">+' + (cs.length - 5) + '</span>' : '') + '</div>';
   };
   C.quickSizes = function (p, color) {
     var sizes = p.sizes || [];
@@ -140,12 +177,21 @@
   C.buyPanel = function (p, state, o) {
     o = o || {};
     var multiSize = (p.sizes || []).length > 1;
-    return '<div class="buy" data-buy>' +
-      '<div class="buy__group"><div class="buy__label"><span class="label">Colour</span><span class="buy__value" data-buy-color>' + esc(state.color) + '</span></div>' +
-        '<div class="swatches buy__swatches" role="radiogroup" aria-label="Colour">' + (p.colors || []).map(function (c) {
-          var st = Cola.stock.product(p, c.name);
-          return '<button type="button" class="swatch swatch--lg' + (c.name === state.color ? ' is-active' : '') + (st === 'soldout' ? ' is-out' : '') + '" role="radio" aria-checked="' + (c.name === state.color) + '" style="--c:' + esc(c.hex) + '" data-buy-swatch="' + esc(c.name) + '" data-tip="' + esc(c.name + (st === 'soldout' ? ' — sold out' : '')) + '" aria-label="' + esc(c.name) + '"></button>';
-        }).join('') + '</div></div>' +
+    var cs = p.colors || [], swatches = C.colourOptions(p);
+    // One option that is not a colour ("Default"): nothing to choose, so no colour row at all.
+    var colourGroup = cs.length === 1 && !swatches ? '' :
+      '<div class="buy__group"><div class="buy__label"><span class="label">' + (swatches ? 'Colour' : 'Option') + '</span><span class="buy__value" data-buy-color>' + esc(Cola.colors.label(state.color)) + '</span></div>' +
+        (swatches
+          ? '<div class="swatches buy__swatches" role="radiogroup" aria-label="Colour">' + cs.map(function (c) {
+              var st = Cola.stock.product(p, c.name), name = Cola.colors.label(c.name);
+              return '<button type="button" class="swatch swatch--lg' + (c.name === state.color ? ' is-active' : '') + (st === 'soldout' ? ' is-out' : '') + '" role="radio" aria-checked="' + (c.name === state.color) + '" style="' + C.swatchVars(c) + '" data-buy-swatch="' + esc(c.name) + '" data-tip="' + esc(name + (st === 'soldout' ? ' — sold out' : '')) + '" aria-label="' + esc(name) + '"></button>';
+            }).join('') + '</div>'
+          : '<div class="opts buy__opts" role="radiogroup" aria-label="Option">' + cs.map(function (c) {
+              var st = Cola.stock.product(p, c.name), r = Cola.colors.resolve(c), name = Cola.colors.label(c.name);
+              return '<button type="button" class="opt' + (c.name === state.color ? ' is-active' : '') + (st === 'soldout' ? ' is-out' : '') + '" role="radio" aria-checked="' + (c.name === state.color) + '" data-buy-swatch="' + esc(c.name) + '" title="' + esc(c.name) + '">' + (r.real ? '<span class="swatch swatch--sm" style="' + C.swatchVars(c) + '"></span>' : '') + '<span>' + esc(name) + '</span></button>';
+            }).join('') + '</div>') +
+      '</div>';
+    return '<div class="buy" data-buy>' + colourGroup +
       '<div class="buy__group"><div class="buy__label"><span class="label">Size</span>' +
         (p.measurements ? '<button type="button" class="link link--quiet tiny" data-size-guide>' + Cola.icon('ruler') + ' Size guide</button>' : '<span class="tiny subtle">' + esc(p.fit || '') + '</span>') + '</div>' +
         '<div class="sizes" role="radiogroup" aria-label="Size" data-buy-sizes>' + C.sizeButtons(p, state) + '</div>' +
@@ -155,7 +201,16 @@
         '<button type="button" class="btn btn--block buy__add" data-buy-add>' + Cola.icon('bag', 'btn__icon') + '<span data-buy-add-label>Add to order list</span></button></div>' +
         '<button type="button" class="btn btn--ghost btn--block btn--wa" data-buy-wa>' + Cola.icon('whatsapp', 'btn__icon') + 'Order now via WhatsApp</button>' +
         '<button type="button" class="btn btn--ghost btn--block" data-buy-agent>' + Cola.icon('globe', 'btn__icon') + 'Buy via an agent</button>' +
+        (C.weidianUrl(p) ? '<a class="btn btn--ghost btn--block" href="' + esc(C.weidianUrl(p)) + '" target="_blank" rel="noopener" data-buy-weidian>' + Cola.icon('store', 'btn__icon') + 'View on Weidian</a>' : '') +
       '</div></div>';
+  };
+  /** The product's own page in the Weidian store, when it is linked. */
+  C.weidianUrl = function (p) {
+    var w = (p && p.weidian) || {};
+    if (w.url && /^https?:\/\//i.test(w.url)) return w.url;
+    if (!w.itemId || !/^\d{5,15}$/.test(String(w.itemId))) return '';
+    var t = (Cola.data.settings && Cola.data.settings.weidian && Cola.data.settings.weidian.itemUrlTemplate) || 'https://weidian.com/item.html?itemID={itemId}';
+    return t.replace('{itemId}', encodeURIComponent(w.itemId));
   };
   C.sizeButtons = function (p, state) {
     return (p.sizes || []).map(function (s) {
@@ -182,7 +237,7 @@
   C.bindBuy = function (root, p, state, onChange) {
     var el = root.querySelector('[data-buy]');
     function sync() {
-      el.querySelector('[data-buy-color]').textContent = state.color;
+      var cl = el.querySelector('[data-buy-color]'); if (cl) cl.textContent = Cola.colors.label(state.color);
       $$('[data-buy-swatch]', el).forEach(function (s) { var on = s.getAttribute('data-buy-swatch') === state.color; s.classList.toggle('is-active', on); s.setAttribute('aria-checked', on); });
       el.querySelector('[data-buy-sizes]').innerHTML = C.sizeButtons(p, state);
       el.querySelector('[data-buy-stock]').innerHTML = C.stockLine(p, state);
@@ -350,6 +405,11 @@
   // Studio update card (home + updates page): one photo, date, title, excerpt
   // ---------------------------------------------------------------------------
   var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  /** "Production update | Black Snow Boots" → { kicker: 'Production update', title: 'Black Snow Boots' }. */
+  C.postTitle = function (u) {
+    var t = String((u && u.title) || 'Studio update').trim(), i = t.indexOf(' | ');
+    return i > 0 && i < t.length - 3 ? { kicker: t.slice(0, i).trim(), title: t.slice(i + 3).trim() } : { kicker: '', title: t };
+  };
   C.updateCard = function (u, o) {
     o = o || {};
     var url = Cola.updateUrl(u);
@@ -361,7 +421,7 @@
     return '<article class="ucard' + (first ? '' : ' ucard--text') + (u.pinned ? ' is-pinned' : '') + '" data-reveal style="--d:' + ((o.index || 0) % 3 * 0.06).toFixed(2) + 's">' +
       (first ? '<div class="ucard__media"><div style="--bg-m:' + Cola.media.updateMediaBg(first) + '">' + Cola.media.updateMedia(first) + '</div>' + (photos.length > 1 ? '<span class="ucard__count">' + Cola.icon('album') + photos.length + '</span>' : '') + '</div>' : '') +
       '<div class="ucard__body"><div class="ucard__meta"><span class="cat-chip cat-' + esc(u.category || 'studio') + '">' + esc(u.category || 'update') + '</span><time class="tiny subtle" datetime="' + esc(u.publishedAt || '') + '">' + date + '</time></div>' +
-      '<h3 class="ucard__title"><a href="' + url + '">' + esc(u.title || 'Studio update') + '</a></h3>' +
+      '<h3 class="ucard__title"><a href="' + url + '" title="' + esc(u.title || '') + '">' + esc(C.postTitle(u).title) + '</a></h3>' +
       '<p class="ucard__text ucard__text--en">' + esc(en) + '</p>' +
       (u.textOriginal && u.source === 'weibo' ? '<p class="ucard__text ucard__text--zh zh" lang="zh">' + esc(u.textOriginal) + '</p>' : '') +
       '<span class="ucard__more">Read more ' + Cola.icon('arrow-right') + '</span></div></article>';
@@ -391,6 +451,6 @@
   };
 
   C.empty = function (title, text, cta) {
-    return '<div class="empty">' + Cola.brand.engraving('spool', 'empty__art') + '<h3 class="h4">' + title + '</h3>' + (text ? '<p class="small muted">' + text + '</p>' : '') + (cta || '') + '</div>';
+    return '<div class="empty">' + Cola.brand.engraving('spool', 'empty__art') + '<h3 class="h4">' + title + '</h3>' + (text ? '<p class="small muted">' + text + '</p>' : '') + (cta ? '<div class="empty__actions">' + cta + '</div>' : '') + '</div>';
   };
 })();

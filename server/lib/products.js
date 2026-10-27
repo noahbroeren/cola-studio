@@ -42,7 +42,12 @@ function normColors(v) {
     if (!name || seen.has(name.toLowerCase())) continue;
     seen.add(name.toLowerCase());
     const hex = str(item.hex, 20).trim();
-    out.push({ ...item, name, hex: /^#?[0-9a-f]{3,8}$/i.test(hex) ? (hex.startsWith('#') ? hex : '#' + hex) : '' });
+    const hex2 = str(item.hex2, 20).trim();
+    const fix = (h) => (/^#?[0-9a-f]{3,8}$/i.test(h) ? (h.startsWith('#') ? h : '#' + h) : '');
+    const col = { ...item, name, hex: fix(hex) };
+    if (fix(hex2)) col.hex2 = fix(hex2);
+    else delete col.hex2;
+    out.push(col);
   }
   return out;
 }

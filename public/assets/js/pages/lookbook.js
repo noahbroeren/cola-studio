@@ -20,8 +20,9 @@
       var looks = LOOKS.map(function (l) {
         return Object.assign({}, l, { products: l.items.map(function (it) { var p = list.find(function (x) { return x.slug === it[0]; }); return p ? { p: p, color: p.colors.some(function (c) { return c.name === it[1]; }) ? it[1] : p.colors[0].name } : null; }).filter(Boolean) });
       }).filter(function (l) { return l.products.length; });
-      $('[data-look-count]').textContent = looks.length + ' looks · ' + looks.reduce(function (a, l) { return a + l.products.length; }, 0) + ' pieces';
-      $('[data-looks]').innerHTML = looks.map(look).join('');
+      $('[data-look-count]').textContent = looks.length ? looks.length + ' looks · ' + looks.reduce(function (a, l) { return a + l.products.length; }, 0) + ' pieces' : 'New looks soon';
+      $('[data-looks]').innerHTML = looks.length ? looks.map(look).join('') :
+        '<div class="container section--tight">' + Cola.c.empty('The new lookbook is being shot', 'Until then, every piece is in the collection — and the studio shares first looks in the updates.', '<a class="btn btn--sm" href="' + Cola.url('products') + '">Shop the collection</a><a class="btn btn--sm btn--ghost" href="' + Cola.url('updates') + '">Studio updates</a>') + '</div>';
       $('[data-looks]').addEventListener('click', function (e) {
         var b = e.target.closest('[data-shop-look]'); if (b) shop(looks[+b.getAttribute('data-shop-look')]);
       });

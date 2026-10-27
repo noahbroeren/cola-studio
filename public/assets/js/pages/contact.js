@@ -4,17 +4,10 @@
   var Cola = window.Cola, $ = Cola.$, $$ = Cola.$$, esc = Cola.esc;
 
   Cola.boot(function () {
-    var s = Cola.data.settings || {}, so = s.social || {}, logos = s.socialIcons || {}, email = (s.brand && s.brand.email) || '';
-    var greet = (s.whatsapp && s.whatsapp.greeting) || 'Hello Cola Studio';
-    var ch = [];
-    ch.push({ icon: 'whatsapp', title: 'WhatsApp', text: 'Orders, sizing and anything urgent.', cta: Cola.order.enabled() ? '<a class="btn btn--sm btn--wa" target="_blank" rel="noopener" href="' + esc(Cola.order.waLink(greet + ' 👋\n')) + '">' + Cola.icon('whatsapp', 'btn__icon') + 'Start a chat</a>' : '<span class="tiny subtle">Coming soon</span>', primary: true });
-    ch.push({ icon: 'mail', title: 'Email', text: email || 'studio@colastudio.com', cta: email ? '<a class="btn btn--sm btn--ghost" href="mailto:' + esc(email) + '">Write an email</a>' : '' });
-    ch.push({ icon: 'weibo', logo: logos.weibo, title: 'Weibo', text: 'News and drops from the studio.', cta: '<a class="btn btn--sm btn--ghost" href="' + esc(so.weibo || Cola.url('updates')) + '"' + (so.weibo ? ' target="_blank" rel="noopener"' : '') + '>' + (so.weibo ? 'Open Weibo' : 'Studio updates') + '</a>' });
-    if (so.yupoo) ch.push({ icon: 'album', logo: logos.yupoo, title: 'Yupoo', text: 'Photo albums of every piece.', cta: '<a class="btn btn--sm btn--ghost" href="' + esc(so.yupoo) + '" target="_blank" rel="noopener">Open Yupoo</a>' });
-    $('[data-channels]').innerHTML = ch.map(function (c, i) {
-      var ic = c.logo ? '<span class="channel__icon channel__icon--logo"><img src="' + esc(c.logo) + '" alt="' + esc(c.title) + ' logo" loading="lazy"></span>' : '<span class="channel__icon">' + Cola.icon(c.icon) + '</span>';
-      return '<article class="channel' + (c.primary ? ' channel--primary theme-dark' : '') + '">' + ic + '<h2 class="h4">' + c.title + '</h2><p class="small muted">' + esc(c.text) + '</p><div class="channel__cta">' + c.cta + '</div></article>';
-    }).join('');
+    var s = Cola.data.settings || {}, email = (s.brand && s.brand.email) || '';
+    // WhatsApp, email and Weibo always; Discord, Weidian and Yupoo when a link is set (Admin → Settings → Social links)
+    var ch = Cola.c.channelList(['whatsapp', 'email', 'weibo', 'discord', 'weidian', 'yupoo']).filter(function (c) { return ['whatsapp', 'email', 'weibo'].indexOf(c.key) >= 0 || c.href; });
+    $('[data-channels]').innerHTML = ch.map(Cola.c.channelCard).join('');
     var ref = Cola.param('ref'); if (ref) $('#c-ref').value = ref;
     var topic = Cola.param('topic'); if (topic) $$('#c-topic option').forEach(function (o) { if (o.textContent.toLowerCase().indexOf(topic.toLowerCase()) >= 0) o.selected = true; });
 

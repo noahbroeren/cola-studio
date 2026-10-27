@@ -821,6 +821,12 @@ function registerAdmin(router, app) {
       throw new HttpError(502, `Could not read the shop: ${err.message}`);
     }
     const linked = new Map(db().products.filter((p) => p.weidian && p.weidian.itemId).map((p) => [String(p.weidian.itemId), p]));
+    // Remember the store for the "Weidian" buttons on the site when no link is set yet.
+    const st = db().settings;
+    if (items.length && st && !(st.social && st.social.weidian) && !(st.weidian && st.weidian.shopUrl)) {
+      st.social = { ...(st.social || {}), weidian: `https://weidian.com/?userid=${ids[0]}` };
+      store.save();
+    }
     return {
       shopId: ids[0],
       items: items.map((it) => {
