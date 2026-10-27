@@ -128,3 +128,23 @@ test('helpers: verification codes, pretty links, tint, sitemap, robots, feed', (
   assert.match(rss, /<title>Sampling \| Hoodie<\/title>/);
   assert.doesNotMatch(rss, /Hidden/);
 });
+
+test('product descriptions: paragraphs, labelled lines, bullets and bold — plain text for meta tags', () => {
+  const text = 'Heavyweight hoodie with a <b>dense</b> **loopback** terry.\n\n**Fabric:** 480 g cotton\n**Fit**: Relaxed\n- Ribbed cuffs\n- Kangaroo pocket';
+  const html = seo.richText(text);
+  assert.equal(
+    html,
+    '<p>Heavyweight hoodie with a &lt;b&gt;dense&lt;/b&gt; <strong>loopback</strong> terry.</p>' +
+      '<p class="desc-line"><strong>Fabric</strong><span>480 g cotton</span></p>' +
+      '<p class="desc-line"><strong>Fit</strong><span>Relaxed</span></p>' +
+      '<ul class="bullets"><li>Ribbed cuffs</li><li>Kangaroo pocket</li></ul>'
+  );
+  assert.equal(seo.plain(text), 'Heavyweight hoodie with a dense loopback terry. Fabric: 480 g cotton Fit: Relaxed Ribbed cuffs Kangaroo pocket');
+  const d = db();
+  const product = { ...d.products[0], subtitle: '', description: text };
+  const page = seo.buildPage({ route: '/products/:slug', db: d, siteUrl: SITE, product });
+  assert.ok(!/\*\*/.test(page.description), 'no markdown in the meta description');
+  assert.match(page.slots.info, /<p class="desc-line"><strong>Fabric<\/strong>/);
+  assert.doesNotMatch(page.slots.info, /<h1[^>]*>.*<b>/, 'the product name is never partly bold');
+});
+

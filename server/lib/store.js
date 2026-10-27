@@ -21,6 +21,8 @@ const { stockStatus, productAvailability, totalStock } = require('./stock');
 const LIMITS = { inventoryEvents: 2000, messages: 5000, orders: 5000, notify: 5000, updates: 3000 };
 
 const DEMO_WHATSAPP = '31600000000'; // placeholder number of the first demo seed
+/** A Weidian SKU that is really contact details (WeChat / QQ / WhatsApp), not a size or colour. */
+const CONTACT_SKU = /微信|weixin|wechat|\bvx\b|\bwx\b|加v|客服|联系|whatsapp|qq[:：]/i;
 const DEFAULT_SETTINGS = {
   demo: false,
   brand: {
@@ -203,14 +205,41 @@ class Store {
    * studio's real number, take it over once.
    */
   applySeedFixes() {
+    let dirty = this.removeContactVariants();
     const wa = this.data && this.data.settings && this.data.settings.whatsapp;
-    if (!wa || (wa.number && String(wa.number) !== DEMO_WHATSAPP)) return;
-    const seed = readJsonFile(path.join(this.publicDir, 'data', 'settings.json'), null);
-    const n = seed && seed.whatsapp ? String(seed.whatsapp.number || '') : '';
-    if (!/^\d{7,15}$/.test(n) || n === DEMO_WHATSAPP) return;
-    wa.number = n;
-    this.log.info(`WhatsApp number taken over from public/data/settings.json (+${n})`);
-    this.writeNow();
+    if (wa && (!wa.number || String(wa.number) === DEMO_WHATSAPP)) {
+      const seed = readJsonFile(path.join(this.publicDir, 'data', 'settings.json'), null);
+      const n = seed && seed.whatsapp ? String(seed.whatsapp.number || '') : '';
+      if (/^\d{7,15}$/.test(n) && n !== DEMO_WHATSAPP) {
+        wa.number = n;
+        this.log.info(`WhatsApp number taken over from public/data/settings.json (+${n})`);
+        dirty = true;
+      }
+    }
+    if (dirty) this.writeNow();
+  }
+
+  /**
+   * Weidian sellers sometimes put contact details in a SKU ("微信：abc123").
+   * Older imports kept those as a size or colour; drop them (never the last one).
+   */
+  removeContactVariants() {
+    let fixed = 0;
+    for (const p of (this.data && this.data.products) || []) {
+      const badSizes = (p.sizes || []).filter((s) => CONTACT_SKU.test(String(s || '')));
+      const badColors = (p.colors || []).filter((c) => c && CONTACT_SKU.test(String(c.name || '')));
+      if (!badSizes.length && !badColors.length) continue;
+      const sizes = (p.sizes || []).filter((s) => !badSizes.includes(s));
+      const colors = (p.colors || []).filter((c) => !badColors.includes(c));
+      if (!sizes.length || !colors.length) continue;
+      const badColorNames = new Set(badColors.map((c) => c.name));
+      p.sizes = sizes;
+      p.colors = colors;
+      p.variants = (p.variants || []).filter((v) => !badSizes.includes(v.size) && !badColorNames.has(v.color));
+      fixed++;
+    }
+    if (fixed) this.log.info(`Removed contact-detail sizes/colours from ${fixed} imported product(s)`);
+    return fixed > 0;
   }
 
   /** Build a fresh db from public/data/*.json (tolerant of missing files). */

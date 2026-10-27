@@ -222,6 +222,12 @@ function normalizeProduct(input, { existing = null, products = [], nextId, now =
     product.sizeChartImage = safeUrl(merged.sizeChartImage);
     delete merged.sizeChartImage;
   }
+  // The seller's own text (from Weidian), kept so the description can be rewritten later.
+  if (merged.descriptionOriginal !== undefined) {
+    const v = str(merged.descriptionOriginal, 8000).trim();
+    if (v) product.descriptionOriginal = v;
+    delete merged.descriptionOriginal;
+  }
   // Optional search-engine overrides (Admin → product → Story & details → Search engines).
   for (const [k, max] of [['seoTitle', 120], ['seoDescription', 320]]) {
     if (merged[k] === undefined) continue;

@@ -57,7 +57,7 @@
     var v = Cola.stock.find(p, color, size);
     if (!v) return '<span class="cell cell--na" aria-hidden="true"><span class="cell__size">' + esc(size) + '</span><span class="cell__n">·</span></span>';
     var st = Cola.stock.variant(v, p), n = Number(v.stock) || 0;
-    var label = size + ' · ' + color + ' · ' + Cola.stock.label(st, n) + (Cola.stock.available(st) ? ' — click to add' : ' — click to get notified');
+    var label = size + ' · ' + color + ' · ' + Cola.stock.labels[st] + (Cola.stock.available(st) ? ' — click to add' : ' — click to get notified');
     return '<button type="button" class="cell st-' + st + (changed[v.sku] ? ' is-changed' : '') + (cellMatches(st) ? '' : ' is-dim') + '" data-cell="' + esc(p.id) + '|' + esc(color) + '|' + esc(size) + '" data-tip="' + esc(label) + '" aria-label="' + esc(p.name + ', ' + label) + '"><span class="cell__size">' + esc(size) + '</span><span class="cell__n">' + (st === 'preorder' ? 'PRE' : n) + '</span></button>';
   }
 
@@ -77,7 +77,7 @@
           }).join('') + '</div></div></article>';
       }).join('') + '</div>';
     } else {
-      host.innerHTML = '<div class="table-wrap"><table class="table stable"><thead><tr><th>Product</th><th>Colour</th><th>Sizes &amp; stock</th><th class="ta-r">Units</th><th>Status</th></tr></thead><tbody>' +
+      host.innerHTML = '<div class="table-wrap"><table class="table stable"><thead><tr><th>Product</th><th>Colour</th><th>Sizes</th><th>Status</th></tr></thead><tbody>' +
         list.map(function (p) {
           return p.colors.map(function (c, i) {
             var st = Cola.stock.product(p, c.name);
@@ -85,7 +85,7 @@
             return '<tr><td>' + (i === 0 ? '<a class="stable__name" href="' + Cola.productUrl(p) + '">' + esc(p.name) + '</a><span class="tiny subtle"> · ' + esc(Cola.c.code(p)) + '</span>' : '') + '</td>' +
               '<td><span class="row" style="--row-gap:8px"><span class="swatch swatch--sm" style="--c:' + esc(c.hex) + '"></span>' + esc(c.name) + '</span></td>' +
               '<td><div class="cells cells--inline">' + p.sizes.map(function (s) { return cell(p, c.name, s, changed); }).join('') + '</div></td>' +
-              '<td class="ta-r num">' + Cola.stock.total(p, c.name) + '</td><td>' + Cola.stock.html(st) + '</td></tr>';
+              '<td>' + Cola.stock.html(st) + '</td></tr>';
           }).join('');
         }).join('') + '</tbody></table></div>';
     }

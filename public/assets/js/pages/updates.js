@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   var Cola = window.Cola, $ = Cola.$, $$ = Cola.$$, esc = Cola.esc;
-  var PAGE = 6, cat = 'all', lang = Cola.store.get('cola.lang', 'en') === 'zh' ? 'zh' : 'en', loaded = [], total = 0;
+  var PAGE = 9, cat = 'all', lang = Cola.store.get('cola.lang', 'en') === 'zh' ? 'zh' : 'en', loaded = [], total = 0;
   var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
   function postIdFromUrl() {
@@ -40,8 +40,8 @@
 
   function render(reset) {
     var host = $('[data-timeline]');
-    if (!loaded.length) { host.innerHTML = '<li>' + Cola.c.empty('No updates in this category yet', 'New posts appear here automatically once they are published on Weibo.') + '</li>'; return; }
-    host.innerHTML = loaded.map(post).join('');
+    if (!loaded.length) { host.innerHTML = '<div class="ugrid__empty">' + Cola.c.empty('No updates in this category yet', 'New posts appear here automatically once they are published on Weibo.') + '</div>'; return; }
+    host.innerHTML = loaded.map(function (u, i) { return Cola.c.updateCard(u, { index: i }); }).join('');
     Cola.ui.enhance(host);
   }
 
@@ -51,8 +51,9 @@
     return Cola.data.update(id).then(function (r) {
       var u = r && r.update;
       var host = $('[data-timeline]'), more = $('[data-u-more]');
+      host.className = 'timeline is-single';
       if (!u) {
-        host.innerHTML = '<li>' + Cola.c.empty('This update could not be found', 'It may have been removed by the studio.', '<a class="btn btn--sm" href="' + Cola.url('updates') + '">All studio updates</a>') + '</li>';
+        host.innerHTML = '<div>' + Cola.c.empty('This update could not be found', 'It may have been removed by the studio.', '<a class="btn btn--sm" href="' + Cola.url('updates') + '">All studio updates</a>') + '</div>';
         if (more) more.innerHTML = '';
         return;
       }
@@ -83,7 +84,7 @@
     // Demo posts have made-up ids: send people to the real account instead of a dead status link.
     var srcUrl = u.url && u.demo ? ((Cola.data.settings && Cola.data.settings.social && Cola.data.settings.social.weibo) || '') : u.url;
     var tr = u.translation || {};
-    return '<li class="tl-item' + (u.pinned ? ' is-pinned' : '') + '" id="' + esc(u.id) + '" data-reveal>' +
+    return '<div class="tl-item' + (u.pinned ? ' is-pinned' : '') + '" id="' + esc(u.id) + '" data-reveal>' +
       '<div class="tl-date"><span class="tl-date__day">' + String(d.getDate()).padStart(2, '0') + '</span><span class="tl-date__mon">' + MONTHS[d.getMonth()].slice(0, 3) + ' ' + d.getFullYear() + '</span></div>' +
       '<article class="tl-card">' +
         '<header class="tl-card__head"><div class="row row--wrap" style="--row-gap:12px">' + (u.pinned ? '<span class="badge badge--dark">Pinned</span>' : '') + '<span class="cat-chip cat-' + esc(u.category) + '">' + esc(u.category || 'update') + '</span></div></header>' +
@@ -98,7 +99,7 @@
         '<footer class="tl-card__foot">' +
           '<span class="tiny subtle">' + (isWeibo ? 'Translated from Chinese' + (tr.edited ? ' · edited by the studio' : '') : 'From the studio') + '</span>' +
           (srcUrl ? '<a class="link link--quiet tiny" href="' + esc(srcUrl) + '" target="_blank" rel="noopener">View on Weibo ' + Cola.icon('arrow-up-right') + '</a>' : '') + '</footer>' +
-      '</article></li>';
+      '</article></div>';
   }
 
   function setLang(l) {

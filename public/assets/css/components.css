@@ -24,16 +24,17 @@
 .btn .btn__arrow { width: 16px; height: 16px; transition: transform .45s var(--ease-out); }
 .btn:hover .btn__arrow { transform: translateX(3px); }
 .btn--ghost {
-  --btn-bg: transparent; --btn-fg: var(--fg); --btn-bd: color-mix(in srgb, var(--fg) 32%, transparent); --bw: 1.5px;
-  background:
-    linear-gradient(var(--btn-bd), var(--btn-bd)) top / calc(100% - 2 * var(--cut)) var(--bw) no-repeat,
-    linear-gradient(var(--btn-bd), var(--btn-bd)) bottom / calc(100% - 2 * var(--cut)) var(--bw) no-repeat,
-    linear-gradient(var(--btn-bd), var(--btn-bd)) left / var(--bw) calc(100% - 2 * var(--cut)) no-repeat,
-    linear-gradient(var(--btn-bd), var(--btn-bd)) right / var(--bw) calc(100% - 2 * var(--cut)) no-repeat,
-    linear-gradient(to bottom right, transparent 50%, var(--btn-bd) 50% calc(50% + 2.1px), transparent calc(50% + 2.1px)) top left / var(--cut) var(--cut) no-repeat,
-    linear-gradient(to bottom left, transparent 50%, var(--btn-bd) 50% calc(50% + 2.1px), transparent calc(50% + 2.1px)) top right / var(--cut) var(--cut) no-repeat,
-    linear-gradient(to top right, transparent 50%, var(--btn-bd) 50% calc(50% + 2.1px), transparent calc(50% + 2.1px)) bottom left / var(--cut) var(--cut) no-repeat,
-    linear-gradient(to top left, transparent 50%, var(--btn-bd) 50% calc(50% + 2.1px), transparent calc(50% + 2.1px)) bottom right / var(--cut) var(--cut) no-repeat;
+  --btn-bg: transparent; --btn-fg: var(--fg); --btn-bd: color-mix(in srgb, var(--fg) 34%, transparent); --bw: 1px;
+  /* inner corner offset for a 45° cut: cut + bw·(√2 − 1) keeps the diagonal exactly as thick as the sides */
+  --ci: calc(var(--cut) + var(--bw) * .4142);
+}
+/* The outline is one ring-shaped polygon (outer cut shape minus the inner one, even-odd),
+   so the straight sides and the cut corners have exactly the same thickness. */
+.btn--ghost::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--btn-bd); transition: background-color .3s var(--ease-out);
+  clip-path: polygon(evenodd,
+    var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut), var(--cut) 0,
+    var(--ci) var(--bw), var(--bw) var(--ci), var(--bw) calc(100% - var(--ci)), var(--ci) calc(100% - var(--bw)), calc(100% - var(--ci)) calc(100% - var(--bw)), calc(100% - var(--bw)) calc(100% - var(--ci)), calc(100% - var(--bw)) var(--ci), calc(100% - var(--ci)) var(--bw), var(--ci) var(--bw));
 }
 .btn--ghost:hover { opacity: 1; --btn-bd: var(--fg); }
 .btn--light { --btn-bg: var(--foam); --btn-fg: var(--cola); --btn-bd: var(--foam); }
@@ -342,10 +343,17 @@ body.menu-open .menu { visibility: visible; clip-path: inset(0 0 0 0); transitio
 .lightbox.is-open { opacity: 1; visibility: visible; transition: opacity .4s; }
 .lightbox__bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px 12px 24px; font-size: var(--fs-xs); letter-spacing: .1em; text-transform: uppercase; }
 .lightbox__stage { position: relative; display: grid; place-items: center; overflow: hidden; padding: 0 64px; }
-.lightbox__stage > * { max-width: min(92vw, 900px); max-height: calc(100vh - 140px); width: auto; height: 100%; aspect-ratio: 4/5; background: var(--foam-2); }
-.lightbox__stage img { object-fit: contain; background: transparent; }
-.lightbox__nav { position: absolute; top: 50%; transform: translateY(-50%); color: var(--foam); }
+.lightbox__stage > .lb-media { width: min(100%, 900px, calc((100svh - 140px) * .8)); aspect-ratio: 4/5; background: var(--foam-2); display: grid; place-items: center; overflow: hidden; }
+.lightbox__stage .lb-media > * { width: 100%; height: 100%; }
+.lightbox__stage img { width: 100%; height: 100%; object-fit: contain; background: transparent; }
+.lightbox__nav { position: absolute; top: 50%; transform: translateY(-50%); color: var(--foam); background: rgba(19, 13, 10, .35); }
+.lightbox__nav:hover { background: rgba(243, 238, 230, .14); }
 .lightbox__nav--prev { left: 12px; } .lightbox__nav--next { right: 12px; }
+@media (max-width: 640px) {
+  .lightbox__stage { padding: 0 12px; }
+  .lightbox__nav { top: auto; bottom: 8px; transform: none; }
+  .lightbox__stage { padding-bottom: 64px; }
+}
 .lightbox__caption { padding: 14px 24px 20px; text-align: center; font-size: var(--fs-xs); color: #BFB4A6; }
 
 /* ---- Toasts --------------------------------------------------------------- */
@@ -378,7 +386,8 @@ body.menu-open .menu { visibility: visible; clip-path: inset(0 0 0 0); transitio
 .acc__content ul.bullets li::before { content: ""; position: absolute; left: 0; top: .78em; width: 8px; height: 1px; background: var(--accent); }
 
 /* ---- Tabs / filter bars --------------------------------------------------- */
-.tabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); }
+.tabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.tabs.has-more { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent); }
 .tabs::-webkit-scrollbar { display: none; }
 .tabs .chip { flex: none; }
 .tabs:has(> :last-child:hover) { -webkit-mask-image: none; mask-image: none; }
@@ -418,7 +427,7 @@ body.menu-open .menu { visibility: visible; clip-path: inset(0 0 0 0); transitio
 .crumbs span[aria-hidden] { opacity: .5; }
 .empty { padding: clamp(48px, 8vw, 120px) 0; text-align: center; display: grid; justify-items: center; gap: 16px; color: var(--fg-2); }
 .empty__mark { width: 64px; height: 64px; color: var(--fg-3); opacity: .6; }
-.empty__art { width: 120px; color: var(--fg); opacity: .8; }
+.empty .empty__art { width: clamp(72px, 8vw, 110px); color: var(--fg); opacity: .8; }
 .kbd { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border: 1px solid var(--line-2); border-radius: 4px; font-size: 10px; font-weight: var(--w-med); color: var(--fg-3); }
 .tooltip { position: fixed; z-index: 400; pointer-events: none; padding: 8px 10px; background: var(--cola); color: var(--foam); font-size: 11px; line-height: 1.4; border-radius: var(--radius); box-shadow: var(--shadow-1); white-space: nowrap; opacity: 0; transform: translate(-50%, calc(-100% - 10px)); transition: opacity .15s; }
 .tooltip.is-on { opacity: 1; }
@@ -583,3 +592,6 @@ body, .bg-paper { background-color: var(--foam); background-image: var(--pat-dot
   border: 1px dashed color-mix(in srgb, var(--cola) 16%, transparent);
 }
 .pcard__badges { z-index: 3; }
+
+/* Photos the media proxy could not deliver */
+.is-broken { display: none !important; }

@@ -113,12 +113,21 @@ function cleanText(raw) {
 }
 
 /** → { images: [url], video: { url, poster } | null } (port of extract_media). */
+/**
+ * Weibo serves every photo in several sizes (/large/, /mw2000/, /mw1024/ …).
+ * The site uses mw1024: sharp enough, and a fraction of the download time.
+ * The media cache falls back to other sizes and hosts when one fails.
+ */
+function siteSize(url) {
+  return String(url).replace(/(\/\/[a-z0-9]+\.sinaimg\.cn\/)(?:large|mw2000|orj1080|original|woriginal)\//i, '$1mw1024/');
+}
+
 function extractMedia(mblog) {
   const images = [];
   const pics = Array.isArray(mblog?.pics) ? mblog.pics : mblog?.pics && typeof mblog.pics === 'object' ? Object.values(mblog.pics) : [];
   for (const pic of pics) {
     const url = pic?.large?.url || pic?.url;
-    if (url) images.push(url);
+    if (url) images.push(siteSize(url));
   }
   let video = null;
   const pi = mblog?.page_info;
@@ -172,8 +181,8 @@ function parseWeiboDate(s, now = new Date()) {
 }
 
 const isTrivialRepost = (text) => !text || /^(转发微博|Repost|轉發微博)$/i.test(text.trim());
-/** A post is worth showing when it has at least one photo or a video. */
-const hasPhotos = (media) => !!(media && ((media.images && media.images.length) || (media.video && media.video.url)));
+/** A post is worth showing when it has at least one photo (videos are not imported). */
+const hasPhotos = (media) => !!(media && media.images && media.images.length);
 
 /* ------------------------------------------------------------------------ */
 /* Service                                                                    */
@@ -199,6 +208,77 @@ class WeiboService {
     this.running = null;
     this.pending = Promise.resolve();
     this.jar = new CookieJar();
+    this.migrateVideos();
+  }
+
+  /**
+   * One-off: videos are no longer shown. Strip them from stored Weibo posts and
+   * hide posts that only had a video.
+   */
+  migrateVideos() {
+    try {
+      const db = this.store && this.store.db;
+      if (!db || !db.meta || db.meta.videosRemoved) return;
+      if ((this.getConfig() || {}).importVideos === true) return;
+      let changed = 0;
+      for (const u of db.updates) {
+        if (u.source !== 'weibo' || !u.video) continue;
+        delete u.video;
+        changed++;
+        // A post that only had a video has nothing left to show.
+        if (!(u.media || []).some((m) => m && m.type === 'image') && u.status === 'published') {
+          u.status = 'hidden';
+          u.hiddenReason = 'video-only';
+        }
+      }
+      db.meta.videosRemoved = true;
+      if (changed) this.log.info(`Removed videos from Weibo posts (${changed} change(s)); posts without photos are hidden.`);
+      this.store.save();
+    } catch (err) {
+      this.log.warn(`video clean-up skipped: ${err.message}`);
+    }
+  }
+
+  /**
+   * Download the photos of freshly imported posts. Photos Weibo will not serve
+   * (after trying other sizes and hosts) are removed from the post; a post left
+   * without photos is hidden, so the site never shows broken images.
+   */
+  async verifyMedia(ids, cfg = this.getConfig() || {}) {
+    if (!this.media) return { checked: 0, dropped: 0 };
+    const db = this.store.db;
+    let checked = 0;
+    let dropped = 0;
+    for (const id of ids) {
+      const u = db.updates.find((x) => x.id === id);
+      if (!u) continue;
+      const keep = [];
+      for (const m of u.media || []) {
+        if (!m || m.type !== 'image' || !/^\/media\/weibo\?u=/.test(m.url || '')) {
+          keep.push(m);
+          continue;
+        }
+        checked++;
+        let original = '';
+        try {
+          original = new URL(m.url, 'http://x').searchParams.get('u') || '';
+          await this.media.ensure(original);
+          keep.push(m);
+        } catch (err) {
+          dropped++;
+          this.log.warn(`photo of ${u.id} unavailable, removed (${String(err.message).slice(0, 80)})`);
+        }
+      }
+      if (keep.length !== (u.media || []).length) {
+        u.media = keep;
+        if (cfg.requirePhotos !== false && !keep.some((m) => m && m.type === 'image') && u.status !== 'hidden') {
+          u.status = 'hidden';
+          u.hiddenReason = 'no-photos';
+        }
+      }
+    }
+    if (dropped) this.store.save();
+    return { checked, dropped };
   }
 
   get busy() {
@@ -464,8 +544,7 @@ class WeiboService {
           if (deleted.has(pid)) db.meta.weiboDeleted = db.meta.weiboDeleted.filter((x) => String(x) !== pid);
           result.added++;
           log.info(`Added ${update.id} — "${update.title}" (${update.status}${tr.ok ? '' : ', translation failed: ' + tr.error})`);
-          prefetch.push(...media.images);
-          if (media.video) prefetch.push(media.video.url, ...(media.video.poster ? [media.video.poster] : []));
+          prefetch.push(update.id);
           await this.sleep(800);
         } catch (err) {
           result.errors.push(`post ${pid}: ${err.message}`);
@@ -479,8 +558,7 @@ class WeiboService {
       this.finish(result, { lastId: newLast, uid });
 
       if (prefetch.length && this.media && this.prefetchEnabled) {
-        const urls = prefetch.filter((u) => allowedMediaUrl(u));
-        this.pending = this.pending.then(() => this.media.prefetch(urls)).catch(() => {});
+        this.pending = this.pending.then(() => this.verifyMedia(prefetch, cfg)).catch(() => {});
       }
       log.info(`Done. ${result.added} new post(s), ${result.skipped} skipped.`);
     } catch (err) {
@@ -606,6 +684,7 @@ class WeiboService {
       // don't count, so a page cap keeps a fully imported account from being
       // paged through forever.
       const maxPages = Math.ceil(h.limit / 5) + 50;
+      const addedIds = [];
       while (h.added < h.limit && !h.stop) {
         if (h.pages >= maxPages) {
           log.warn(`Stopped after ${h.pages} pages; press Continue to read further back.`);
@@ -662,6 +741,7 @@ class WeiboService {
             update.status = h.publishUntranslated ? 'published' : 'pending';
             update.history = true;
             db.updates.push(update);
+            addedIds.push(update.id);
             existing.add(pid);
             h.added++;
           } catch (err) {
@@ -702,6 +782,13 @@ class WeiboService {
         }
       }
       log.info(`Fetch phase done: ${h.added} new post(s) from ${h.pages} page(s), ${h.skipped} skipped.`);
+      // Download the photos now, so broken ones never reach the site.
+      if (addedIds.length && this.media && this.prefetchEnabled && !h.stop) {
+        h.phase = 'photos';
+        h.message = `Checking the photos of ${addedIds.length} post(s)…`;
+        const r = await this.verifyMedia(addedIds, cfg);
+        if (r.dropped) log.warn(`${r.dropped} photo(s) could not be loaded from Weibo and were left out.`);
+      }
     }
 
     // ---- phase 2: translate the queue (newest first)
@@ -791,7 +878,8 @@ class WeiboService {
     const statusUrl = `https://m.weibo.cn/status/${id}`;
     const proxy = (u) => (allowedMediaUrl(u) ? MediaCache.proxyUrl(u) : null);
     const now = new Date().toISOString();
-    const video = media.video && proxy(media.video.url)
+    // Videos are not imported: Weibo's video links expire and play slowly through the proxy.
+    const video = cfg.importVideos === true && media.video && proxy(media.video.url)
       ? { url: proxy(media.video.url), poster: media.video.poster ? proxy(media.video.poster) : null, link: statusUrl }
       : null;
     return {

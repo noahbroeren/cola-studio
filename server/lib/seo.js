@@ -144,6 +144,8 @@ const ROBOTS_NOINDEX = 'noindex, follow';
 const brandOf = (settings) => (settings && settings.brand && settings.brand.name) || 'Cola Studio';
 const fill = (tpl, settings) => String(tpl || '').replace(/\{brand\}/g, brandOf(settings));
 const clean = (s) => String(s || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+/** Product descriptions use a tiny markup (**bold**, "- " bullets); plain text for meta tags. */
+const plain = (s) => clean(String(s || '').replace(/\*\*([^*]+)\*\*/g, '$1').replace(/^\s*[-•·]\s+/gm, ''));
 const tsOf = (v) => {
   const t = Date.parse(v || '');
   return Number.isFinite(t) ? t : 0;
@@ -348,7 +350,7 @@ const SCHEMA_AVAILABILITY = {
 function productDescription(p, settings) {
   const parts = [];
   if (p.subtitle) parts.push(clean(p.subtitle).replace(/[.\s]+$/, '') + '.');
-  if (p.description) parts.push(clean(p.description));
+  if (p.description) parts.push(plain(p.description));
   const text = parts.join(' ') || pageText('/products', settings).description;
   return truncate(text, 165);
 }
@@ -456,10 +458,44 @@ function cardHtml(p) {
   );
 }
 
+/** Compact product card for the featured strip in the homepage hero. */
+function heroCardHtml(p) {
+  const img = photos(p)[0];
+  const color = (p.colors || [])[0];
+  return (
+    `<a class="hfeat" href="${productUrl(p)}"><span class="hfeat__img" style="--tint:${tint(color && color.hex)}">` +
+    (img ? `<img src="${esc(img.url)}" alt="${esc(img.alt || p.name)}" loading="lazy" decoding="async">` : '') +
+    `</span><span class="hfeat__txt"><span class="hfeat__name">${esc(p.name)}</span><span class="hfeat__price"><span class="price" data-price="${Number(p.price) || 0}">${formatCny(p.price)}</span></span></span></a>`
+  );
+}
+
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 function paragraphs(text) {
   return '<p>' + esc(text).replace(/\n+/g, '</p><p>') + '</p>';
+}
+
+/** Same rules as Cola.c.richText in the storefront: paragraphs, "- " bullets, **bold**. */
+function richText(text) {
+  const out = [];
+  let list = null;
+  let para = [];
+  const inline = (s) => esc(s).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  const flushPara = () => { if (para.length) { out.push(`<p>${para.map(inline).join('<br>')}</p>`); para = []; } };
+  const flushList = () => { if (list) { out.push(`<ul class="bullets">${list.map((l) => `<li>${inline(l)}</li>`).join('')}</ul>`); list = null; } };
+  for (const raw of String(text || '').replace(/\r/g, '').split('\n')) {
+    const line = raw.trim();
+    if (!line) { flushPara(); flushList(); continue; }
+    const b = /^[-•·]\s+(.*)$/.exec(line);
+    if (b) { flushPara(); (list = list || []).push(b[1]); continue; }
+    flushList();
+    const lab = /^\*\*([^*]+?):?\*\*:?\s*(.*)$/.exec(line);
+    if (lab && /:/.test(line.slice(0, lab[1].length + 6))) { flushPara(); out.push(`<p class="desc-line"><strong>${esc(lab[1])}</strong><span>${inline(lab[2])}</span></p>`); continue; }
+    para.push(line);
+  }
+  flushPara();
+  flushList();
+  return out.join('');
 }
 
 function postHtml(u, { single } = {}) {
@@ -468,7 +504,7 @@ function postHtml(u, { single } = {}) {
   const imgs = (u.media || []).filter((m) => m && m.type === 'image' && m.url).slice(0, single ? 9 : 3);
   const isWeibo = u.source === 'weibo';
   return (
-    `<li class="tl-item${u.pinned ? ' is-pinned' : ''}" id="${esc(u.id)}">` +
+    `<div class="tl-item${u.pinned ? ' is-pinned' : ''}" id="${esc(u.id)}">` +
     `<div class="tl-date"><span class="tl-date__day">${String(d.getUTCDate()).padStart(2, '0')}</span><span class="tl-date__mon">${MONTHS[d.getUTCMonth()].slice(0, 3)} ${d.getUTCFullYear()}</span></div>` +
     `<article class="tl-card"><header class="tl-card__head"><div class="row row--wrap"><span class="cat-chip cat-${esc(u.category || 'studio')}">${esc(u.category || 'update')}</span>` +
     `<time class="tiny subtle" datetime="${esc(isoDate(u.publishedAt) || '')}">${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}</time></div></header>` +
@@ -483,7 +519,22 @@ function postHtml(u, { single } = {}) {
       : '') +
     `<footer class="tl-card__foot"><span class="tiny subtle">${isWeibo ? 'Translated from Chinese' : 'From the studio'}</span>` +
     (single ? '' : `<a class="link link--quiet tiny" href="${updateUrl(u)}">Read the post</a>`) +
-    `</footer></article></li>`
+    `</footer></article></div>`
+  );
+}
+
+/** Card for the updates grid / homepage (same markup as Cola.c.updateCard). */
+function updateCardHtml(u) {
+  const d = new Date(tsOf(u.publishedAt) || Date.now());
+  const photos = (u.media || []).filter((m) => m && m.type === 'image' && m.url);
+  const first = photos[0];
+  return (
+    `<article class="ucard${first ? '' : ' ucard--text'}">` +
+    (first ? `<div class="ucard__media"><div><img src="${esc(first.url)}" alt="${esc(postTitle(u))}" loading="lazy" decoding="async"></div>${photos.length > 1 ? `<span class="ucard__count">${photos.length}</span>` : ''}</div>` : '') +
+    `<div class="ucard__body"><div class="ucard__meta"><span class="cat-chip cat-${esc(u.category || 'studio')}">${esc(u.category || 'update')}</span><time class="tiny subtle" datetime="${esc(isoDate(u.publishedAt) || '')}">${d.getUTCDate()} ${MONTHS[d.getUTCMonth()].slice(0, 3)} ${d.getUTCFullYear()}</time></div>` +
+    `<h3 class="ucard__title"><a href="${updateUrl(u)}">${esc(postTitle(u))}</a></h3>` +
+    `<p class="ucard__text ucard__text--en">${esc(truncate(postText(u), 260))}</p>` +
+    `<span class="ucard__more">Read more</span></div></article>`
   );
 }
 
@@ -554,14 +605,12 @@ function buildPage(ctx) {
 
   if (route === '/') {
     const list = visibleProducts(db);
-    const picks = list.filter((p) => p.featured).concat(list.filter((p) => !p.featured)).slice(0, 8);
-    if (picks.length) slots.featured = picks.map(cardHtml).join('');
+    const hero = list.filter((p) => p.featured).concat(list.filter((p) => !p.featured)).slice(0, 4);
+    if (hero.length) slots['hero-featured'] = hero.map(heroCardHtml).join('');
+    const rest = list.filter((p) => !hero.includes(p)).sort((a, b) => tsOf(b.createdAt || b.updatedAt) - tsOf(a.createdAt || a.updatedAt)).slice(0, 8);
+    if (rest.length) slots.featured = rest.map(cardHtml).join('');
     const ups = visibleUpdates(db).slice(0, 3);
-    if (ups.length) {
-      slots.updates = ups
-        .map((u) => `<article class="ucard"><div class="ucard__body"><time class="tiny subtle" datetime="${esc(isoDate(u.publishedAt) || '')}">${esc(new Date(tsOf(u.publishedAt)).toISOString().slice(0, 10))}</time><h3 class="ucard__title"><a href="${updateUrl(u)}">${esc(postTitle(u))}</a></h3><p class="ucard__text">${esc(truncate(postText(u), 220))}</p></div></article>`)
-        .join('');
-    }
+    if (ups.length) slots.updates = ups.map(updateCardHtml).join('');
     head.push(`<link rel="alternate" type="application/rss+xml" title="${esc(brand)} — Studio updates" href="${siteUrl}/updates/feed.xml">`);
   }
 
@@ -622,9 +671,9 @@ function buildPage(ctx) {
       `<h1 class="h2 pdp__name">${esc(p.name)}</h1>` +
       (p.subtitle ? `<p class="pdp__sub">${esc(p.subtitle)}</p>` : '') +
       `<div class="pdp__price"><span class="pdp__price-main"><span class="price" data-price="${Number(p.price) || 0}">${formatCny(p.price)}</span></span></div>` +
-      (p.description ? `<div class="prose mt-3">${paragraphs(p.description)}</div>` : '') +
+      (p.description ? `<div class="pdp-desc mt-3">${richText(p.description)}</div>` : '') +
       ((p.details || []).length ? `<ul class="bullets mt-3">${p.details.map((d) => `<li>${esc(d)}</li>`).join('')}</ul>` : '') +
-      (p.materials ? `<p class="mt-2"><b>${esc(p.materials)}</b></p>` : '') +
+      (p.materials && !/\*\*Fabric/i.test(p.description || '') ? `<p class="desc-line"><strong>Fabric</strong><span>${esc(p.materials)}</span></p>` : '') +
       ((p.colors || []).length ? `<p class="small muted mt-2">Colours: ${esc(p.colors.map((c) => c.name).join(', '))}</p>` : '') +
       ((p.sizes || []).length ? `<p class="small muted">Sizes: ${esc(p.sizes.join(', '))}</p>` : '');
   }
@@ -634,8 +683,8 @@ function buildPage(ctx) {
   }
   if (route === '/updates') {
     const list = visibleUpdates(db);
-    const first = list.slice(0, 6);
-    if (first.length) slots.timeline = first.map((u) => postHtml(u)).join('');
+    const first = list.slice(0, 9);
+    if (first.length) slots.timeline = first.map(updateCardHtml).join('');
     const real = list.filter((u) => !u.demo).slice(0, 20);
     if (real.length) {
       extraGraph.push({
@@ -831,6 +880,8 @@ module.exports = {
   ROBOTS_INDEX,
   ROBOTS_NOINDEX,
   buildPage,
+  richText,
+  plain,
   applyPage,
   pageText,
   prettyLinks,

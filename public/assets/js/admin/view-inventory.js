@@ -40,7 +40,7 @@
         '<select class="input" data-cat aria-label="Category"><option value="">All categories</option>' + ui.options(categories.map((c) => ({ value: c.id, label: c.name })), st.category) + '</select>' +
         '<label class="row small muted" style="gap:8px"><input type="checkbox" class="check" data-archived> Show archived</label>' +
         '<span class="toolbar__count" data-shown></span></div>' +
-        '<div class="table-wrap"><table class="table inv-table"><thead><tr><th>Product</th><th>Colour</th><th>Size</th><th>SKU</th><th class="center">Stock</th><th class="center">Pre-order</th><th>Status</th></tr></thead><tbody data-rows></tbody></table></div>' +
+        '<div class="table-wrap"><table class="table inv-table"><thead><tr><th>Product</th><th>Colour</th><th>Size</th><th>SKU</th><th class="center">Stock</th><th class="center">Pre-order</th><th class="inv-status">Status</th></tr></thead><tbody data-rows></tbody></table></div>' +
         '<div data-empty></div></div>' +
         '<aside class="card inv-events"><div class="card__head"><span class="card__title">Recent stock changes</span><button type="button" class="icon-btn icon-btn--sm" data-act="reload-events" aria-label="Refresh" title="Refresh">' + icon('refresh', 15) + '</button></div><div class="events" data-events></div></aside>' +
         '</div>' +
@@ -105,14 +105,14 @@
         const delta = cur.stock - (Number(v.stock) || 0);
         return (
           '<tr data-k="' + esc(k) + '" class="' + (changed ? 'is-changed' : '') + (first ? ' is-first' : '') + '">' +
-          '<td class="inv-product">' + (first ? '<div class="cell-main"><span class="thumb thumb--sm">' + A.productThumb(p) + '</span><div style="min-width:0"><a class="cell-title ellipsis" href="' + A.href('/products/' + encodeURIComponent(p.id) + '?section=variants') + '">' + esc(p.name) + '</a><span class="cell-sub">' + esc(p.id) + (p.status !== 'published' ? ' · ' + esc(p.status) : '') + '</span></div></div>' : '') + '</td>' +
-          '<td class="nowrap"><span class="row" style="gap:8px">' + (v.color ? '<span class="swatch" style="background:' + esc((c && c.hex) || '#DDD3C4') + '"></span>' : '') + esc(v.color || '—') + '</span></td>' +
-          '<td class="nowrap">' + esc(v.size || '—') + '</td>' +
-          '<td class="mono nowrap muted">' + esc(v.sku) + '</td>' +
-          '<td class="center nowrap"><input class="input inv-stock" type="number" min="0" step="1" inputmode="numeric" value="' + esc(cur.stock) + '" data-stock aria-label="Stock for ' + esc(p.name + ' ' + v.color + ' ' + v.size) + '">' +
+          '<td class="inv-product' + (first ? '' : ' is-empty') + '">' + (first ? '<div class="cell-main"><span class="thumb thumb--sm">' + A.productThumb(p) + '</span><div style="min-width:0"><a class="cell-title inv-name" title="' + esc(p.name) + '" href="' + A.href('/products/' + encodeURIComponent(p.id) + '?section=variants') + '">' + esc(p.name) + '</a><span class="cell-sub">' + esc(p.id) + (p.status !== 'published' ? ' · ' + esc(p.status) : '') + '</span></div></div>' : '') + '</td>' +
+          '<td class="nowrap inv-color"><span class="row" style="gap:8px">' + (v.color ? '<span class="swatch" style="background:' + esc((c && c.hex) || '#DDD3C4') + '"></span>' : '') + esc(v.color || '—') + '</span></td>' +
+          '<td class="nowrap inv-size">' + esc(v.size || '—') + '</td>' +
+          '<td class="mono nowrap muted inv-sku">' + esc(v.sku) + '</td>' +
+          '<td class="center nowrap inv-qty"><input class="input inv-stock" type="number" min="0" step="1" inputmode="numeric" value="' + esc(cur.stock) + '" data-stock aria-label="Stock for ' + esc(p.name + ' ' + v.color + ' ' + v.size) + '">' +
           (delta ? '<span class="inv-delta inv-delta--' + (delta > 0 ? 'up' : 'down') + '">' + (delta > 0 ? '+' : '') + delta + '</span>' : '') + '</td>' +
-          '<td class="center"><input type="checkbox" class="check" data-pre' + (cur.preorder ? ' checked' : '') + ' aria-label="Pre-order"></td>' +
-          '<td data-status>' + A.stockPill(status) + '</td></tr>'
+          '<td class="center inv-pre"><label class="inv-pre__lbl"><input type="checkbox" class="check" data-pre' + (cur.preorder ? ' checked' : '') + ' aria-label="Pre-order"><span>Pre-order</span></label></td>' +
+          '<td class="inv-status" data-status>' + A.stockPill(status) + '</td></tr>'
         );
       }
 

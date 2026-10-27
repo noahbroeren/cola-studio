@@ -120,8 +120,16 @@ test('Weidian import + bulk create through the admin API', async (t) => {
           assert.ok(imgs.length >= 2 && imgs.every((x) => x.source.type === 'base64'));
           return { content: [{ type: 'text', text: JSON.stringify({ index: 1, unit: 'cm', columns: ['Length', 'Chest'], rows: [{ size: 'M', values: ['70', '120'] }, { size: '2XL', values: ['74', 128] }] }) }] };
         }
-        if (/description/.test(body.system)) {
+        if (/product descriptions/.test(body.system)) {
+          // describeProduct: house structure, from the seller's notes
           descCalls++;
+          const input = JSON.parse(body.messages[0].content);
+          assert.ok(input.notes.some((l) => /面料/.test(l)), 'seller notes are sent');
+          assert.match(body.system, /\*\*Fabric:\*\*/);
+          assert.doesNotMatch(body.system, /\*\*Care:\*\*/, 'no care line in the structure');
+          return { content: [{ type: 'text', text: 'Heavyweight hoodie in a dense loopback terry.\n\n**Fabric:** 480 g loopback cotton\n**Fit:** Relaxed' }] };
+        }
+        if (/description/.test(body.system)) {
           const lines = JSON.parse(body.messages[0].content);
           return { content: [{ type: 'text', text: JSON.stringify(lines.map((l) => (/面料/.test(l) ? 'Fabric: 480 g loopback cotton' : 'Relaxed fit'))) }] };
         }
@@ -182,7 +190,8 @@ test('Weidian import + bulk create through the admin API', async (t) => {
   assert.deepEqual(urls.slice(0, 3), ['https://si.geilicdn.com/weidian1234567-g1_1080_1080.jpg', 'https://si.geilicdn.com/weidian1234567-g2_1080_1080.jpg', 'https://si.geilicdn.com/pcitem1234-main.jpg']);
   assert.ok(!urls.some((u) => /icon|other-shop/.test(u)), 'no icons or other shops’ pictures');
   assert.equal(d.images.find((im) => /clay\.jpg/.test(im.url)).color, 'Clay', 'colour photo tagged (after translation)');
-  assert.equal(d.description, 'Fabric: 480 g loopback cotton\nRelaxed fit');
+  assert.equal(d.description, 'Heavyweight hoodie in a dense loopback terry.\n\n**Fabric:** 480 g loopback cotton\n**Fit:** Relaxed');
+  assert.equal(d.descriptionOriginal, '面料：480g 毛圈棉\n宽松版型', 'seller text kept for later rewrites');
   assert.equal(descCalls, 1);
   assert.equal(visionCalls, 1);
   assert.match(decodeURIComponent(d.sizeChartImage), /sizechart_790_900\.jpg$/);
@@ -206,6 +215,17 @@ test('Weidian import + bulk create through the admin API', async (t) => {
   assert.equal(created.variants.length, 8);
   assert.ok(created.variants.every((v) => v.sku), 'SKUs generated');
   assert.equal((await admin('GET', '/api/admin/products')).json.products.length, before + 1);
+
+  // 2b) "Rewrite descriptions" works from the seller's original text; a dry run changes nothing
+  assert.equal(created.descriptionOriginal, '面料：480g 毛圈棉\n宽松版型');
+  const dry = await admin('POST', '/api/admin/products/describe', { ids: [created.id], dryRun: true });
+  assert.equal(dry.status, 200, JSON.stringify(dry.json));
+  assert.deepEqual(dry.json.updated, []);
+  assert.match(dry.json.results[0].description, /^Heavyweight hoodie/);
+  const rw = await admin('POST', '/api/admin/products/describe', { ids: [created.id, 'CS-404'] });
+  assert.deepEqual(rw.json.updated, [created.id]);
+  assert.equal(descCalls, 3);
+  assert.match((await admin('GET', `/api/admin/products/${created.id}`)).json.product.description, /\*\*Fabric:\*\* 480 g loopback cotton/);
 
   // 3) the same link again is skipped as "already on the site"
   const again = await admin('POST', '/api/admin/weidian/import', { items: ['7781239999'] });

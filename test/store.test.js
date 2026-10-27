@@ -61,6 +61,31 @@ test('placeholder WhatsApp number is replaced by the seed number once; real numb
   assert.equal(new Store({ dataDir: dir, publicDir: pub, log: silentLog() }).init().db.settings.whatsapp.number, '31612345678');
 });
 
+test('contact details stored as a size by older Weidian imports are removed on boot', (t) => {
+  const dir = tmpDir();
+  const pub = tmpDir();
+  t.after(() => {
+    rmrf(dir);
+    rmrf(pub);
+  });
+  copyDir(path.join(FIXTURES, 'public'), pub);
+  const store = new Store({ dataDir: dir, publicDir: pub, log: silentLog() }).init();
+  const p = store.db.products[0];
+  const color = p.colors[0].name;
+  p.sizes = [...p.sizes, '微信：Colachupin09'];
+  p.variants.push({ sku: 'X-WX', color, size: '微信：Colachupin09', stock: 999, preorder: false });
+  const single = store.db.products[1];
+  single.sizes = ['微信：abc'];
+  single.variants = [{ sku: 'Y-WX', color: single.colors[0].name, size: '微信：abc', stock: 1, preorder: false }];
+  store.writeNow();
+  const again = new Store({ dataDir: dir, publicDir: pub, log: silentLog() }).init();
+  const q = again.db.products.find((x) => x.id === p.id);
+  assert.ok(!q.sizes.some((s) => /微信/.test(s)), 'contact size removed');
+  assert.ok(!q.variants.some((v) => /微信/.test(v.size)), 'its variants too');
+  assert.equal(q.variants.length, p.variants.length - 1);
+  assert.deepEqual(again.db.products.find((x) => x.id === single.id).sizes, ['微信：abc'], 'never removes the only size');
+});
+
 test('seeding tolerates missing and broken seed files', (t) => {
   const dir = tmpDir();
   const pub = tmpDir();

@@ -20,17 +20,17 @@
   <meta name="twitter:title" content="Cola Studio — Official Website · International Fashion Studio">
   <meta name="twitter:description" content="Official Cola Studio website. Shop garments designed and produced in-house, check live stock per size and order worldwide via WhatsApp, Weidian or your agent.">
   <meta name="twitter:image" content="https://colastudio.com/assets/brand/og-image.png">
-  <link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="assets/brand/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="icon" href="assets/brand/favicon.svg?v=1.4.0" type="image/svg+xml">
+  <link rel="icon" href="assets/brand/favicon-32.png?v=1.4.0" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400&display=swap">
-  <link rel="stylesheet" href="assets/css/tokens.css?v=1.3.0">
-  <link rel="stylesheet" href="assets/css/base.css?v=1.3.0">
-  <link rel="stylesheet" href="assets/css/components.css?v=1.3.0">
-  <link rel="stylesheet" href="assets/css/pages.css?v=1.3.0">
+  <link rel="stylesheet" href="assets/css/tokens.css?v=1.4.0">
+  <link rel="stylesheet" href="assets/css/base.css?v=1.4.0">
+  <link rel="stylesheet" href="assets/css/components.css?v=1.4.0">
+  <link rel="stylesheet" href="assets/css/pages.css?v=1.4.0">
   <script type="application/ld+json" id="cola-jsonld">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://colastudio.com/#organization","name":"Cola Studio","url":"https://colastudio.com/","logo":"https://colastudio.com/assets/brand/icon-512.png"},{"@type":"WebSite","@id":"https://colastudio.com/#website","url":"https://colastudio.com/","name":"Cola Studio","inLanguage":"en","publisher":{"@id":"https://colastudio.com/#organization"}},{"@type":"WebPage","@id":"https://colastudio.com/#webpage","url":"https://colastudio.com/","name":"Cola Studio — Official Website · International Fashion Studio","description":"Official Cola Studio website. Shop garments designed and produced in-house, check live stock per size and order worldwide via WhatsApp, Weidian or your agent.","inLanguage":"en","isPartOf":{"@id":"https://colastudio.com/#website"}}]}</script>
 </head>
 <body data-page="home" class="page-home">
@@ -51,16 +51,20 @@
         </div>
         <a class="hero__art" data-hero-art href="products.html" aria-label="Shop the collection"></a>
       </div>
+      <div class="container hero-feat">
+        <div class="hero-feat__head"><span class="label">Featured</span><a class="link" href="products.html">Shop all</a></div>
+        <div class="hero-feat__row" data-hero-feat><!--ssr:hero-featured--><!--/ssr:hero-featured--></div>
+      </div>
     </section>
 
     <!-- ============ NEXT DROP (only when set in the admin) ============ -->
     <div class="container"><div class="drop-strip" data-drop hidden></div></div>
 
     <!-- ============ SELECTED PIECES ============ -->
-    <section class="section bg-white" id="selected">
+    <section class="section bg-white" id="selected" data-newin-wrap>
       <div class="container">
         <div class="section-head section-head--calm">
-          <h2 class="h3">Selected pieces</h2>
+          <h2 class="h3">New in</h2>
           <a class="link" href="products.html">View all</a>
         </div>
         <div class="pgrid pgrid--even" data-featured><!--ssr:featured--><div class="skeleton" style="aspect-ratio:4/5"></div><div class="skeleton" style="aspect-ratio:4/5"></div><div class="skeleton" style="aspect-ratio:4/5"></div><div class="skeleton" style="aspect-ratio:4/5"></div><!--/ssr:featured--></div>
@@ -109,15 +113,15 @@
   </main>
   <div data-footer></div>
   <noscript><p class="container" style="padding:2rem 0">This site works best with JavaScript enabled. You can still reach us on WhatsApp or by email.</p></noscript>
-  <script src="assets/js/garments.js?v=1.3.0"></script>
-  <script src="assets/js/core/util.js?v=1.3.0"></script>
-  <script src="assets/js/core/data.js?v=1.3.0"></script>
-  <script src="assets/js/core/brand.js?v=1.3.0"></script>
-  <script src="assets/js/core/media.js?v=1.3.0"></script>
-  <script src="assets/js/core/cart.js?v=1.3.0"></script>
-  <script src="assets/js/core/ui.js?v=1.3.0"></script>
-  <script src="assets/js/core/components.js?v=1.3.0"></script>
-  <script src="assets/js/core/layout.js?v=1.3.0"></script>
-  <script src="assets/js/pages/home.js?v=1.3.0"></script>
+  <script src="assets/js/garments.js?v=1.4.0"></script>
+  <script src="assets/js/core/util.js?v=1.4.0"></script>
+  <script src="assets/js/core/data.js?v=1.4.0"></script>
+  <script src="assets/js/core/brand.js?v=1.4.0"></script>
+  <script src="assets/js/core/media.js?v=1.4.0"></script>
+  <script src="assets/js/core/cart.js?v=1.4.0"></script>
+  <script src="assets/js/core/ui.js?v=1.4.0"></script>
+  <script src="assets/js/core/components.js?v=1.4.0"></script>
+  <script src="assets/js/core/layout.js?v=1.4.0"></script>
+  <script src="assets/js/pages/home.js?v=1.4.0"></script>
 </body>
 </html>

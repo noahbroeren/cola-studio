@@ -45,6 +45,30 @@ function allowedMediaUrl(raw) {
   return u;
 }
 
+/**
+ * The same Weibo photo on other sizes and image hosts:
+ * wx2.sinaimg.cn/mw1024/abc.jpg → wx2/large, wx1/mw1024, wx3/large, wx4/mw2000 …
+ */
+function weiboAlternates(u) {
+  if (!/(^|\.)sinaimg\.cn$/i.test(u.hostname)) return [u];
+  const m = /^\/([a-z0-9]+)\/([^/]+)$/i.exec(u.pathname);
+  if (!m) return [u];
+  const sizes = [...new Set([m[1], m[1] === 'large' ? 'mw2000' : 'large', 'mw1024', 'mw2000'])];
+  const hosts = [...new Set([u.hostname, 'wx1.sinaimg.cn', 'wx3.sinaimg.cn', 'wx4.sinaimg.cn'])];
+  const out = [];
+  const add = (host, size) => {
+    const href = `https://${host}/${size}/${m[2]}`;
+    if (!out.some((x) => x.href === href)) out.push(new URL(href));
+  };
+  add(hosts[0], sizes[0]);
+  add(hosts[0], sizes[1]);
+  add(hosts[1], sizes[0]);
+  add(hosts[2], sizes[1]);
+  add(hosts[3], sizes[2]);
+  add(hosts[1], sizes[3]);
+  return out.slice(0, 6);
+}
+
 const isVideoUrl = (u) => /weibocdn\.com$/i.test(u.hostname) || /\.(mp4|mov)$/i.test(u.pathname);
 
 async function readLimited(res, max) {
@@ -126,8 +150,24 @@ class MediaCache {
 
   async download(u, key) {
     const video = isVideoUrl(u);
+    // Weibo photos: when one size/host refuses, try the same photo elsewhere.
+    const candidates = video ? [u] : weiboAlternates(u);
+    let lastErr = null;
+    for (const [i, cand] of candidates.entries()) {
+      try {
+        return await this.downloadOne(cand, key, video, i > 0 && /sinaimg\.cn$/i.test(cand.hostname) && i % 2 === 0 ? 'https://weibo.com/' : null);
+      } catch (err) {
+        lastErr = err;
+        if (err.fatal) break;
+      }
+    }
+    this.failures.set(key, Date.now() + 10 * 60 * 1000);
+    throw Object.assign(new Error(`media fetch failed: ${lastErr ? lastErr.message : 'unknown'}`), { status: 502 });
+  }
+
+  async downloadOne(u, key, video, referer) {
     const max = video ? this.videoMaxBytes : this.imageMaxBytes;
-    try {
+    {
       let current = u;
       let res;
       // Follow at most 3 redirects, and only to allowed hosts (no SSRF via redirect).
@@ -135,7 +175,7 @@ class MediaCache {
         res = await this.fetch(current.href, {
           headers: {
             'User-Agent': MOBILE_UA,
-            Referer: refererFor(current),
+            Referer: referer || refererFor(current),
             Accept: video ? 'video/*,*/*;q=0.5' : 'image/avif,image/webp,image/*,*/*;q=0.5',
           },
           redirect: 'manual',
@@ -165,9 +205,6 @@ class MediaCache {
       this.index.set(sha1(key), name);
       this.failures.delete(key);
       return file;
-    } catch (err) {
-      this.failures.set(key, Date.now() + 10 * 60 * 1000);
-      throw Object.assign(new Error(`media fetch failed: ${err.message}`), { status: 502 });
     }
   }
 
@@ -186,4 +223,4 @@ class MediaCache {
   }
 }
 
-module.exports = { MediaCache, allowedMediaUrl, MOBILE_UA };
+module.exports = { MediaCache, allowedMediaUrl, weiboAlternates, MOBILE_UA };

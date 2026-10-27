@@ -164,7 +164,6 @@
     find: function (p, color, size) { return (p.variants || []).find(function (v) { return v.color === color && v.size === size; }) || null; },
     available: function (status) { return status === 'instock' || status === 'low' || status === 'preorder'; },
     label: function (status, n) {
-      if (status === 'low' && n != null) return n + ' left';
       return LABELS[status] || status;
     },
     html: function (status, text) {

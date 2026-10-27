@@ -78,7 +78,7 @@
       return '<div class="oline" data-key="' + esc(it.key) + '"><a class="oline__img" href="' + Cola.url('product', { slug: it.slug || (p && p.slug) }) + '" style="--tint:' + Cola.media.tint(hex) + '">' + img + '</a>' +
         '<div class="oline__main"><div><a class="oline__name" href="' + Cola.url('product', { slug: it.slug }) + '">' + esc(it.name) + '</a><p class="tiny subtle">' + esc(it.color) + (it.sku ? ' · ' + esc(it.sku) : '') + '</p></div>' +
         '<div class="oline__controls">' + sizes + '<div class="qty qty--sm"><button type="button" data-o-dec aria-label="Decrease">−</button><input type="number" min="1" max="99" value="' + it.qty + '" data-o-qty aria-label="Quantity"><button type="button" data-o-inc aria-label="Increase">+</button></div></div>' +
-        '<div class="oline__stock">' + Cola.stock.html(st, st === 'low' ? 'Only ' + (v ? v.stock : 0) + ' left' : null) + '</div></div>' +
+        '<div class="oline__stock">' + Cola.stock.html(st, null) + '</div></div>' +
         '<div class="oline__end"><span class="oline__price">' + Cola.c.price(it.price * it.qty) + '</span><span class="tiny subtle">' + (it.qty > 1 ? it.qty + ' × ' + Cola.money.format(it.price, null, { round: true }) : '') + '</span><button class="icon-btn" type="button" data-o-remove aria-label="Remove ' + esc(it.name) + '">' + Cola.icon('close') + '</button></div></div>';
     }).join('') + '</div>';
     Cola.rewriteLinks(host);
@@ -168,10 +168,21 @@
   function done(items, msg) {
     var el = $('[data-done]'), ref = REF;
     $('[data-order-grid]').hidden = true; el.hidden = false;
-    el.innerHTML = '<div class="order-done__inner">' + Cola.brand.engraving('shears', 'order-done__art') +
+    var count = items.reduce(function (n, it) { return n + (Number(it.qty) || 1); }, 0);
+    var total = items.reduce(function (n, it) { return n + (Number(it.price) || 0) * (Number(it.qty) || 1); }, 0);
+    var sum = '<aside class="order-sum" aria-label="What you sent"><div class="order-sum__head"><span class="label">Order</span><span class="order-sum__ref">' + esc(ref) + '</span></div>' +
+      '<div class="order-sum__list">' + items.map(function (it) {
+        var p = PRODUCTS.find(function (x) { return x.id === it.productId; });
+        var hex = it.colorHex || (p ? Cola.media.colorHex(p, it.color) : '');
+        var img = it.image ? '<img src="' + esc(it.image) + '" alt="">' : p ? Cola.media.productImage(p, { color: it.color }) : Cola.media.garment(it.garment, { color: hex, print: it.print });
+        return '<div class="order-sum__item"><span class="order-sum__img" style="--tint:' + Cola.media.tint(hex) + '">' + img + '</span><div><div class="order-sum__name">' + esc(it.name) + '</div><div class="order-sum__meta">' + esc([it.color, it.size].filter(Boolean).join(' · ')) + (it.qty > 1 ? ' · ' + it.qty + '×' : '') + '</div></div><span>' + Cola.c.price((Number(it.price) || 0) * (Number(it.qty) || 1)) + '</span></div>';
+      }).join('') + '</div>' +
+      '<div class="order-sum__total"><span>' + count + ' item' + (count === 1 ? '' : 's') + '</span><span>' + Cola.c.price(total) + '</span></div>' +
+      '<p class="order-sum__note">Shipping is quoted in the chat. Keep this reference — it is also in your WhatsApp message.</p></aside>';
+    el.innerHTML = '<div class="order-done__inner"><div class="order-done__main">' + Cola.brand.engraving('shears', 'order-done__art') +
       '<p class="eyebrow">Order sent</p><h2 class="h1 mt-2">Thank <b>you.</b></h2><p class="lead mt-3">Your order <b>' + esc(ref) + '</b> is waiting in WhatsApp. If the chat did not open, use the button below — the message is ready to go.</p>' +
       '<div class="row row--wrap mt-4"><a class="btn btn--wa" href="' + esc(Cola.order.waLink(msg)) + '" target="_blank" rel="noopener">' + Cola.icon('whatsapp', 'btn__icon') + 'Open WhatsApp again</a><button class="btn btn--ghost" type="button" data-done-clear>Start a new order</button><button class="btn btn--ghost" type="button" data-done-back>Edit this order</button></div>' +
-      '<ol class="next-steps mt-6"><li><span class="index">01</span><b>We confirm</b><p class="small muted">Availability, shipping options and your total — usually within a few hours.</p></li><li><span class="index">02</span><b>You pay</b><p class="small muted">Securely, using the payment method we agree on in the chat.</p></li><li><span class="index">03</span><b>We pack &amp; ship</b><p class="small muted">Inspected, packed and shipped with tracking. You get updates in the same chat.</p></li></ol></div>';
+      '<ol class="next-steps mt-6"><li><span class="index">01</span><b>We confirm</b><p class="small muted">Availability, shipping options and your total — usually within a few hours.</p></li><li><span class="index">02</span><b>You pay</b><p class="small muted">Securely, using the payment method we agree on in the chat.</p></li><li><span class="index">03</span><b>We pack &amp; ship</b><p class="small muted">Inspected, packed and shipped with tracking. You get updates in the same chat.</p></li></ol></div>' + sum + '</div>';
     window.scrollTo({ top: 0, behavior: 'smooth' });
     el.querySelector('[data-done-clear]').addEventListener('click', function () { Cola.bag.clear(); newRef(); el.hidden = true; $('[data-order-grid]').hidden = false; renderAll(); history(); });
     el.querySelector('[data-done-back]').addEventListener('click', function () { el.hidden = true; $('[data-order-grid]').hidden = false; });

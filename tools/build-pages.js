@@ -95,8 +95,8 @@ ${noindex ? '' : `  <link rel="canonical" href="${url}">\n`}  <meta name="theme-
   <meta name="twitter:title" content="${esc(title)}">
   <meta name="twitter:description" content="${esc(desc)}">
   <meta name="twitter:image" content="${SITE}/assets/brand/og-image.png">
-  <link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="assets/brand/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="icon" href="assets/brand/favicon.svg?v=${V}" type="image/svg+xml">
+  <link rel="icon" href="assets/brand/favicon-32.png?v=${V}" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">

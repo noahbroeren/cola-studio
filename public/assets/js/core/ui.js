@@ -319,6 +319,38 @@
     });
   };
 
+  /**
+   * Photos from Weibo / Weidian that the proxy cannot deliver are hidden instead
+   * of showing a broken-image icon; a media strip left empty disappears too.
+   */
+  document.addEventListener('error', function (e) {
+    var img = e.target;
+    if (!img || img.tagName !== 'IMG' || !/\/media\/(weibo|img)\?/.test(img.getAttribute('src') || '')) return;
+    var tile = img.closest('.tl-media__item, .ucard__media, .ucard-media, .pdp-detail__img, .gal__item, .ugrid-card__media') || img;
+    tile.classList.add('is-broken');
+    var strip = tile.parentElement && tile.parentElement.closest('.tl-media, .pdp-detail, .ucard__media');
+    if (strip && !strip.querySelector(':scope > :not(.is-broken)')) strip.classList.add('is-broken');
+  }, true);
+
+  /**
+   * Chip rows fade out on the right only while there is more to scroll to —
+   * a row that fits shows every chip in full.
+   */
+  (function tabFades() {
+    function check() {
+      var rows = document.querySelectorAll('.tabs');
+      for (var i = 0; i < rows.length; i++) {
+        var t = rows[i];
+        t.classList.toggle('has-more', t.scrollWidth - t.clientWidth - t.scrollLeft > 4);
+      }
+    }
+    var later = Cola.throttle(check, 120);
+    window.addEventListener('resize', later);
+    document.addEventListener('scroll', function (e) { if (e.target && e.target.classList && e.target.classList.contains('tabs')) later(); }, true);
+    if (window.MutationObserver) new MutationObserver(later).observe(document.documentElement, { childList: true, subtree: true });
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', check); else check();
+  })();
+
   /** Run all generic enhancers inside a root (used after dynamic renders). */
   ui.enhance = function (root) {
     Cola.rewriteLinks(root);

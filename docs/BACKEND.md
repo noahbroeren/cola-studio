@@ -277,11 +277,18 @@ Daarna worden alleen posts opgehaald die nieuwer zijn dan de laatst verwerkte
 terug. Wil je opnieuw beginnen: zet `lastId` leeg in Integrations, of gebruik
 "Fetch now" met `force` = aantal posts.
 
-**Foto's en video's** worden via de server opgehaald (met Weibo als referer,
-anders blokkeert Weibo ze) en lokaal bewaard in `data/cache/weibo/`. Op de site
-staan ze als `/media/weibo?u=…`. Video-links van Weibo verlopen na een paar
-uur; daarom downloadt de server video's direct bij het importeren (tot
-`WEIBO_VIDEO_MAX_MB`).
+**Foto's** worden via de server opgehaald (met Weibo als referer, anders
+blokkeert Weibo ze) en lokaal bewaard in `data/cache/weibo/`. Op de site staan
+ze als `/media/weibo?u=…`, in een lichter formaat (`mw1024`). Lukt een foto
+niet, dan probeert de server andere formaten en Weibo-servers (`wx1`/`wx3`/`wx4`).
+Na elke import wordt elke foto gecontroleerd: foto's die niet te laden zijn
+gaan uit de post, en een post zonder werkende foto's wordt verborgen. Op de
+site verdwijnt een foto die toch niet laadt, in plaats van een kapot plaatje.
+
+**Video's worden niet geïmporteerd** (ze laadden traag en Weibo-links verlopen).
+Een post met alleen een video wordt overgeslagen; bij de eerste start na deze
+update krijgen bestaande posts hun video eruit en worden posts met alleen een
+video verborgen. (Wie video's toch wil: `importVideos: true` in de Weibo-config.)
 
 ### Oudere posts importeren
 
@@ -308,8 +315,7 @@ de knop **Publish all**; de lijst laadt per 50. Met de vakjes voor elke post
 Verwijderde Weibo-posts worden onthouden, zodat een gewone fetch ze niet terugzet.
 
 **Alleen posts met foto's.** Standaard (*Only posts with photos*) slaat de
-import posts zonder foto of video over — zowel de gewone fetch als *Import
-older posts*.
+import posts zonder foto over — zowel de gewone fetch als *Import older posts*.
 
 **Opnieuw beginnen (testen).** *Integrations → Weibo → Start over…* vergeet
 alles wat al geïmporteerd is (laatste post, positie van *Import older posts*,
@@ -432,14 +438,38 @@ gehaald als dat kan. "Onbeperkte" voorraad (999999999) wordt 999.
 
 Bron 2 en 3 zijn optioneel; lukt er één niet, dan gaat de import gewoon door
 (het voorbeeld meldt het). Kleurfoto's krijgen de kleurnaam mee, zodat de site
-van foto wisselt als je een kleur kiest. De beschrijving wordt vertaald; de
-detailfoto's komen onder *Detail photos* op de productpagina.
+van foto wisselt als je een kleur kiest. De detailfoto's komen als vierkante
+miniaturen onder *Detail photos* op de productpagina (de eerste 12, de rest via
+"+N"; klikken vergroot). SKU's die eigenlijk contactgegevens zijn (`微信：…`,
+QQ, WhatsApp) worden genegeerd; oudere imports worden bij het opstarten
+opgeschoond.
+
+**Beschrijvingen.** Met een Anthropic-key schrijft Claude elke beschrijving in
+dezelfde opbouw, uit de tekst van de verkoper:
+
+```
+Eén of twee zinnen over wat het is en wat het goed maakt.
+
+**Fabric:** 480 g loopback cotton
+**Fit:** Relaxed, dropped shoulders
+**Details:** Ribbed cuffs, kangaroo pocket
+```
+
+Alleen feiten uit de tekst (geen prijzen, verzending, winkelregels of
+"zoals het origineel"), maximaal ± 90 woorden. De originele tekst wordt
+bewaard (`descriptionOriginal`), zodat je later opnieuw kunt laten schrijven:
+in *Products* producten aanvinken → **Rewrite descriptions**, of in de editor
+**Rewrite with Claude** (eerst als voorbeeld). Op de site wordt `**vet**`
+vet, een regel die met `- ` begint een opsomming, en de `**Label:**`-regels
+een nette lijst. Zonder key worden de regels één voor één vertaald.
+De productnaam wordt nooit (deels) vet getoond.
 
 **Maattabel.** Staat er een Anthropic-key (Integrations → Translation, of
 `ANTHROPIC_API_KEY`), dan zoekt Claude de maattabel tussen de detailfoto's,
 leest hem uit en vult de maattabel van het product (kolommen in het Engels,
-maten zoals de site ze gebruikt). Die foto wordt ook bij *Size & fit*
-getoond. Kosten: ongeveer 1–3 cent per product. Zonder key markeer je de
+maten zoals de site ze gebruikt). Staat de tabel er, dan wordt de foto niet
+meer op de site getoond; alleen zonder tabel staat de foto bij *Size & fit*.
+Kosten: ongeveer 1–3 cent per product. Zonder key markeer je de
 maattabel zelf in de editor (*Images → Detail photos → Size chart?*).
 
 **Als Weidian de server blokkeert** (HTTP 403/429, captcha): elke aanvraag
@@ -452,6 +482,8 @@ item** (links of item-ID) laat per bron zien wat er binnenkwam en via welke weg.
 
 Pas als dat klopt, laat je de echte sync (of de planner) zijn werk doen. Elke
 wijziging komt als `inventoryEvent` (bron `weidian`) in de live-stock-ticker.
+Bezoekers zien alleen de status (*In stock*, *Low stock*, *Sold out*, *Pre-order*),
+nooit aantallen; de aantallen staan alleen in de admin.
 Bij herhaalde fouten wacht de planner steeds langer (exponentiële backoff), en
 tussen artikelen zit een pauze (`delayMs`, standaard 1,5 s) om Weidian niet te
 belasten.
@@ -583,9 +615,7 @@ beschrijving, Open Graph-tags, canonical-link en gestructureerde data
 - Per keer wordt de eerste pagina van de feed gelezen (± 10 posts). Plaatst de
   studio er meer tussen twee controles, dan kunnen de oudste ontbreken — met
   een interval van 15 minuten is dat in de praktijk geen probleem.
-- Video's groter dan `WEIBO_VIDEO_MAX_MB`, of die niet direct gedownload konden
-  worden, zijn later niet meer af te spelen (Weibo-links verlopen); de site
-  houdt dan de poster en een link naar de originele post.
+- Weibo-video's worden niet geïmporteerd (zie §4).
 - **Het Weidian `public-item`-endpoint is onofficieel** en kan veranderen of
   extra beveiliging krijgen. Controleer het met **Test**; werkt het niet meer,
   stap dan over op `open-api` of `json-feed`. Methodenamen van de Open API

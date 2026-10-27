@@ -7,7 +7,7 @@
   'use strict';
 
   const A = (window.ColaAdmin = window.ColaAdmin || {});
-  A.version = '1.3.0';
+  A.version = '1.4.0';
   A.views = A.views || {};
 
   /* ------------------------------------------------------------------ DOM */
@@ -472,3 +472,15 @@
     return 'https://wa.me/' + n + (text ? '?text=' + encodeURIComponent(text) : '');
   };
 })();
+
+/* Photos the media proxy could not deliver: show a calm "unavailable" tile instead of a broken image. */
+document.addEventListener(
+  'error',
+  function (e) {
+    var img = e.target;
+    if (!img || img.tagName !== 'IMG') return;
+    var tile = img.closest('.media-tile, .u-thumb, .img-card__media, .dimg__media, .wd-thumbs a, .wd-pick__img');
+    if (tile) tile.classList.add('is-broken');
+  },
+  true
+);

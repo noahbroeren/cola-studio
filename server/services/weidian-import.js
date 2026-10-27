@@ -195,7 +195,11 @@ function draftFromItem(item, raw, { itemId, cfg = {}, categories = [] } = {}) {
   const dims = attrDims(raw);
   const notes = [];
   // No colour/size options on Weidian: one variant with the item's own stock.
-  const rawSkus = (item.skus || []).length ? item.skus : [{ skuId: '', sku: '', title: '', stock: item.stock || 0, price: item.price }];
+  // Sellers sometimes use a SKU for contact details ("微信：abc123") — that is not a size.
+  const CONTACT = /微信|weixin|wechat|\bvx\b|\bwx\b|加v|客服|联系|whatsapp|qq[:：]/i;
+  const realSkus = (item.skus || []).filter((s) => !CONTACT.test(`${s.title || ''} ${s.color || ''} ${s.size || ''}`));
+  if (realSkus.length < (item.skus || []).length) notes.push('Left out an option that held contact details instead of a size');
+  const rawSkus = realSkus.length ? realSkus : [{ skuId: '', sku: '', title: '', stock: item.stock || 0, price: item.price }];
   if (!(item.skus || []).length) notes.push('No colours or sizes on Weidian — imported as one variant (OS)');
   const skus = rawSkus.map((s) => ({ ...s, ...(s.color || s.size ? { color: alias(s.color, colorAliases) || s.color || 'Default', size: sizeToken(s.size, sizeAliases) || s.size || 'OS', rawColor: s.color } : splitSkuTitle(s.title, { dims, sizeAliases, colorAliases })) }));
   const colors = [];
@@ -347,7 +351,8 @@ async function importItems({ ids, weidian, translator, cfg = {}, products = [], 
       if (out) {
         translated = true;
         refs.forEach((ref, k) => {
-          const v = out[k];
+          // Names and colours are plain text — never markdown bold or quotes.
+          const v = String(out[k] || '').replace(/\*+/g, '').replace(/^["'“”\s]+|["'“”\s]+$/g, '').trim();
           if (!v) return;
           if (ref.kind === 'name') ref.r.draft.name = v;
           else {
@@ -364,12 +369,27 @@ async function importItems({ ids, weidian, translator, cfg = {}, products = [], 
       for (const r of drafts) r.notes.push(`Translation failed (${err.message}) — Chinese text kept`);
     }
   }
-  // Descriptions: one call per product (they are longer), Chinese paragraphs only.
-  if (translate && translator && translator.translateLines) {
+  // Descriptions: Claude writes them in the house structure (intro + Fabric / Fit / Details);
+  // without an Anthropic key — or when that fails — the lines are translated one by one.
+  if (translate && translator) {
+    const canDescribe = translator.describeProduct && translator.claudeConfig && translator.claudeConfig();
     for (const r of drafts) {
       const paras = r.draft.description ? r.draft.description.split('\n') : [];
-      if (!paras.some((x) => CJK.test(x))) continue;
+      if (!paras.length) continue;
+      r.draft.descriptionOriginal = r.draft.description;
+      if (canDescribe) {
+        try {
+          const text = await translator.describeProduct({ title: r.original.title, lines: paras, colors: r.draft.colors.map((c) => c.name), sizes: r.draft.sizes });
+          if (text) {
+            r.draft.description = text;
+            continue;
+          }
+        } catch (err) {
+          r.notes.push(`Claude could not write the description (${err.message.slice(0, 80)}) — translated line by line instead`);
+        }
+      }
       try {
+        if (!paras.some((x) => CJK.test(x)) || !translator.translateLines) continue;
         const out = await translator.translateLines(paras, { kind: 'product description lines', prose: true });
         if (out) r.draft.description = out.filter((x) => x && x.trim()).join('\n');
         else r.notes.push('Description is in Chinese — add a translation key to translate it');

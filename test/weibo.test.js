@@ -29,7 +29,7 @@ test('extractMedia: large pics + best video stream + poster', () => {
   const posts = pickPosts(fixtureJson('weibo', 'getindex-posts.json').data);
   const hoodie = posts.find((p) => p.id === '5356857105057064');
   const m1 = extractMedia(hoodie);
-  assert.deepEqual(m1.images, ['https://wx2.sinaimg.cn/large/006hoodie01.jpg', 'https://wx2.sinaimg.cn/large/006hoodie02.jpg']);
+  assert.deepEqual(m1.images, ['https://wx2.sinaimg.cn/mw1024/006hoodie01.jpg', 'https://wx2.sinaimg.cn/mw1024/006hoodie02.jpg'], 'site size instead of the original');
   assert.equal(m1.video, null);
 
   const video = extractMedia(posts.find((p) => p.id === '5356900000000002'));
@@ -130,16 +130,14 @@ test('WeiboService first run: warm-up cookies, tabsInfo container, backfill, lon
   assert.match(hoodie.textOriginal, /面料：480g 毛圈棉 & 2x2 罗纹\n颜色/); // long text from /statuses/extend, cleaned
   assert.doesNotMatch(hoodie.textOriginal, /<|全文|\[心\]/);
   assert.equal(hoodie.media.length, 2);
-  assert.equal(hoodie.media[0].url, `/media/weibo?u=${encodeURIComponent('https://wx2.sinaimg.cn/large/006hoodie01.jpg')}`);
+  assert.equal(hoodie.media[0].url, `/media/weibo?u=${encodeURIComponent('https://wx2.sinaimg.cn/mw1024/006hoodie01.jpg')}`);
   assert.equal(hoodie.publishedAt, '2026-10-26T02:12:00.000Z');
   assert.equal(hoodie.status, 'published');
   assert.deepEqual(hoodie.relatedProducts, ['cs-002']);
   assert.equal(hoodie.translation.provider, 'test');
 
   const video = db.updates.find((u) => u.id === 'wb-5356900000000002');
-  assert.match(decodeURIComponent(video.video.url), /hd123\.mp4/);
-  assert.match(video.video.poster, /^\/media\/weibo\?u=/);
-  assert.equal(video.video.link, 'https://m.weibo.cn/status/5356900000000002');
+  assert.equal(video.video, null, 'videos are not imported');
 
   const repost = db.updates.find((u) => u.id === 'wb-5356950000000003');
   assert.equal(repost.retweeted, true);

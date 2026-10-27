@@ -377,6 +377,19 @@ function matchProductsByName(text, products) {
  * @param {() => object} o.getConfig  returns the effective `translation` config
  * @param {Function} o.fetch
  */
+/** Tidy a model-written description: no emoji, max one blank line, house labels kept. */
+function cleanDescriptionText(text) {
+  return stripEmoji(String(text || ''))
+    .replace(/\r/g, '')
+    .replace(/^\s*(description|product description)\s*:\s*/i, '')
+    .split('\n')
+    .map((l) => l.replace(/[ \t]+/g, ' ').trim())
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+    .slice(0, 2000);
+}
+
 function createTranslator({ getConfig, fetch: fetchFn = globalThis.fetch, log }) {
   const logger = log || { info() {}, warn() {}, error() {} };
 
@@ -515,6 +528,63 @@ function createTranslator({ getConfig, fetch: fetchFn = globalThis.fetch, log })
     });
   }
 
+  /**
+   * Turn a seller's description (Chinese or English, one line per thought)
+   * into the site's house format — the same structure for every product:
+   *
+   *   One or two sentences that say what the piece is.
+   *
+   *   **Fabric:** …
+   *   **Fit:** …
+   *   **Details:** …
+   *   **Care:** …
+   *
+   * Sections without information in the source are left out. Needs the
+   * Anthropic key; returns null when it is not set.
+   */
+  async function describeProduct({ title = '', lines = [], colors = [], sizes = [] } = {}) {
+    const c = claudeConfig();
+    const src = (Array.isArray(lines) ? lines : String(lines || '').split(/\n+/)).map((l) => String(l || '').trim()).filter(Boolean).slice(0, 60);
+    if (!c || !src.length) return null;
+    const glossary = parseGlossary((getConfig() || {}).glossary);
+    const payload = await httpJson(
+      fetchFn,
+      'https://api.anthropic.com/v1/messages',
+      {
+        method: 'POST',
+        headers: { 'x-api-key': c.key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+        body: JSON.stringify({
+          model: c.model,
+          max_tokens: 900,
+          system:
+            "You write product descriptions for an international fashion studio's website, in clear British English, from the seller's notes (often Chinese). " +
+            'Every description has exactly this structure:\n' +
+            '1. One or two sentences that say what the piece is and what makes it good (no heading).\n' +
+            '2. A blank line.\n' +
+            '3. Up to three lines, in this order and only when the notes support them: "**Fabric:** …", "**Fit:** …", "**Details:** …". Each is one sentence or a short list separated by commas. No care or washing instructions.\n' +
+            'Rules: use the facts in the notes only — never invent materials, weights or measurements. Keep numbers exactly (e.g. 240 g, 70% cotton). You may put one key fact in **bold** inside a sentence. ' +
+            'Leave out prices, shipping, pre-order or stock notes, shop rules, size recommendations, comparisons with other products or with "the original", and anything about factories or production lines. ' +
+            'Never describe the product as genuine, authentic, official or made by another brand. No emoji, no exclamation marks, no hype words like "stunning" or "must-have". At most 90 words. ' +
+            'Reply with the description only.',
+          messages: [
+            {
+              role: 'user',
+              content: JSON.stringify({
+                title: applyGlossary(stripEmoji(title), glossary, { cjkOnly: true }),
+                notes: src.map((x) => applyGlossary(stripEmoji(x), glossary, { cjkOnly: true })),
+                colours: colors,
+                sizes,
+              }),
+            },
+          ],
+        }),
+      },
+      'Anthropic'
+    );
+    const raw = (payload.content || []).filter((b) => b && b.type === 'text').map((b) => b.text).join('').trim();
+    return cleanDescriptionText(stripFences(raw));
+  }
+
   /** { key, model } when an Anthropic key is saved — used for Claude-only extras (size charts, web fetch). */
   function claudeConfig() {
     const cfg = getConfig() || {};
@@ -575,11 +645,12 @@ function createTranslator({ getConfig, fetch: fetchFn = globalThis.fetch, log })
     return !!{ anthropic: cfg.anthropicKey, deepl: cfg.deeplKey, google: cfg.googleKey, libre: cfg.libreUrl, none: '' }[provider];
   }
 
-  return { translatePost, translateLines, configured, claudeConfig, readSizeChart };
+  return { translatePost, translateLines, configured, claudeConfig, readSizeChart, describeProduct };
 }
 
 module.exports = {
   createTranslator,
+  cleanDescriptionText,
   parseLlmResponse,
   stripFences,
   repairJson,

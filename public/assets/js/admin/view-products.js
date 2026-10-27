@@ -543,7 +543,7 @@
         return (
           '<tr class="is-clickable' + (st.selected.has(p.id) ? ' is-selected' : '') + '" data-id="' + esc(p.id) + '">' +
           '<td class="shrink"><input type="checkbox" class="check" data-sel aria-label="Select ' + esc(p.name) + '"' + (st.selected.has(p.id) ? ' checked' : '') + '></td>' +
-          '<td><div class="cell-main"><span class="thumb">' + A.productThumb(p) + '</span><div style="min-width:0"><a class="cell-title" href="' + A.href('/products/' + encodeURIComponent(p.id)) + '">' + esc(p.name) + (p.featured ? ' <span title="Featured" class="faint">' + icon('star', 13) + '</span>' : '') + '</a>' +
+          '<td><div class="cell-main"><span class="thumb">' + A.productThumb(p) + '</span><div style="min-width:0"><a class="cell-title" title="' + esc(p.name) + '" href="' + A.href('/products/' + encodeURIComponent(p.id)) + '">' + esc(p.name) + (p.featured ? ' <span title="Featured" class="faint">' + icon('star', 13) + '</span>' : '') + '</a>' +
           '<span class="cell-sub">' + esc(p.subtitle || '/' + p.slug) + '</span>' +
           '<span class="cell-sub"><span class="mono">' + esc(p.id) + '</span>' + (p.season ? ' · ' + esc(p.season) : '') + '</span></div></div></td>' +
           '<td class="nowrap">' + esc(catName(p.category)) + '</td>' +
@@ -584,6 +584,7 @@
           '<button type="button" class="btn btn--sm btn--ghost" data-bulk-act="published">' + icon('eye', 15) + 'Publish</button>' +
           '<button type="button" class="btn btn--sm btn--ghost" data-bulk-act="draft">' + icon('edit', 15) + 'Move to draft</button>' +
           '<button type="button" class="btn btn--sm btn--ghost" data-bulk-act="archived">' + icon('backup', 15) + 'Archive</button>' +
+          (A.data.mode === 'server' ? '<button type="button" class="btn btn--sm btn--ghost" data-bulk-act="describe" title="Rewrite the descriptions in the house format with Claude">' + icon('wand', 15) + 'Rewrite descriptions</button>' : '') +
           '<button type="button" class="btn btn--sm btn--ghost" data-bulk-act="delete">' + icon('trash', 15) + 'Delete</button>' +
           '<span class="sp"></span><button type="button" class="btn btn--sm btn--ghost" data-bulk-act="clear">Clear selection</button>';
       }
@@ -721,6 +722,27 @@
             return;
           }
           const chosen = st.products.filter((p) => st.selected.has(p.id));
+          if (act === 'describe') {
+            const ok = await ui.confirm({ title: 'Rewrite ' + A.plural(chosen.length, 'description') + '?', body: 'Claude rewrites them in the house format: a short introduction, then <b>Fabric</b>, <b>Fit</b>, <b>Details</b> and <b>Care</b> — from the seller’s original text, without adding facts. Takes a few seconds per product.', confirmText: 'Rewrite' });
+            if (!ok) return;
+            await ui.busy(bulk, async () => {
+              let done = 0;
+              const failed = [];
+              try {
+                for (let i = 0; i < chosen.length; i += 5) {
+                  const r = await A.data.describeProducts(chosen.slice(i, i + 5).map((p) => p.id));
+                  done += (r.updated || []).length;
+                  failed.push(...(r.failed || []));
+                }
+                ui.toast(A.plural(done, 'description') + ' rewritten' + (failed.length ? ' · ' + failed.length + ' skipped' : ''), failed.length ? { type: 'info' } : undefined);
+              } catch (err) {
+                ui.error(err, 'Stopped after ' + done);
+              }
+              st.selected.clear();
+              await reload();
+            }, 'Rewriting…');
+            return;
+          }
           if (act === 'delete') {
             const ok = await ui.confirm({ title: 'Delete ' + A.plural(chosen.length, 'product') + '?', body: esc(chosen.slice(0, 5).map((p) => p.name).join(', ') + (chosen.length > 5 ? ' and ' + (chosen.length - 5) + ' more' : '')) + '. This cannot be undone.', confirmText: 'Delete ' + A.plural(chosen.length, 'product'), danger: true });
             if (!ok) return;

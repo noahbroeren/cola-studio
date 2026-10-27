@@ -116,7 +116,8 @@
     activeChips(); updateTabs(); updateFilterCount();
     writeState();
   }
-  function splitName(n) { var w = n.split(' '); return w.length > 1 ? '<b>' + esc(w[0]) + '</b> ' + esc(w.slice(1).join(' ')) : '<b>' + esc(n) + '</b>'; }
+  // Category names are shown as they are written — no bold word picked out.
+  function splitName(n) { return esc(n); }
 
   function tabs() {
     var cats = [{ id: 'all', name: 'All' }, { id: 'new', name: 'New in' }].concat(Cola.data.categories || []);

@@ -88,12 +88,15 @@ Prices are stored in **CNY** (Weidian's currency). The frontend converts for dis
       "preorder": false, "weidianSkuId": "" }
   ],
   "images": [ { "url": "/uploads/x.jpg", "alt": "…", "color": "Clay" } ],   // empty → generated illustration
-  "description": "…",
-  "details": ["…"],
-  "materials": "…",
-  "care": ["…"],
+  "description": "Intro…\n\n**Fabric:** …\n**Fit:** …\n**Details:** …",  // **bold** and "- " bullets are rendered
+  "descriptionOriginal": "…",         // seller text (Weidian) the description was written from
+  "details": ["…"],                   // shown as a "Details:" line when the description has none
+  "materials": "…",                   // shown as a "Fabric:" line when the description has none
+  "care": ["…"],                      // kept for older data, no longer shown on the site
   "fit": "…",
   "measurements": { "unit": "cm", "columns": ["Chest", "Length"], "rows": [ { "size": "S", "values": [58, 70] } ] },
+  "detailImages": [ { "url": "/media/img?u=…" } ],   // thumbnail grid on the product page
+  "sizeChartImage": "",               // shown only when there is no measurements table
   "leadTime": "Ships in 3–5 working days",
   "restockDate": null,                 // ISO date when sold out but coming back
   "weidian": { "itemId": "", "url": "", "syncEnabled": false, "lastSyncedAt": null },
@@ -123,7 +126,7 @@ Prices are stored in **CNY** (Weidian's currency). The frontend converts for dis
     { "type": "image", "url": "/media/weibo?u=…" },
     { "type": "illustration", "garment": "hoodie", "color": "#2B2724", "caption": "…" }  // demo only
   ],
-  "video": null,                       // { "url": "…", "poster": "…" }
+  "video": null,                       // not imported any more (Weibo videos were slow and expire)
   "publishedAt": "…", "fetchedAt": "…",
   "status": "published",              // published | pending | hidden
   "pinned": false,

@@ -52,10 +52,10 @@
     var color = o.color || ((p.colors || [])[0] || {}).name;
     var hexc = Cola.media.colorHex(p, color);
     var status = Cola.stock.product(p);
-    var total = Cola.stock.total(p);
     var hasBack = true;
     var url = Cola.productUrl(p, color && (p.colors || []).length > 1 && color !== p.colors[0].name ? { color: color } : null);
-    var stLabel = status === 'low' ? 'Only ' + total + ' left' : Cola.stock.labels[status];
+    // Customers see a status, never a count — the numbers are for the admin.
+    var stLabel = Cola.stock.labels[status];
     return '<article class="pcard' + (status === 'soldout' ? ' is-soldout' : '') + (o.wide ? ' pcard--wide' : '') + '" data-pid="' + esc(p.id) + '" data-color="' + esc(color) + '"' + (o.reveal !== false ? ' data-reveal style="--d:' + ((o.index || 0) % 4 * 0.07).toFixed(2) + 's"' : '') + '>' +
       '<div class="pcard__media" style="--tint:' + Cola.media.tint(hexc) + '">' +
         '<div class="pcard__badges">' + C.badges(p, status, 1) + '</div>' +
@@ -160,7 +160,7 @@
   C.sizeButtons = function (p, state) {
     return (p.sizes || []).map(function (s) {
       var v = Cola.stock.find(p, state.color, s), st = Cola.stock.variant(v, p), n = v ? Number(v.stock) || 0 : 0;
-      var note = st === 'low' ? '<span class="size__note">' + n + ' left</span>' : (st === 'preorder' ? '<span class="size__note size__note--pre">Pre</span>' : '');
+      var note = st === 'preorder' ? '<span class="size__note size__note--pre">Pre</span>' : '';
       return '<button type="button" class="size' + (Cola.stock.available(st) ? '' : ' is-out') + '" role="radio" aria-checked="' + (state.size === s) + '" data-buy-size="' + esc(s) + '" aria-label="' + esc(s) + ' — ' + esc(Cola.stock.label(st, n)) + '">' + esc(s) + note + '</button>';
     }).join('');
   };
@@ -171,7 +171,7 @@
     }
     var v = Cola.stock.find(p, state.color, state.size), s = Cola.stock.variant(v, p), n = v ? Number(v.stock) || 0 : 0;
     var txt = s === 'instock' ? 'In stock — ships in ' + ((p.leadTime || '').replace(/^Ships in /i, '') || '3–5 working days')
-      : s === 'low' ? 'Only ' + n + ' left in ' + state.size
+      : s === 'low' ? 'Low stock in ' + state.size + ' — ships in ' + ((p.leadTime || '').replace(/^Ships in /i, '') || '3–5 working days')
       : s === 'preorder' ? (p.leadTime || 'Pre-order')
       : s === 'restocking' ? 'Sold out — restock expected ' + Cola.fmtDate(p.restockDate)
       : 'Sold out in ' + state.size + ' — get notified when it is back';
@@ -346,6 +346,50 @@
     return '<div class="section-head"><div><p class="eyebrow">' + esc(o.eyebrow || '') + '</p><h2 class="h2 mt-2" data-split>' + o.title + '</h2></div>' +
       (o.link ? '<a class="link" href="' + o.link + '">' + esc(o.linkLabel || 'View all') + ' ' + Cola.icon('arrow-right') + '</a>' : '') + '</div>';
   };
+  // ---------------------------------------------------------------------------
+  // Studio update card (home + updates page): one photo, date, title, excerpt
+  // ---------------------------------------------------------------------------
+  var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  C.updateCard = function (u, o) {
+    o = o || {};
+    var url = Cola.updateUrl(u);
+    var photos = (u.media || []).filter(function (m) { return m && (m.type !== 'image' || m.url); });
+    var first = photos[0];
+    var d = new Date(u.publishedAt);
+    var date = isNaN(d) ? '' : d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear();
+    var en = u.textEnglish || u.textOriginal || '';
+    return '<article class="ucard' + (first ? '' : ' ucard--text') + (u.pinned ? ' is-pinned' : '') + '" data-reveal style="--d:' + ((o.index || 0) % 3 * 0.06).toFixed(2) + 's">' +
+      (first ? '<div class="ucard__media"><div style="--bg-m:' + Cola.media.updateMediaBg(first) + '">' + Cola.media.updateMedia(first) + '</div>' + (photos.length > 1 ? '<span class="ucard__count">' + Cola.icon('album') + photos.length + '</span>' : '') + '</div>' : '') +
+      '<div class="ucard__body"><div class="ucard__meta"><span class="cat-chip cat-' + esc(u.category || 'studio') + '">' + esc(u.category || 'update') + '</span><time class="tiny subtle" datetime="' + esc(u.publishedAt || '') + '">' + date + '</time></div>' +
+      '<h3 class="ucard__title"><a href="' + url + '">' + esc(u.title || 'Studio update') + '</a></h3>' +
+      '<p class="ucard__text ucard__text--en">' + esc(en) + '</p>' +
+      (u.textOriginal && u.source === 'weibo' ? '<p class="ucard__text ucard__text--zh zh" lang="zh">' + esc(u.textOriginal) + '</p>' : '') +
+      '<span class="ucard__more">Read more ' + Cola.icon('arrow-right') + '</span></div></article>';
+  };
+
+  // ---------------------------------------------------------------------------
+  // Product description: paragraphs, "- " bullets and **bold**, nothing else
+  // ---------------------------------------------------------------------------
+  C.richText = function (text) {
+    var out = [], list = null, para = [];
+    var inline = function (s) { return esc(s).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>'); };
+    var flushPara = function () { if (para.length) { out.push('<p>' + para.map(inline).join('<br>') + '</p>'); para = []; } };
+    var flushList = function () { if (list) { out.push('<ul class="bullets">' + list.map(function (l) { return '<li>' + inline(l) + '</li>'; }).join('') + '</ul>'); list = null; } };
+    String(text || '').replace(/\r/g, '').split('\n').forEach(function (raw) {
+      var line = raw.trim();
+      if (!line) { flushPara(); flushList(); return; }
+      var b = /^[-•·]\s+(.*)$/.exec(line);
+      if (b) { flushPara(); (list = list || []).push(b[1]); return; }
+      flushList();
+      // A labelled line ("**Fabric:** …") stands on its own.
+      var lab = /^\*\*([^*]+?):?\*\*:?\s*(.*)$/.exec(line);
+      if (lab && /:/.test(line.slice(0, lab[1].length + 6))) { flushPara(); out.push('<p class="desc-line"><strong>' + esc(lab[1]) + '</strong><span>' + inline(lab[2]) + '</span></p>'); return; }
+      para.push(line);
+    });
+    flushPara(); flushList();
+    return out.join('');
+  };
+
   C.empty = function (title, text, cta) {
     return '<div class="empty">' + Cola.brand.engraving('spool', 'empty__art') + '<h3 class="h4">' + title + '</h3>' + (text ? '<p class="small muted">' + text + '</p>' : '') + (cta || '') + '</div>';
   };

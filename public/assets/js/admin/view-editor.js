@@ -373,11 +373,10 @@
           cls: 'span-2',
           for: 'f-desc',
           aside: '<span data-desc-count class="' + (len > DESC_SOFT_MAX ? 'is-over' : '') + '">' + len + ' / ' + DESC_SOFT_MAX + '</span>',
-          hint: 'Two to four sentences read best. Line breaks are kept.',
+          hint: 'Format: a short introduction, an empty line, then lines like <code>**Fabric:** 240 g cotton</code>. <code>**bold**</code> and lines starting with <code>- </code> (bullets) are shown as such.' + (A.data.mode === 'server' ? ' <button type="button" class="link-btn" data-act="describe">' + icon('wand', 13) + ' Rewrite with Claude</button>' : ''),
         }) +
-        '<div class="field span-2"><div class="label">Details</div><div data-rep-host="details">' + repList('details', 'e.g. Triple-needle felled seams', 'Add detail') + '</div></div>' +
-        ui.field('Materials', '<textarea class="input" id="f-materials" data-f="materials" rows="2" style="min-height:64px" placeholder="e.g. 100% cotton canvas, 12 oz">' + esc(p.materials) + '</textarea>', { cls: 'span-2', for: 'f-materials' }) +
-        '<div class="field span-2"><div class="label">Care</div><div data-rep-host="care">' + repList('care', 'e.g. Cold hand wash only', 'Add care line') + '</div></div>' +
+        '<div class="field span-2"><div class="label">Details</div><div data-rep-host="details">' + repList('details', 'e.g. Triple-needle felled seams', 'Add detail') + '</div><p class="hint">Shown as a <b>Details:</b> line under the description when it has none of its own.</p></div>' +
+        ui.field('Materials', '<textarea class="input" id="f-materials" data-f="materials" rows="2" style="min-height:64px" placeholder="e.g. 100% cotton canvas, 12 oz">' + esc(p.materials) + '</textarea>', { cls: 'span-2', for: 'f-materials', hint: 'Shown as a <b>Fabric:</b> line when the description has none of its own.' }) +
         ui.field('Fit', '<textarea class="input" id="f-fit" data-f="fit" rows="2" style="min-height:64px" placeholder="e.g. Boxy and slightly cropped. Take your usual size.">' + esc(p.fit) + '</textarea>', { cls: 'span-2', for: 'f-fit' }) +
         ui.field('Lead time', '<input class="input" id="f-lead" data-f="leadTime" value="' + esc(p.leadTime) + '" placeholder="e.g. Ships in 3–5 working days">', { for: 'f-lead' }) +
         ui.field('Restock date', '<input class="input" id="f-restock" type="date" data-f="restockDate" data-type="date" value="' + esc(p.restockDate ? String(p.restockDate).slice(0, 10) : '') + '">', { for: 'f-restock', hint: 'Sold-out sizes show “Restocking” with this date.' }) +
@@ -400,7 +399,7 @@
     function seoDescDefault() {
       const parts = [];
       if (p.subtitle) parts.push(String(p.subtitle).trim().replace(/[.\s]+$/, '') + '.');
-      if (p.description) parts.push(String(p.description).replace(/\s+/g, ' ').trim());
+      if (p.description) parts.push(String(p.description).replace(/\*\*([^*]+)\*\*/g, '$1').replace(/^\s*[-•·]\s+/gm, '').replace(/\s+/g, ' ').trim());
       const t = parts.join(' ');
       return t.length > 160 ? t.slice(0, 157).replace(/\s+\S*$/, '') + '…' : t;
     }
@@ -1467,6 +1466,21 @@
         case 'img-url':
           addImageUrl();
           break;
+        case 'describe': {
+          try {
+            const r = await ui.busy(b, () => A.data.describeProducts([p.id || 'new'], { dryRun: true, source: p.descriptionOriginal || [p.description, ...(p.details || []), p.materials, ...(p.care || []), p.fit].filter(Boolean).join('\n'), title: p.name }), 'Writing…');
+            const text = r.results && r.results[0] && r.results[0].description;
+            if (!text) throw new Error((r.failed && r.failed[0] && r.failed[0].error) || 'No answer from Claude');
+            if (!p.descriptionOriginal && p.description) p.descriptionOriginal = p.description;
+            p.description = text;
+            renderStory();
+            changed();
+            ui.toast('Description rewritten — check it and save');
+          } catch (err) {
+            ui.error(err, 'Could not rewrite');
+          }
+          break;
+        }
         case 'dimg-url': {
           const inp = root.querySelector('[data-dimg-url]');
           const url = (inp.value || '').trim();

@@ -676,6 +676,7 @@
   D.translateTest = (text) => api('POST', '/api/admin/translate/test', { text });
   D.weidianSync = (opts) => api('POST', '/api/admin/weidian/sync', opts || {});
   D.weidianTest = (itemId) => api('POST', '/api/admin/weidian/test', { itemId });
+  D.describeProducts = (ids, opts) => api('POST', '/api/admin/products/describe', Object.assign({ ids }, opts || {}));
   D.weidianShop = (text) => api('POST', '/api/admin/weidian/shop', { text });
   D.weidianImport = (items, translate, opts) => api('POST', '/api/admin/weidian/import', Object.assign({ items, translate: translate !== false }, opts || {}));
   D.getCollection = async (name) => (await api('GET', '/api/admin/' + name))[name] || [];

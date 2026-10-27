@@ -59,6 +59,7 @@ Auth: `POST /api/admin/login { password }` → `{ token, expiresAt }`. Send `Aut
 | GET / PUT / DELETE | `/api/admin/products/:id` | read / replace / delete |
 | POST | `/api/admin/products/:id/duplicate` | copy as draft |
 | POST | `/api/admin/products/bulk` | `{ items:[{ id?, input, row? }], remove?:[ids] }` → spreadsheet / Weidian import. Validates everything first (all-or-nothing, errors name the row), snapshots `pre-import`, writes once → `{ created, updated, removed, backup }`; stock changes logged with source `import` |
+| POST | `/api/admin/products/describe` | `{ ids:[..], dryRun?, source?, title? }` → `{ updated, failed:[{ id, name, error }], results:[{ id, description }] }`. Claude (Anthropic key required) rewrites each description in the house structure (intro, then `**Fabric:**` / `**Fit:**` / `**Details:**`) from `descriptionOriginal` (or the current text); the source is kept in `descriptionOriginal`. `dryRun` only returns the text (used by the editor's *Rewrite with Claude*) |
 | PATCH | `/api/admin/products/:id/stock` | `{ variants:[{sku,stock,preorder?}] }` → logs inventoryEvents (source `admin`) |
 | GET / PUT | `/api/admin/categories` | full array replace |
 | GET / PUT | `/api/admin/settings` | public settings object replace |
@@ -78,7 +79,7 @@ Auth: `POST /api/admin/login { password }` → `{ token, expiresAt }`. Send `Aut
 | POST | `/api/admin/weidian/sync` | `{ dryRun?: bool, productId?: id }` → `{ changes:[{productId,sku,from,to}], unmatched:[…], errors:[…], applied }` |
 | POST | `/api/admin/weidian/shop` | `{ text }` (shop link) → `{ shopId, items:[{ itemId, name, price, image, stock, hasSku, suggested, existing? }] }` — every product of the shop, for the import picker |
 | POST | `/api/admin/weidian/test` | `{ itemId }` (id or link) → raw mapped result for one item, plus `scrape: { sources, images, detailImages, description, notes }` (what an import would take over) |
-| POST | `/api/admin/weidian/import` | `{ items: "links/ids" \| [..], links?: [share links], translate?: bool, sizeChart?: bool }` (max 10 per call) → `{ results:[{ itemId, ok, draft?, notes, sources?, sizeChart?, error?, skipped?, existing? }], translated }`. Full scrape: gallery + colour photos, description (translated), detail photos, size chart read by Claude into `measurements` + `sizeChartImage`; requests fall back to the scraping service and Claude web fetch. Nothing is saved — create them with `/products/bulk` |
+| POST | `/api/admin/weidian/import` | `{ items: "links/ids" \| [..], links?: [share links], translate?: bool, sizeChart?: bool }` (max 10 per call) → `{ results:[{ itemId, ok, draft?, notes, sources?, sizeChart?, error?, skipped?, existing? }], translated }`. Full scrape: gallery + colour photos, description (written by Claude in the house structure, or translated line by line), detail photos, size chart read by Claude into `measurements` + `sizeChartImage`; requests fall back to the scraping service and Claude web fetch. Nothing is saved — create them with `/products/bulk` |
 | GET | `/api/admin/messages`, `/api/admin/orders`, `/api/admin/notify` | stored submissions |
 | GET | `/api/admin/logs` | last 300 log lines |
 | GET | `/api/admin/export` | full backup JSON (no secrets) |

@@ -229,3 +229,44 @@ test('posts without photos are skipped by default; reset forgets everything that
   assert.deepEqual(env.store.db.meta.weiboDeleted, []);
   assert.equal(env.svc.historyStatus().state, 'idle');
 });
+
+test('photos Weibo will not serve are removed; video-only posts are hidden once; alternates for broken photos', async (t) => {
+  const { weiboAlternates } = require('../server/services/media');
+  const alts = weiboAlternates(new URL('https://wx2.sinaimg.cn/mw1024/abc.jpg')).map((u) => u.href);
+  assert.equal(alts[0], 'https://wx2.sinaimg.cn/mw1024/abc.jpg');
+  assert.ok(alts.includes('https://wx2.sinaimg.cn/large/abc.jpg') && alts.some((u) => u.startsWith('https://wx1.sinaimg.cn/')));
+  assert.ok(alts.length <= 6);
+  assert.deepEqual(weiboAlternates(new URL('https://si.geilicdn.com/x.jpg')).map((u) => u.href), ['https://si.geilicdn.com/x.jpg']);
+
+  const env = setup({ requirePhotos: true });
+  t.after(() => rmrf(env.dir));
+  const img = (name) => ({ type: 'image', url: '/media/weibo?u=' + encodeURIComponent('https://wx1.sinaimg.cn/mw1024/' + name + '.jpg') });
+  env.store.db.updates = [
+    { id: 'wb-1', source: 'weibo', status: 'published', media: [img('ok1'), img('bad1')] },
+    { id: 'wb-2', source: 'weibo', status: 'published', media: [img('bad2')] },
+  ];
+  env.svc.media = { ensure: async (u) => (/bad/.test(u) ? Promise.reject(new Error('upstream HTTP 403')) : '/tmp/x') };
+  const r = await env.svc.verifyMedia(['wb-1', 'wb-2']);
+  assert.deepEqual(r, { checked: 3, dropped: 2 });
+  assert.equal(env.store.db.updates[0].media.length, 1);
+  assert.equal(env.store.db.updates[0].status, 'published');
+  assert.equal(env.store.db.updates[1].status, 'hidden', 'no photos left → hidden');
+
+  // Video clean-up on start-up (once).
+  const env2 = setup();
+  t.after(() => rmrf(env2.dir));
+  env2.store.db.meta.videosRemoved = false;
+  env2.store.db.updates = [
+    { id: 'wb-v', source: 'weibo', status: 'published', media: [], video: { url: '/media/weibo?u=x' } },
+    { id: 'wb-vi', source: 'weibo', status: 'published', media: [img('p')], video: { url: '/media/weibo?u=y' } },
+    { id: 'wb-n', source: 'weibo', status: 'published', media: [] },
+  ];
+  env2.svc.migrateVideos();
+  const [v, vi, n] = env2.store.db.updates;
+  assert.equal(v.status, 'hidden');
+  assert.equal(v.video, undefined);
+  assert.equal(vi.status, 'published');
+  assert.equal(vi.video, undefined);
+  assert.equal(n.status, 'published', 'posts that never had a video are left alone');
+  assert.equal(env2.store.db.meta.videosRemoved, true);
+});

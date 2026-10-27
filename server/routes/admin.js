@@ -285,6 +285,40 @@ function registerAdmin(router, app) {
     return { ok: true };
   });
 
+  /** Rewrite descriptions in the house structure with Claude: { ids:[…] } → { updated, failed } */
+  router.post('/api/admin/products/describe', async (ctx) => {
+    const b = (await ctx.body()) || {};
+    const ids = Array.isArray(b.ids) ? b.ids.map(String).slice(0, 50) : [];
+    if (!ids.length) throw new HttpError(400, 'Send the product ids');
+    if (!translator.claudeConfig()) throw new HttpError(400, 'Add your Anthropic key under Integrations → Translation first.');
+    const updated = [];
+    const failed = [];
+    const results = [];
+    for (const id of ids) {
+      const p = db().products.find((x) => x.id === id);
+      if (!p && !(b.dryRun && b.source)) continue;
+      const source = (b.dryRun && b.source) || p.descriptionOriginal || [p.description, ...(p.details || []), p.materials, ...(p.care || []), p.fit].filter(Boolean).join('\n');
+      if (!String(source).trim()) {
+        failed.push({ id, name: p ? p.name : id, error: 'no description to work from' });
+        continue;
+      }
+      try {
+        const text = await translator.describeProduct({ title: (p && p.name) || b.title || '', lines: String(source).split(/\n+/), colors: ((p && p.colors) || []).map((c) => c.name), sizes: (p && p.sizes) || [] });
+        if (!text) throw new Error('empty answer');
+        results.push({ id, description: text });
+        if (b.dryRun) continue;
+        if (!p.descriptionOriginal) p.descriptionOriginal = String(source).slice(0, 8000);
+        p.description = text;
+        p.updatedAt = now();
+        updated.push(id);
+      } catch (err) {
+        failed.push({ id, name: p ? p.name : id, error: String(err.message).slice(0, 160) });
+      }
+    }
+    if (updated.length) store.save();
+    return { ok: true, updated, failed, results };
+  });
+
   router.post('/api/admin/products/:id/duplicate', (ctx) => {
     const src = findProduct(ctx.params.id);
     const d = db();

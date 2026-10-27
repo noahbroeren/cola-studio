@@ -7,7 +7,7 @@
   var Cola = (window.Cola = window.Cola || {});
   document.documentElement.classList.add('js');
 
-  Cola.version = '1.3.0';
+  Cola.version = '1.4.0';
   Cola.$ = function (s, r) { return (r || document).querySelector(s); };
   Cola.$$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   Cola.esc = function (s) {
