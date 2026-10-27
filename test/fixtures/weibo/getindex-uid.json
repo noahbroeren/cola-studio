@@ -1,0 +1,30 @@
+{
+  "ok": 1,
+  "data": {
+    "isVideoCoverStyle": 1,
+    "isStarStyle": 0,
+    "userInfo": {
+      "id": 1234567890,
+      "screen_name": "ColaStudio可乐工作室",
+      "profile_image_url": "https://tvax1.sinaimg.cn/crop.0.0.1080.1080.180/abc.jpg",
+      "statuses_count": 412,
+      "verified": false,
+      "description": "Design · Production · Craft",
+      "gender": "f",
+      "followers_count": 18200,
+      "follow_count": 120
+    },
+    "fans_scheme": "sinaweibo://cardlist?containerid=2310491234567890",
+    "follow_scheme": "sinaweibo://cardlist?containerid=2310491234567890_-_FOLLOWERS",
+    "tabsInfo": {
+      "selectedTab": 1,
+      "tabs": [
+        { "id": 1, "tabKey": "profile", "must_show": 1, "hidden": 0, "title": "主页", "tab_type": "profile", "containerid": "2302831234567890" },
+        { "id": 2, "tabKey": "weibo", "must_show": 1, "hidden": 0, "title": "微博", "tab_type": "weibo", "containerid": "1076031234567890", "apipath": "/profile/statuses", "url": "/index/my" },
+        { "id": 10, "tabKey": "album", "must_show": 0, "hidden": 0, "title": "相册", "tab_type": "album", "containerid": "1078031234567890" }
+      ]
+    },
+    "scheme": "sinaweibo://userinfo?uid=1234567890",
+    "showAppTips": 0
+  }
+}

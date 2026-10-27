@@ -1,0 +1,11 @@
+# Keep images small and secrets out
+data/
+dist/
+test/
+docs/
+.env
+.env.*
+.git
+node_modules
+public/uploads/*
+tools/

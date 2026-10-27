@@ -1,0 +1,21 @@
+{
+  "name": "cola-studio",
+  "version": "1.2.0",
+  "private": true,
+  "description": "Cola Studio — website + backend (zero dependencies). Runs on Vercel + Upstash or as a plain Node server.",
+  "type": "commonjs",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18.17 <25"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test test/*.test.js",
+    "build": "node scripts/build-vercel.js",
+    "vercel:local": "node scripts/vercel-local.js",
+    "products:template": "node scripts/products-template.js",
+    "products:export": "node scripts/products-template.js --export"
+  },
+  "license": "UNLICENSED"
+}

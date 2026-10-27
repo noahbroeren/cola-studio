@@ -1,0 +1,15 @@
+{
+  "name": "Cola Studio",
+  "short_name": "Cola Studio",
+  "description": "International fashion studio — design, production and craftsmanship.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F3EEE6",
+  "theme_color": "#130D0A",
+  "icons": [
+    { "src": "assets/brand/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/brand/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/brand/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "assets/brand/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

@@ -1,0 +1,33 @@
+# Render Blueprint — Cola Studio
+# Render → New → Blueprint → choose this repo. Render then creates one Docker web
+# service in Frankfurt with a 1 GB persistent disk on /app/data and asks for the
+# admin password. Step by step (in Dutch): docs/RENDER.md
+services:
+  - type: web
+    name: cola-studio
+    runtime: docker
+    region: frankfurt          # cannot be changed after creation
+    plan: 0.5c-512mb           # smallest paid instance; free instances cannot have a disk
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit  # every push to GitHub deploys a new version
+    disk:
+      name: cola-data
+      mountPath: /app/data     # database, backups, uploads, media cache
+      sizeGB: 1                # can be increased later, never decreased
+    envVars:
+      - key: ADMIN_PASSWORD    # asked for when you create the Blueprint
+        sync: false
+      - key: DATA_DIR
+        value: /app/data
+      - key: UPLOADS_DIR
+        value: /app/data/uploads
+      - key: TRUST_PROXY       # Render's proxy sets X-Forwarded-For; needed for per-visitor rate limits
+        value: "true"
+      - key: SESSION_SECRET
+        generateValue: true
+      # Add later in the dashboard (Environment):
+      #   SITE_URL=https://colastudio.com      once your domain is linked (until then the onrender.com address is used)
+      #   ANTHROPIC_API_KEY=…                  translation of Weibo posts and Weidian titles
+      #   WEIBO_COOKIE=…                       only if Weibo blocks the server
+      #   WEIDIAN_FETCH_VIA=…                  only if Weidian blocks the server

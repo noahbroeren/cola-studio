@@ -1,0 +1,5 @@
+[
+  { "at": "2026-10-25T09:00:00Z", "productId": "cs-002", "sku": "CS002-WBLK-XXL", "from": 2, "to": 0, "source": "weidian" },
+  { "at": "2026-10-24T09:00:00Z", "productId": "cs-001", "sku": "CS001-CLAY-M", "from": 6, "to": 8, "source": "admin" },
+  { "at": "2026-10-24T10:00:00Z", "productId": "cs-003", "sku": "CS003-OS", "from": 0, "to": 10, "source": "admin" }
+]

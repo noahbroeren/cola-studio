@@ -1,0 +1,5247 @@
+[
+  {
+    "id": "cs-001",
+    "slug": "construction-work-jacket",
+    "name": "Construction Work Jacket",
+    "subtitle": "12 oz waxed cotton canvas",
+    "category": "outerwear",
+    "collection": "Vol. 03 — Construction",
+    "season": "AW26",
+    "price": 689,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [
+      "new"
+    ],
+    "featured": true,
+    "order": 10,
+    "garment": "workjacket",
+    "print": null,
+    "colors": [
+      {
+        "name": "Clay",
+        "hex": "#AE7658"
+      },
+      {
+        "name": "Ink",
+        "hex": "#1E1B1A"
+      },
+      {
+        "name": "Olive",
+        "hex": "#5D6046"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "variants": [
+      {
+        "sku": "CS001-C-S",
+        "color": "Clay",
+        "size": "S",
+        "stock": 17,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS001-C-M",
+        "color": "Clay",
+        "size": "M",
+        "stock": 12,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS001-C-L",
+        "color": "Clay",
+        "size": "L",
+        "stock": 34,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS001-C-XL",
+        "color": "Clay",
+        "size": "XL",
+        "stock": 17,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS001-C-XXL",
+        "color": "Clay",
+        "size": "XXL",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS001-I-S",
+        "color": "Ink",
+        "size": "S",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS001-I-M",
+        "color": "Ink",
+        "size": "M",
+        "stock": 33,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS001-I-L",
+        "color": "Ink",
+        "size": "L",
+        "stock": 20,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS001-I-XL",
+        "color": "Ink",
+        "size": "XL",
+        "stock": 23,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS001-I-XXL",
+        "color": "Ink",
+        "size": "XXL",
+        "stock": 1,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS001-O-S",
+        "color": "Olive",
+        "size": "S",
+        "stock": 6,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS001-O-M",
+        "color": "Olive",
+        "size": "M",
+        "stock": 13,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS001-O-L",
+        "color": "Olive",
+        "size": "L",
+        "stock": 24,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS001-O-XL",
+        "color": "Olive",
+        "size": "XL",
+        "stock": 1,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS001-O-XXL",
+        "color": "Olive",
+        "size": "XXL",
+        "stock": 19,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "Our take on the chore jacket, rebuilt around a dense 12 oz canvas that is lightly waxed after dyeing. Triple-needle seams, bar-tacked stress points and a corduroy-faced collar give it the kind of structure that softens to your shape over years, not weeks.",
+    "details": [
+      "12 oz cotton canvas, light wax finish",
+      "Corduroy-faced collar",
+      "Four patch pockets with bar-tacked corners",
+      "Triple-needle felled seams",
+      "Engraved gunmetal shank buttons",
+      "Interior welt pocket with woven Cola Studio label"
+    ],
+    "materials": "100% cotton canvas, 12 oz. Collar facing: 100% cotton corduroy.",
+    "care": [
+      "Spot clean where possible",
+      "Cold hand wash only — do not tumble dry",
+      "Re-wax seasonally to keep the finish"
+    ],
+    "fit": "Boxy and slightly cropped. Take your usual size for a layered fit.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Chest (½)",
+        "Length",
+        "Shoulder",
+        "Sleeve"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            60,
+            70,
+            52,
+            62
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            63,
+            72,
+            53.5,
+            63.5
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            66,
+            74,
+            55,
+            65
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            69,
+            76,
+            56.5,
+            66.5
+          ]
+        },
+        {
+          "size": "XXL",
+          "values": [
+            72,
+            78,
+            58,
+            68
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "outerwear",
+      "workjacket",
+      "new-in"
+    ],
+    "weightKg": 1.3,
+    "demo": true,
+    "createdAt": "2026-10-14T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-002",
+    "slug": "quilted-liner-jacket",
+    "name": "Quilted Liner Jacket",
+    "subtitle": "Diamond-quilted recycled nylon",
+    "category": "outerwear",
+    "collection": "Vol. 03 — Construction",
+    "season": "AW26",
+    "price": 599,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [
+      "bestseller"
+    ],
+    "featured": true,
+    "order": 20,
+    "garment": "bomber",
+    "print": null,
+    "colors": [
+      {
+        "name": "Olive",
+        "hex": "#5D6046"
+      },
+      {
+        "name": "Black",
+        "hex": "#161514"
+      },
+      {
+        "name": "Caramel",
+        "hex": "#B47D4C"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "variants": [
+      {
+        "sku": "CS002-O-S",
+        "color": "Olive",
+        "size": "S",
+        "stock": 9,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS002-O-M",
+        "color": "Olive",
+        "size": "M",
+        "stock": 24,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS002-O-L",
+        "color": "Olive",
+        "size": "L",
+        "stock": 7,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS002-O-XL",
+        "color": "Olive",
+        "size": "XL",
+        "stock": 8,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS002-O-XXL",
+        "color": "Olive",
+        "size": "XXL",
+        "stock": 18,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS002-B-S",
+        "color": "Black",
+        "size": "S",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS002-B-M",
+        "color": "Black",
+        "size": "M",
+        "stock": 27,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS002-B-L",
+        "color": "Black",
+        "size": "L",
+        "stock": 8,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS002-B-XL",
+        "color": "Black",
+        "size": "XL",
+        "stock": 9,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS002-B-XXL",
+        "color": "Black",
+        "size": "XXL",
+        "stock": 17,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS002-C-S",
+        "color": "Caramel",
+        "size": "S",
+        "stock": 18,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS002-C-M",
+        "color": "Caramel",
+        "size": "M",
+        "stock": 3,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS002-C-L",
+        "color": "Caramel",
+        "size": "L",
+        "stock": 30,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS002-C-XL",
+        "color": "Caramel",
+        "size": "XL",
+        "stock": 21,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS002-C-XXL",
+        "color": "Caramel",
+        "size": "XXL",
+        "stock": 3,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "A featherweight liner with real warmth. 60 g recycled padding is sealed in an onion-quilted shell, finished with knit-rib cuffs and a snap placket. Wear it alone in autumn or under a shell when winter arrives.",
+    "details": [
+      "Onion-diamond quilting, 60 g recycled fill",
+      "Snap placket with matte metal snaps",
+      "Knit rib cuffs and hem",
+      "Two hand pockets with hidden snaps",
+      "Packs into its own inside pocket"
+    ],
+    "materials": "Shell & lining: 100% recycled nylon. Fill: 100% recycled polyester.",
+    "care": [
+      "Machine wash cold, gentle cycle",
+      "Tumble dry low",
+      "Do not iron"
+    ],
+    "fit": "Regular fit with room for a hoodie underneath.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Chest (½)",
+        "Length",
+        "Shoulder",
+        "Sleeve"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            59,
+            68,
+            49,
+            63
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            62,
+            70,
+            50.5,
+            64.5
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            65,
+            72,
+            52,
+            66
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            68,
+            74,
+            53.5,
+            67.5
+          ]
+        },
+        {
+          "size": "XXL",
+          "values": [
+            71,
+            76,
+            55,
+            69
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "outerwear",
+      "bomber"
+    ],
+    "weightKg": 0.7,
+    "demo": true,
+    "createdAt": "2026-09-30T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-003",
+    "slug": "technical-down-parka",
+    "name": "Technical Down Parka",
+    "subtitle": "750 FP responsibly sourced down",
+    "category": "outerwear",
+    "collection": "Vol. 04 — Winter Construction",
+    "season": "AW26",
+    "price": 1290,
+    "compareAt": 1490,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [
+      "limited"
+    ],
+    "featured": true,
+    "order": 30,
+    "garment": "puffer",
+    "print": null,
+    "colors": [
+      {
+        "name": "Black",
+        "hex": "#161514"
+      },
+      {
+        "name": "Graphite Sheen",
+        "hex": "#6E7276"
+      },
+      {
+        "name": "Forest",
+        "hex": "#2E3F33"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "variants": [
+      {
+        "sku": "CS003-B-S",
+        "color": "Black",
+        "size": "S",
+        "stock": 22,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS003-B-M",
+        "color": "Black",
+        "size": "M",
+        "stock": 27,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS003-B-L",
+        "color": "Black",
+        "size": "L",
+        "stock": 4,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS003-B-XL",
+        "color": "Black",
+        "size": "XL",
+        "stock": 22,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS003-GS-S",
+        "color": "Graphite Sheen",
+        "size": "S",
+        "stock": 2,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS003-GS-M",
+        "color": "Graphite Sheen",
+        "size": "M",
+        "stock": 29,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS003-GS-L",
+        "color": "Graphite Sheen",
+        "size": "L",
+        "stock": 10,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS003-GS-XL",
+        "color": "Graphite Sheen",
+        "size": "XL",
+        "stock": 22,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS003-F-S",
+        "color": "Forest",
+        "size": "S",
+        "stock": 16,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS003-F-M",
+        "color": "Forest",
+        "size": "M",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS003-F-L",
+        "color": "Forest",
+        "size": "L",
+        "stock": 31,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS003-F-XL",
+        "color": "Forest",
+        "size": "XL",
+        "stock": 19,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "Engineered for real cold. A matte, water-repellent ripstop shell is box-baffled to keep 750 fill-power down evenly distributed, while a storm flap, two-way zip and stowable hood seal out wind. Produced in a single, numbered run.",
+    "details": [
+      "750 fill-power RDS-certified down",
+      "Box-baffle construction — no cold spots",
+      "DWR-treated matte ripstop shell",
+      "Two-way YKK® Vislon zip under a snap storm flap",
+      "Stowable hood with shock-cord adjusters",
+      "Numbered interior label"
+    ],
+    "materials": "Shell: 100% nylon ripstop. Fill: 90% duck down, 10% feather.",
+    "care": [
+      "Professional down clean recommended",
+      "Tumble dry low with dryer balls"
+    ],
+    "fit": "Generous, oversized volume. Size down for a closer fit.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Chest (½)",
+        "Length",
+        "Shoulder",
+        "Sleeve"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            66,
+            78,
+            54,
+            66
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            69,
+            80,
+            55.5,
+            67.5
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            72,
+            82,
+            57,
+            69
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            75,
+            84,
+            58.5,
+            70.5
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "outerwear",
+      "puffer"
+    ],
+    "weightKg": 1.6,
+    "demo": true,
+    "createdAt": "2026-08-31T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-004",
+    "slug": "nylon-coach-jacket",
+    "name": "Nylon Coach Jacket",
+    "subtitle": "Crinkle nylon, mesh-lined",
+    "category": "outerwear",
+    "collection": "Vol. 02 — Utility",
+    "season": "SS26",
+    "price": 459,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [],
+    "featured": false,
+    "order": 40,
+    "garment": "coach",
+    "print": null,
+    "colors": [
+      {
+        "name": "Midnight",
+        "hex": "#232A38"
+      },
+      {
+        "name": "Stone",
+        "hex": "#C8C0B1"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "variants": [
+      {
+        "sku": "CS004-M-S",
+        "color": "Midnight",
+        "size": "S",
+        "stock": 15,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS004-M-M",
+        "color": "Midnight",
+        "size": "M",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS004-M-L",
+        "color": "Midnight",
+        "size": "L",
+        "stock": 3,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS004-M-XL",
+        "color": "Midnight",
+        "size": "XL",
+        "stock": 6,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS004-M-XXL",
+        "color": "Midnight",
+        "size": "XXL",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS004-S-S",
+        "color": "Stone",
+        "size": "S",
+        "stock": 7,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS004-S-M",
+        "color": "Stone",
+        "size": "M",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS004-S-L",
+        "color": "Stone",
+        "size": "L",
+        "stock": 23,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS004-S-XL",
+        "color": "Stone",
+        "size": "XL",
+        "stock": 12,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS004-S-XXL",
+        "color": "Stone",
+        "size": "XXL",
+        "stock": 12,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "A clean, unfussy coach jacket in crinkled nylon with a soft hand. Mesh lining keeps it breathable, the drawcord hem lets you shape the silhouette, and a tonal monogram is embroidered at the back yoke.",
+    "details": [
+      "Crinkle-finish nylon shell",
+      "Full mesh lining",
+      "Snap-front placket",
+      "Drawcord hem with tonal toggles",
+      "Tonal monogram embroidery at back yoke"
+    ],
+    "materials": "Shell: 100% nylon. Lining: 100% polyester mesh.",
+    "care": [
+      "Machine wash cold",
+      "Hang dry"
+    ],
+    "fit": "Relaxed fit. True to size.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Chest (½)",
+        "Length",
+        "Shoulder",
+        "Sleeve"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            61,
+            70,
+            51,
+            63
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            64,
+            72,
+            52.5,
+            64.5
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            67,
+            74,
+            54,
+            66
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            70,
+            76,
+            55.5,
+            67.5
+          ]
+        },
+        {
+          "size": "XXL",
+          "values": [
+            73,
+            78,
+            57,
+            69
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "outerwear",
+      "coach"
+    ],
+    "weightKg": 0.5,
+    "demo": true,
+    "createdAt": "2026-08-20T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-005",
+    "slug": "double-faced-wool-overcoat",
+    "name": "Double-Faced Wool Overcoat",
+    "subtitle": "Hand-finished wool-cashmere blend",
+    "category": "outerwear",
+    "collection": "Vol. 04 — Winter Construction",
+    "season": "AW26",
+    "price": 1690,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [
+      "preorder"
+    ],
+    "featured": false,
+    "order": 50,
+    "garment": "coat",
+    "print": null,
+    "colors": [
+      {
+        "name": "Espresso",
+        "hex": "#3E2B21"
+      },
+      {
+        "name": "Charcoal",
+        "hex": "#3A3A3C"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "variants": [
+      {
+        "sku": "CS005-E-S",
+        "color": "Espresso",
+        "size": "S",
+        "stock": 0,
+        "preorder": true,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS005-E-M",
+        "color": "Espresso",
+        "size": "M",
+        "stock": 0,
+        "preorder": true,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS005-E-L",
+        "color": "Espresso",
+        "size": "L",
+        "stock": 0,
+        "preorder": true,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS005-E-XL",
+        "color": "Espresso",
+        "size": "XL",
+        "stock": 0,
+        "preorder": true,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS005-C-S",
+        "color": "Charcoal",
+        "size": "S",
+        "stock": 0,
+        "preorder": true,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS005-C-M",
+        "color": "Charcoal",
+        "size": "M",
+        "stock": 0,
+        "preorder": true,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS005-C-L",
+        "color": "Charcoal",
+        "size": "L",
+        "stock": 0,
+        "preorder": true,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS005-C-XL",
+        "color": "Charcoal",
+        "size": "XL",
+        "stock": 0,
+        "preorder": true,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "Cut from a double-faced wool and cashmere cloth, the seams on this coat are hand-folded and blind-stitched so it needs no lining at all. The result is a coat that drapes like a blanket and weighs almost nothing for its warmth.",
+    "details": [
+      "Double-faced 80% wool / 20% cashmere",
+      "Unlined — seams hand-folded and blind-stitched",
+      "Dropped shoulder, single-breasted",
+      "Concealed button placket",
+      "Patch pockets with hand-sewn edges"
+    ],
+    "materials": "80% virgin wool, 20% cashmere.",
+    "care": [
+      "Dry clean only",
+      "Store on a broad hanger"
+    ],
+    "fit": "Long, relaxed, below-the-knee silhouette.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Chest (½)",
+        "Length",
+        "Shoulder",
+        "Sleeve"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            64,
+            112,
+            52,
+            64
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            67,
+            114,
+            53.5,
+            65
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            70,
+            116,
+            55,
+            66
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            73,
+            118,
+            56.5,
+            67
+          ]
+        }
+      ]
+    },
+    "leadTime": "Pre-order — ships from 28 November",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "outerwear",
+      "coat"
+    ],
+    "weightKg": 1.9,
+    "demo": true,
+    "createdAt": "2026-09-30T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-006",
+    "slug": "520-gsm-heavyweight-hoodie",
+    "name": "520 GSM Heavyweight Hoodie",
+    "subtitle": "Brushed-back French terry",
+    "category": "hoodies",
+    "collection": "Vol. 01 — Foundation",
+    "season": "SS26",
+    "price": 459,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [
+      "bestseller"
+    ],
+    "featured": true,
+    "order": 60,
+    "garment": "hoodie",
+    "print": null,
+    "colors": [
+      {
+        "name": "Washed Black",
+        "hex": "#33302E"
+      },
+      {
+        "name": "Heather Grey",
+        "hex": "#A8A5A0"
+      },
+      {
+        "name": "Bone",
+        "hex": "#E6DFD2"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "variants": [
+      {
+        "sku": "CS006-WB-S",
+        "color": "Washed Black",
+        "size": "S",
+        "stock": 8,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS006-WB-M",
+        "color": "Washed Black",
+        "size": "M",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS006-WB-L",
+        "color": "Washed Black",
+        "size": "L",
+        "stock": 11,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS006-WB-XL",
+        "color": "Washed Black",
+        "size": "XL",
+        "stock": 7,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS006-WB-XXL",
+        "color": "Washed Black",
+        "size": "XXL",
+        "stock": 13,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS006-HG-S",
+        "color": "Heather Grey",
+        "size": "S",
+        "stock": 14,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS006-HG-M",
+        "color": "Heather Grey",
+        "size": "M",
+        "stock": 34,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS006-HG-L",
+        "color": "Heather Grey",
+        "size": "L",
+        "stock": 32,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS006-HG-XL",
+        "color": "Heather Grey",
+        "size": "XL",
+        "stock": 19,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS006-HG-XXL",
+        "color": "Heather Grey",
+        "size": "XXL",
+        "stock": 16,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS006-B-S",
+        "color": "Bone",
+        "size": "S",
+        "stock": 21,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS006-B-M",
+        "color": "Bone",
+        "size": "M",
+        "stock": 2,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS006-B-L",
+        "color": "Bone",
+        "size": "L",
+        "stock": 31,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS006-B-XL",
+        "color": "Bone",
+        "size": "XL",
+        "stock": 8,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS006-B-XXL",
+        "color": "Bone",
+        "size": "XXL",
+        "stock": 4,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "The studio's cornerstone. A 520 GSM loopback terry is brushed on the inside, garment-dyed and enzyme washed, so every hoodie arrives broken-in with its own subtle tonal variation. Double-layered hood, no drawcords — just a clean, heavy silhouette.",
+    "details": [
+      "520 GSM brushed-back French terry",
+      "Garment dyed and enzyme washed",
+      "Double-layer hood without drawcords",
+      "Kangaroo pocket with bar tacks",
+      "Wide 2×2 rib cuffs and hem",
+      "Pre-shrunk — less than 3% shrinkage"
+    ],
+    "materials": "100% combed cotton, 520 GSM.",
+    "care": [
+      "Machine wash cold, inside out",
+      "Lay flat to dry",
+      "Do not tumble dry"
+    ],
+    "fit": "Oversized with dropped shoulders. Size down for a regular fit.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Chest (½)",
+        "Length",
+        "Shoulder",
+        "Sleeve"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            64,
+            70,
+            60,
+            58
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            67,
+            72,
+            61.5,
+            59.5
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            70,
+            74,
+            63,
+            61
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            73,
+            76,
+            64.5,
+            62.5
+          ]
+        },
+        {
+          "size": "XXL",
+          "values": [
+            76,
+            78,
+            66,
+            64
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "hoodies",
+      "hoodie"
+    ],
+    "weightKg": 1,
+    "demo": true,
+    "createdAt": "2026-10-05T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-007",
+    "slug": "double-face-zip-hoodie",
+    "name": "Double-Face Zip Hoodie",
+    "subtitle": "Two-tone bonded jersey",
+    "category": "hoodies",
+    "collection": "Vol. 03 — Construction",
+    "season": "AW26",
+    "price": 519,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [
+      "new"
+    ],
+    "featured": false,
+    "order": 70,
+    "garment": "ziphoodie",
+    "print": null,
+    "colors": [
+      {
+        "name": "Charcoal",
+        "hex": "#3A3A3C"
+      },
+      {
+        "name": "Sand",
+        "hex": "#D1BD9C"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "variants": [
+      {
+        "sku": "CS007-C-S",
+        "color": "Charcoal",
+        "size": "S",
+        "stock": 1,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS007-C-M",
+        "color": "Charcoal",
+        "size": "M",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS007-C-L",
+        "color": "Charcoal",
+        "size": "L",
+        "stock": 4,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS007-C-XL",
+        "color": "Charcoal",
+        "size": "XL",
+        "stock": 17,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS007-C-XXL",
+        "color": "Charcoal",
+        "size": "XXL",
+        "stock": 1,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS007-S-S",
+        "color": "Sand",
+        "size": "S",
+        "stock": 4,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS007-S-M",
+        "color": "Sand",
+        "size": "M",
+        "stock": 30,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS007-S-L",
+        "color": "Sand",
+        "size": "L",
+        "stock": 9,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS007-S-XL",
+        "color": "Sand",
+        "size": "XL",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS007-S-XXL",
+        "color": "Sand",
+        "size": "XXL",
+        "stock": 11,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "Two jersey layers are knitted together into one fabric, so the inside is a different tone than the outside. A two-way metal zip, flat drawcords with metal tips and a tall funnel-neck hood keep it sharp.",
+    "details": [
+      "Double-face bonded jersey, 480 GSM",
+      "Contrast inner face",
+      "Two-way metal zip with leather pull",
+      "Flat cotton drawcords, metal aglets",
+      "Side-seam hand pockets"
+    ],
+    "materials": "100% cotton.",
+    "care": [
+      "Machine wash cold",
+      "Lay flat to dry"
+    ],
+    "fit": "Relaxed fit, slightly cropped body.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Chest (½)",
+        "Length",
+        "Shoulder",
+        "Sleeve"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            62,
+            67,
+            57,
+            60
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            65,
+            69,
+            58.5,
+            61.5
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            68,
+            71,
+            60,
+            63
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            71,
+            73,
+            61.5,
+            64.5
+          ]
+        },
+        {
+          "size": "XXL",
+          "values": [
+            74,
+            75,
+            63,
+            66
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "hoodies",
+      "ziphoodie",
+      "new-in"
+    ],
+    "weightKg": 0.95,
+    "demo": true,
+    "createdAt": "2026-10-14T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-008",
+    "slug": "loopback-crewneck",
+    "name": "Loopback Crewneck",
+    "subtitle": "420 GSM organic cotton",
+    "category": "hoodies",
+    "collection": "Vol. 01 — Foundation",
+    "season": "SS26",
+    "price": 389,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [],
+    "featured": false,
+    "order": 80,
+    "garment": "crewneck",
+    "print": null,
+    "colors": [
+      {
+        "name": "Heather Grey",
+        "hex": "#A8A5A0"
+      },
+      {
+        "name": "Midnight",
+        "hex": "#232A38"
+      },
+      {
+        "name": "Cream",
+        "hex": "#EEE6D4"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "variants": [
+      {
+        "sku": "CS008-HG-S",
+        "color": "Heather Grey",
+        "size": "S",
+        "stock": 18,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS008-HG-M",
+        "color": "Heather Grey",
+        "size": "M",
+        "stock": 31,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS008-HG-L",
+        "color": "Heather Grey",
+        "size": "L",
+        "stock": 9,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS008-HG-XL",
+        "color": "Heather Grey",
+        "size": "XL",
+        "stock": 11,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS008-HG-XXL",
+        "color": "Heather Grey",
+        "size": "XXL",
+        "stock": 21,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS008-M-S",
+        "color": "Midnight",
+        "size": "S",
+        "stock": 18,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS008-M-M",
+        "color": "Midnight",
+        "size": "M",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS008-M-L",
+        "color": "Midnight",
+        "size": "L",
+        "stock": 10,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS008-M-XL",
+        "color": "Midnight",
+        "size": "XL",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS008-M-XXL",
+        "color": "Midnight",
+        "size": "XXL",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS008-C-S",
+        "color": "Cream",
+        "size": "S",
+        "stock": 22,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS008-C-M",
+        "color": "Cream",
+        "size": "M",
+        "stock": 16,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS008-C-L",
+        "color": "Cream",
+        "size": "L",
+        "stock": 3,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS008-C-XL",
+        "color": "Cream",
+        "size": "XL",
+        "stock": 4,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS008-C-XXL",
+        "color": "Cream",
+        "size": "XXL",
+        "stock": 9,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "A classic crewneck built properly: V-insert at the neck, raglan-free set-in sleeves for a cleaner shoulder and a dense loopback cotton that keeps its shape wash after wash.",
+    "details": [
+      "420 GSM organic loopback cotton",
+      "Collar V-insert",
+      "Flatlock seams",
+      "Tubular rib cuffs and hem"
+    ],
+    "materials": "100% organic cotton.",
+    "care": [
+      "Machine wash cold",
+      "Lay flat to dry"
+    ],
+    "fit": "Regular, true-to-size fit.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Chest (½)",
+        "Length",
+        "Shoulder",
+        "Sleeve"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            58,
+            69,
+            52,
+            62
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            61,
+            71,
+            53.5,
+            63.5
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            64,
+            73,
+            55,
+            65
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            67,
+            75,
+            56.5,
+            66.5
+          ]
+        },
+        {
+          "size": "XXL",
+          "values": [
+            70,
+            77,
+            58,
+            68
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "hoodies",
+      "crewneck"
+    ],
+    "weightKg": 0.8,
+    "demo": true,
+    "createdAt": "2026-09-20T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-009",
+    "slug": "studio-sweatpants",
+    "name": "Studio Sweatpants",
+    "subtitle": "Matching 520 GSM terry",
+    "category": "hoodies",
+    "collection": "Vol. 01 — Foundation",
+    "season": "SS26",
+    "price": 399,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [],
+    "featured": false,
+    "order": 90,
+    "garment": "sweatpants",
+    "print": null,
+    "colors": [
+      {
+        "name": "Washed Black",
+        "hex": "#33302E"
+      },
+      {
+        "name": "Heather Grey",
+        "hex": "#A8A5A0"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "variants": [
+      {
+        "sku": "CS009-WB-S",
+        "color": "Washed Black",
+        "size": "S",
+        "stock": 19,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS009-WB-M",
+        "color": "Washed Black",
+        "size": "M",
+        "stock": 7,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS009-WB-L",
+        "color": "Washed Black",
+        "size": "L",
+        "stock": 4,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS009-WB-XL",
+        "color": "Washed Black",
+        "size": "XL",
+        "stock": 18,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS009-WB-XXL",
+        "color": "Washed Black",
+        "size": "XXL",
+        "stock": 10,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS009-HG-S",
+        "color": "Heather Grey",
+        "size": "S",
+        "stock": 13,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS009-HG-M",
+        "color": "Heather Grey",
+        "size": "M",
+        "stock": 4,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS009-HG-L",
+        "color": "Heather Grey",
+        "size": "L",
+        "stock": 12,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS009-HG-XL",
+        "color": "Heather Grey",
+        "size": "XL",
+        "stock": 6,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS009-HG-XXL",
+        "color": "Heather Grey",
+        "size": "XXL",
+        "stock": 1,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "Built from the same brushed 520 GSM terry as our heavyweight hoodie. Deep pockets, a wide elasticated waistband with an internal drawcord and a straight leg that stacks cleanly over sneakers.",
+    "details": [
+      "520 GSM brushed-back terry",
+      "Elastic waistband with internal drawcord",
+      "Deep side pockets and one back patch pocket",
+      "Straight leg with open hem"
+    ],
+    "materials": "100% combed cotton.",
+    "care": [
+      "Machine wash cold, inside out",
+      "Lay flat to dry"
+    ],
+    "fit": "Relaxed straight leg. True to size.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Waist (½)",
+        "Hip (½)",
+        "Inseam",
+        "Rise",
+        "Leg opening"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            36,
+            56,
+            78,
+            34,
+            23
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            38.5,
+            58.5,
+            78.5,
+            34.5,
+            24
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            41,
+            61,
+            79,
+            35,
+            25
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            43.5,
+            63.5,
+            79.5,
+            35.5,
+            26
+          ]
+        },
+        {
+          "size": "XXL",
+          "values": [
+            46,
+            66,
+            80,
+            36,
+            27
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "hoodies",
+      "sweatpants"
+    ],
+    "weightKg": 0.9,
+    "demo": true,
+    "createdAt": "2026-09-25T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-010",
+    "slug": "heavyweight-boxy-tee",
+    "name": "Heavyweight Boxy Tee",
+    "subtitle": "300 GSM compact jersey",
+    "category": "tees",
+    "collection": "Vol. 01 — Foundation",
+    "season": "SS26",
+    "price": 239,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [
+      "bestseller"
+    ],
+    "featured": true,
+    "order": 100,
+    "garment": "tee",
+    "print": null,
+    "colors": [
+      {
+        "name": "Bone",
+        "hex": "#E6DFD2"
+      },
+      {
+        "name": "Ink",
+        "hex": "#1E1B1A"
+      },
+      {
+        "name": "Clay",
+        "hex": "#AE7658"
+      },
+      {
+        "name": "Heather Grey",
+        "hex": "#A8A5A0"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "variants": [
+      {
+        "sku": "CS010-B-S",
+        "color": "Bone",
+        "size": "S",
+        "stock": 15,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-B-M",
+        "color": "Bone",
+        "size": "M",
+        "stock": 2,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-B-L",
+        "color": "Bone",
+        "size": "L",
+        "stock": 2,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-B-XL",
+        "color": "Bone",
+        "size": "XL",
+        "stock": 3,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-B-XXL",
+        "color": "Bone",
+        "size": "XXL",
+        "stock": 14,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-I-S",
+        "color": "Ink",
+        "size": "S",
+        "stock": 3,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-I-M",
+        "color": "Ink",
+        "size": "M",
+        "stock": 31,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-I-L",
+        "color": "Ink",
+        "size": "L",
+        "stock": 1,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-I-XL",
+        "color": "Ink",
+        "size": "XL",
+        "stock": 11,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-I-XXL",
+        "color": "Ink",
+        "size": "XXL",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-C-S",
+        "color": "Clay",
+        "size": "S",
+        "stock": 15,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-C-M",
+        "color": "Clay",
+        "size": "M",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-C-L",
+        "color": "Clay",
+        "size": "L",
+        "stock": 16,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-C-XL",
+        "color": "Clay",
+        "size": "XL",
+        "stock": 6,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-C-XXL",
+        "color": "Clay",
+        "size": "XXL",
+        "stock": 2,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-HG-S",
+        "color": "Heather Grey",
+        "size": "S",
+        "stock": 10,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-HG-M",
+        "color": "Heather Grey",
+        "size": "M",
+        "stock": 22,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-HG-L",
+        "color": "Heather Grey",
+        "size": "L",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-HG-XL",
+        "color": "Heather Grey",
+        "size": "XL",
+        "stock": 18,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS010-HG-XXL",
+        "color": "Heather Grey",
+        "size": "XXL",
+        "stock": 18,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "The tee we wear every day. A compact-spun 300 GSM jersey with a dry, structured hand, a high 2.5 cm rib collar that never waves, and a boxy body with dropped shoulders.",
+    "details": [
+      "300 GSM compact-spun jersey",
+      "High 2.5 cm rib collar",
+      "Dropped shoulders, boxy body",
+      "Side-seamed for a clean drape",
+      "Woven hem label"
+    ],
+    "materials": "100% combed cotton.",
+    "care": [
+      "Machine wash cold",
+      "Hang dry to preserve shape"
+    ],
+    "fit": "Boxy oversized fit. Size down for a regular fit.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Chest (½)",
+        "Length",
+        "Shoulder",
+        "Sleeve"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            61,
+            70,
+            58,
+            24
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            64,
+            72,
+            59.5,
+            25.5
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            67,
+            74,
+            61,
+            27
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            70,
+            76,
+            62.5,
+            28.5
+          ]
+        },
+        {
+          "size": "XXL",
+          "values": [
+            73,
+            78,
+            64,
+            30
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "tees",
+      "tee"
+    ],
+    "weightKg": 0.35,
+    "demo": true,
+    "createdAt": "2026-08-01T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-011",
+    "slug": "monogram-print-tee",
+    "name": "Monogram Print Tee",
+    "subtitle": "Puff-printed construction mark",
+    "category": "tees",
+    "collection": "Vol. 03 — Construction",
+    "season": "AW26",
+    "price": 269,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [
+      "new"
+    ],
+    "featured": false,
+    "order": 110,
+    "garment": "tee",
+    "print": "monogram",
+    "colors": [
+      {
+        "name": "Ink",
+        "hex": "#1E1B1A"
+      },
+      {
+        "name": "Bone",
+        "hex": "#E6DFD2"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "variants": [
+      {
+        "sku": "CS011-I-S",
+        "color": "Ink",
+        "size": "S",
+        "stock": 3,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS011-I-M",
+        "color": "Ink",
+        "size": "M",
+        "stock": 4,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS011-I-L",
+        "color": "Ink",
+        "size": "L",
+        "stock": 24,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS011-I-XL",
+        "color": "Ink",
+        "size": "XL",
+        "stock": 4,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS011-I-XXL",
+        "color": "Ink",
+        "size": "XXL",
+        "stock": 15,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS011-B-S",
+        "color": "Bone",
+        "size": "S",
+        "stock": 13,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS011-B-M",
+        "color": "Bone",
+        "size": "M",
+        "stock": 19,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS011-B-L",
+        "color": "Bone",
+        "size": "L",
+        "stock": 7,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS011-B-XL",
+        "color": "Bone",
+        "size": "XL",
+        "stock": 16,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS011-B-XXL",
+        "color": "Bone",
+        "size": "XXL",
+        "stock": 14,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "Our boxy tee with the Cola Studio construction mark puff-printed on the chest — every line of the monogram printed at its true construction angle.",
+    "details": [
+      "300 GSM compact jersey",
+      "Tonal puff print at chest",
+      "High rib collar",
+      "Boxy fit"
+    ],
+    "materials": "100% combed cotton.",
+    "care": [
+      "Wash inside out, cold",
+      "Do not iron the print"
+    ],
+    "fit": "Boxy oversized fit.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Chest (½)",
+        "Length",
+        "Shoulder",
+        "Sleeve"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            61,
+            70,
+            58,
+            24
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            64,
+            72,
+            59.5,
+            25.5
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            67,
+            74,
+            61,
+            27
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            70,
+            76,
+            62.5,
+            28.5
+          ]
+        },
+        {
+          "size": "XXL",
+          "values": [
+            73,
+            78,
+            64,
+            30
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "tees",
+      "tee",
+      "new-in"
+    ],
+    "weightKg": 0.35,
+    "demo": true,
+    "createdAt": "2026-10-10T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-012",
+    "slug": "waffle-longsleeve",
+    "name": "Waffle Longsleeve",
+    "subtitle": "Open-knit thermal waffle",
+    "category": "tees",
+    "collection": "Vol. 02 — Utility",
+    "season": "SS26",
+    "price": 289,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [],
+    "featured": false,
+    "order": 120,
+    "garment": "longsleeve",
+    "print": null,
+    "colors": [
+      {
+        "name": "Cream",
+        "hex": "#EEE6D4"
+      },
+      {
+        "name": "Espresso",
+        "hex": "#3E2B21"
+      },
+      {
+        "name": "Lichen",
+        "hex": "#9EA184"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "variants": [
+      {
+        "sku": "CS012-C-S",
+        "color": "Cream",
+        "size": "S",
+        "stock": 10,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS012-C-M",
+        "color": "Cream",
+        "size": "M",
+        "stock": 26,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS012-C-L",
+        "color": "Cream",
+        "size": "L",
+        "stock": 1,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS012-C-XL",
+        "color": "Cream",
+        "size": "XL",
+        "stock": 7,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS012-C-XXL",
+        "color": "Cream",
+        "size": "XXL",
+        "stock": 11,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS012-E-S",
+        "color": "Espresso",
+        "size": "S",
+        "stock": 19,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS012-E-M",
+        "color": "Espresso",
+        "size": "M",
+        "stock": 6,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS012-E-L",
+        "color": "Espresso",
+        "size": "L",
+        "stock": 14,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS012-E-XL",
+        "color": "Espresso",
+        "size": "XL",
+        "stock": 23,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS012-E-XXL",
+        "color": "Espresso",
+        "size": "XXL",
+        "stock": 1,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS012-L-S",
+        "color": "Lichen",
+        "size": "S",
+        "stock": 13,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS012-L-M",
+        "color": "Lichen",
+        "size": "M",
+        "stock": 16,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS012-L-L",
+        "color": "Lichen",
+        "size": "L",
+        "stock": 12,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS012-L-XL",
+        "color": "Lichen",
+        "size": "XL",
+        "stock": 23,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS012-L-XXL",
+        "color": "Lichen",
+        "size": "XXL",
+        "stock": 12,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "A thermal waffle knit with a deep, open texture that traps warmth without bulk. Long rib cuffs with thumb-friendly stretch and a slim-but-not-tight body for easy layering.",
+    "details": [
+      "Open thermal waffle knit",
+      "Long rib cuffs",
+      "Flatlock shoulder seams",
+      "Garment dyed"
+    ],
+    "materials": "100% cotton.",
+    "care": [
+      "Machine wash cold",
+      "Tumble dry low"
+    ],
+    "fit": "Regular fit. True to size.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Chest (½)",
+        "Length",
+        "Shoulder",
+        "Sleeve"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            55,
+            71,
+            48,
+            66
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            58,
+            73,
+            49.5,
+            67.5
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            61,
+            75,
+            51,
+            69
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            64,
+            77,
+            52.5,
+            70.5
+          ]
+        },
+        {
+          "size": "XXL",
+          "values": [
+            67,
+            79,
+            54,
+            72
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "tees",
+      "longsleeve"
+    ],
+    "weightKg": 0.4,
+    "demo": true,
+    "createdAt": "2026-09-09T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-013",
+    "slug": "pocket-tee",
+    "name": "Pocket Tee",
+    "subtitle": "Slub cotton, garment dyed",
+    "category": "tees",
+    "collection": "Vol. 02 — Utility",
+    "season": "SS26",
+    "price": 219,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [],
+    "featured": false,
+    "order": 130,
+    "garment": "tee",
+    "print": "pocket",
+    "colors": [
+      {
+        "name": "Olive",
+        "hex": "#5D6046"
+      },
+      {
+        "name": "Fog Blue",
+        "hex": "#AFC0CE"
+      },
+      {
+        "name": "Bone",
+        "hex": "#E6DFD2"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "variants": [
+      {
+        "sku": "CS013-O-S",
+        "color": "Olive",
+        "size": "S",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS013-O-M",
+        "color": "Olive",
+        "size": "M",
+        "stock": 12,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS013-O-L",
+        "color": "Olive",
+        "size": "L",
+        "stock": 1,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS013-O-XL",
+        "color": "Olive",
+        "size": "XL",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS013-O-XXL",
+        "color": "Olive",
+        "size": "XXL",
+        "stock": 12,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS013-FB-S",
+        "color": "Fog Blue",
+        "size": "S",
+        "stock": 3,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS013-FB-M",
+        "color": "Fog Blue",
+        "size": "M",
+        "stock": 2,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS013-FB-L",
+        "color": "Fog Blue",
+        "size": "L",
+        "stock": 21,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS013-FB-XL",
+        "color": "Fog Blue",
+        "size": "XL",
+        "stock": 21,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS013-FB-XXL",
+        "color": "Fog Blue",
+        "size": "XXL",
+        "stock": 4,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS013-B-S",
+        "color": "Bone",
+        "size": "S",
+        "stock": 4,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS013-B-M",
+        "color": "Bone",
+        "size": "M",
+        "stock": 8,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS013-B-L",
+        "color": "Bone",
+        "size": "L",
+        "stock": 18,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS013-B-XL",
+        "color": "Bone",
+        "size": "XL",
+        "stock": 6,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS013-B-XXL",
+        "color": "Bone",
+        "size": "XXL",
+        "stock": 19,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "A lighter slub jersey with a natural, irregular texture, a single chest pocket and a garment-dyed colour that fades beautifully over time.",
+    "details": [
+      "220 GSM slub jersey",
+      "Chest patch pocket",
+      "Garment dyed",
+      "Regular rib collar"
+    ],
+    "materials": "100% cotton.",
+    "care": [
+      "Machine wash cold",
+      "Hang dry"
+    ],
+    "fit": "Relaxed regular fit.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Chest (½)",
+        "Length",
+        "Shoulder",
+        "Sleeve"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            57,
+            71,
+            52,
+            22
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            60,
+            73,
+            53.5,
+            23.5
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            63,
+            75,
+            55,
+            25
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            66,
+            77,
+            56.5,
+            26.5
+          ]
+        },
+        {
+          "size": "XXL",
+          "values": [
+            69,
+            79,
+            58,
+            28
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "tees",
+      "tee"
+    ],
+    "weightKg": 0.25,
+    "demo": true,
+    "createdAt": "2026-08-15T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-014",
+    "slug": "chunky-rib-sweater",
+    "name": "Chunky Rib Sweater",
+    "subtitle": "5-gauge merino-lambswool",
+    "category": "knitwear",
+    "collection": "Vol. 04 — Winter Construction",
+    "season": "AW26",
+    "price": 629,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [
+      "new"
+    ],
+    "featured": true,
+    "order": 140,
+    "garment": "knit",
+    "print": null,
+    "colors": [
+      {
+        "name": "Ecru",
+        "hex": "#E8E0CC"
+      },
+      {
+        "name": "Charcoal",
+        "hex": "#3A3A3C"
+      },
+      {
+        "name": "Rust",
+        "hex": "#9A4B2C"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "variants": [
+      {
+        "sku": "CS014-E-S",
+        "color": "Ecru",
+        "size": "S",
+        "stock": 16,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS014-E-M",
+        "color": "Ecru",
+        "size": "M",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS014-E-L",
+        "color": "Ecru",
+        "size": "L",
+        "stock": 9,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS014-E-XL",
+        "color": "Ecru",
+        "size": "XL",
+        "stock": 9,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS014-C-S",
+        "color": "Charcoal",
+        "size": "S",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS014-C-M",
+        "color": "Charcoal",
+        "size": "M",
+        "stock": 27,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS014-C-L",
+        "color": "Charcoal",
+        "size": "L",
+        "stock": 19,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS014-C-XL",
+        "color": "Charcoal",
+        "size": "XL",
+        "stock": 1,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS014-R-S",
+        "color": "Rust",
+        "size": "S",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS014-R-M",
+        "color": "Rust",
+        "size": "M",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS014-R-L",
+        "color": "Rust",
+        "size": "L",
+        "stock": 35,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS014-R-XL",
+        "color": "Rust",
+        "size": "XL",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "Knitted on 5-gauge machines and fully fashioned — every panel is shaped as it is knitted, not cut, then linked by hand. The fisherman rib gives it depth and a surprising softness for its weight.",
+    "details": [
+      "5-gauge fisherman rib",
+      "Fully fashioned, hand-linked seams",
+      "Saddle shoulder",
+      "Mock-neck collar"
+    ],
+    "materials": "70% merino wool, 30% lambswool.",
+    "care": [
+      "Hand wash cold with wool detergent",
+      "Dry flat in shape"
+    ],
+    "fit": "Relaxed fit with dropped shoulder.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Chest (½)",
+        "Length",
+        "Shoulder",
+        "Sleeve"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            60,
+            68,
+            55,
+            60
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            63,
+            70,
+            56.5,
+            61.5
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            66,
+            72,
+            58,
+            63
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            69,
+            74,
+            59.5,
+            64.5
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "knitwear",
+      "knit",
+      "new-in"
+    ],
+    "weightKg": 0.9,
+    "demo": true,
+    "createdAt": "2026-10-14T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-015",
+    "slug": "brushed-mohair-cardigan",
+    "name": "Brushed Mohair Cardigan",
+    "subtitle": "Mohair-wool blend, horn buttons",
+    "category": "knitwear",
+    "collection": "Vol. 04 — Winter Construction",
+    "season": "AW26",
+    "price": 729,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [
+      "limited"
+    ],
+    "featured": false,
+    "order": 150,
+    "garment": "cardigan",
+    "print": null,
+    "colors": [
+      {
+        "name": "Caramel",
+        "hex": "#B47D4C"
+      },
+      {
+        "name": "Forest",
+        "hex": "#2E3F33"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "variants": [
+      {
+        "sku": "CS015-C-S",
+        "color": "Caramel",
+        "size": "S",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS015-C-M",
+        "color": "Caramel",
+        "size": "M",
+        "stock": 7,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS015-C-L",
+        "color": "Caramel",
+        "size": "L",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS015-C-XL",
+        "color": "Caramel",
+        "size": "XL",
+        "stock": 6,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS015-F-S",
+        "color": "Forest",
+        "size": "S",
+        "stock": 20,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS015-F-M",
+        "color": "Forest",
+        "size": "M",
+        "stock": 9,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS015-F-L",
+        "color": "Forest",
+        "size": "L",
+        "stock": 14,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS015-F-XL",
+        "color": "Forest",
+        "size": "XL",
+        "stock": 10,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "A soft, hazy mohair cardigan brushed by hand after knitting to raise the fibres. Real horn buttons, deep patch pockets and a slightly cropped body.",
+    "details": [
+      "Brushed mohair-wool blend",
+      "Real horn buttons",
+      "Patch pockets",
+      "Tubular-knit button bands"
+    ],
+    "materials": "45% mohair, 35% wool, 20% polyamide.",
+    "care": [
+      "Hand wash cold",
+      "Dry flat"
+    ],
+    "fit": "Boxy and slightly cropped.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Chest (½)",
+        "Length",
+        "Shoulder",
+        "Sleeve"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            60,
+            64,
+            54,
+            60
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            63,
+            66,
+            55.5,
+            61.5
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            66,
+            68,
+            57,
+            63
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            69,
+            70,
+            58.5,
+            64.5
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "knitwear",
+      "cardigan"
+    ],
+    "weightKg": 0.7,
+    "demo": true,
+    "createdAt": "2026-09-02T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-016",
+    "slug": "oversized-poplin-shirt",
+    "name": "Oversized Poplin Shirt",
+    "subtitle": "Compact cotton poplin",
+    "category": "shirts",
+    "collection": "Vol. 01 — Foundation",
+    "season": "SS26",
+    "price": 429,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [],
+    "featured": false,
+    "order": 160,
+    "garment": "shirt",
+    "print": null,
+    "colors": [
+      {
+        "name": "Bone",
+        "hex": "#E6DFD2"
+      },
+      {
+        "name": "Fog Blue",
+        "hex": "#AFC0CE"
+      },
+      {
+        "name": "Ink",
+        "hex": "#1E1B1A"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "variants": [
+      {
+        "sku": "CS016-B-S",
+        "color": "Bone",
+        "size": "S",
+        "stock": 12,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS016-B-M",
+        "color": "Bone",
+        "size": "M",
+        "stock": 28,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS016-B-L",
+        "color": "Bone",
+        "size": "L",
+        "stock": 29,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS016-B-XL",
+        "color": "Bone",
+        "size": "XL",
+        "stock": 21,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS016-B-XXL",
+        "color": "Bone",
+        "size": "XXL",
+        "stock": 21,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS016-FB-S",
+        "color": "Fog Blue",
+        "size": "S",
+        "stock": 11,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS016-FB-M",
+        "color": "Fog Blue",
+        "size": "M",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS016-FB-L",
+        "color": "Fog Blue",
+        "size": "L",
+        "stock": 30,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS016-FB-XL",
+        "color": "Fog Blue",
+        "size": "XL",
+        "stock": 1,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS016-FB-XXL",
+        "color": "Fog Blue",
+        "size": "XXL",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS016-I-S",
+        "color": "Ink",
+        "size": "S",
+        "stock": 16,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS016-I-M",
+        "color": "Ink",
+        "size": "M",
+        "stock": 24,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS016-I-L",
+        "color": "Ink",
+        "size": "L",
+        "stock": 8,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS016-I-XL",
+        "color": "Ink",
+        "size": "XL",
+        "stock": 15,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS016-I-XXL",
+        "color": "Ink",
+        "size": "XXL",
+        "stock": 20,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "An oversized shirt in crisp, compact poplin with a soft collar, a box pleat at the back yoke and mother-of-pearl buttons. Wears equally well tucked into trousers or open over a tee.",
+    "details": [
+      "120-thread compact poplin",
+      "Box pleat at back yoke",
+      "Mother-of-pearl buttons",
+      "Curved hem with side gussets"
+    ],
+    "materials": "100% cotton.",
+    "care": [
+      "Machine wash 30°C",
+      "Iron on medium"
+    ],
+    "fit": "Oversized fit. Size down for a regular fit.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Chest (½)",
+        "Length",
+        "Shoulder",
+        "Sleeve"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            63,
+            76,
+            56,
+            58
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            66,
+            78,
+            57.5,
+            59.5
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            69,
+            80,
+            59,
+            61
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            72,
+            82,
+            60.5,
+            62.5
+          ]
+        },
+        {
+          "size": "XXL",
+          "values": [
+            75,
+            84,
+            62,
+            64
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "shirts",
+      "shirt"
+    ],
+    "weightKg": 0.35,
+    "demo": true,
+    "createdAt": "2026-08-16T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-017",
+    "slug": "corduroy-overshirt",
+    "name": "Corduroy Overshirt",
+    "subtitle": "8-wale cotton corduroy",
+    "category": "shirts",
+    "collection": "Vol. 02 — Utility",
+    "season": "SS26",
+    "price": 489,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [
+      "restock"
+    ],
+    "featured": false,
+    "order": 170,
+    "garment": "overshirt",
+    "print": null,
+    "colors": [
+      {
+        "name": "Espresso",
+        "hex": "#3E2B21"
+      },
+      {
+        "name": "Olive",
+        "hex": "#5D6046"
+      },
+      {
+        "name": "Stone",
+        "hex": "#C8C0B1"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "variants": [
+      {
+        "sku": "CS017-E-S",
+        "color": "Espresso",
+        "size": "S",
+        "stock": 13,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS017-E-M",
+        "color": "Espresso",
+        "size": "M",
+        "stock": 17,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS017-E-L",
+        "color": "Espresso",
+        "size": "L",
+        "stock": 3,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS017-E-XL",
+        "color": "Espresso",
+        "size": "XL",
+        "stock": 6,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS017-E-XXL",
+        "color": "Espresso",
+        "size": "XXL",
+        "stock": 6,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS017-O-S",
+        "color": "Olive",
+        "size": "S",
+        "stock": 10,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS017-O-M",
+        "color": "Olive",
+        "size": "M",
+        "stock": 14,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS017-O-L",
+        "color": "Olive",
+        "size": "L",
+        "stock": 12,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS017-O-XL",
+        "color": "Olive",
+        "size": "XL",
+        "stock": 20,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS017-O-XXL",
+        "color": "Olive",
+        "size": "XXL",
+        "stock": 16,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS017-S-S",
+        "color": "Stone",
+        "size": "S",
+        "stock": 9,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS017-S-M",
+        "color": "Stone",
+        "size": "M",
+        "stock": 4,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS017-S-L",
+        "color": "Stone",
+        "size": "L",
+        "stock": 15,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS017-S-XL",
+        "color": "Stone",
+        "size": "XL",
+        "stock": 6,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS017-S-XXL",
+        "color": "Stone",
+        "size": "XXL",
+        "stock": 17,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "A heavier overshirt in 8-wale corduroy with two flapped chest pockets and corozo buttons. Structured enough to work as a light jacket.",
+    "details": [
+      "8-wale cotton corduroy",
+      "Two flapped chest pockets",
+      "Corozo buttons",
+      "Split back yoke"
+    ],
+    "materials": "100% cotton.",
+    "care": [
+      "Machine wash cold, inside out",
+      "Hang dry"
+    ],
+    "fit": "Relaxed fit for layering.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Chest (½)",
+        "Length",
+        "Shoulder",
+        "Sleeve"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            61,
+            74,
+            53,
+            62
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            64,
+            76,
+            54.5,
+            63.5
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            67,
+            78,
+            56,
+            65
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            70,
+            80,
+            57.5,
+            66.5
+          ]
+        },
+        {
+          "size": "XXL",
+          "values": [
+            73,
+            82,
+            59,
+            68
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": "2026-11-06",
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "shirts",
+      "overshirt"
+    ],
+    "weightKg": 0.6,
+    "demo": true,
+    "createdAt": "2026-09-12T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-018",
+    "slug": "pleated-wide-trouser",
+    "name": "Pleated Wide Trouser",
+    "subtitle": "Wool-feel twill, double pleat",
+    "category": "trousers",
+    "collection": "Vol. 03 — Construction",
+    "season": "AW26",
+    "price": 529,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [],
+    "featured": true,
+    "order": 180,
+    "garment": "trousers",
+    "print": null,
+    "colors": [
+      {
+        "name": "Charcoal",
+        "hex": "#3A3A3C"
+      },
+      {
+        "name": "Sand",
+        "hex": "#D1BD9C"
+      },
+      {
+        "name": "Black",
+        "hex": "#161514"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "variants": [
+      {
+        "sku": "CS018-C-S",
+        "color": "Charcoal",
+        "size": "S",
+        "stock": 21,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS018-C-M",
+        "color": "Charcoal",
+        "size": "M",
+        "stock": 2,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS018-C-L",
+        "color": "Charcoal",
+        "size": "L",
+        "stock": 2,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS018-C-XL",
+        "color": "Charcoal",
+        "size": "XL",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS018-S-S",
+        "color": "Sand",
+        "size": "S",
+        "stock": 15,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS018-S-M",
+        "color": "Sand",
+        "size": "M",
+        "stock": 14,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS018-S-L",
+        "color": "Sand",
+        "size": "L",
+        "stock": 13,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS018-S-XL",
+        "color": "Sand",
+        "size": "XL",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS018-B-S",
+        "color": "Black",
+        "size": "S",
+        "stock": 21,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS018-B-M",
+        "color": "Black",
+        "size": "M",
+        "stock": 27,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS018-B-L",
+        "color": "Black",
+        "size": "L",
+        "stock": 14,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS018-B-XL",
+        "color": "Black",
+        "size": "XL",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "A wide, double-pleated trouser in a dry twill with the drape of wool. Extended waistband with side adjusters, French bearer and a deep, sharp front crease.",
+    "details": [
+      "Double reverse pleats",
+      "Side-adjuster waistband — no belt loops",
+      "Pressed front crease",
+      "French bearer and hook-and-bar closure",
+      "Jetted back pockets"
+    ],
+    "materials": "64% polyester, 34% viscose, 2% elastane.",
+    "care": [
+      "Machine wash cold, gentle",
+      "Hang dry, iron on low"
+    ],
+    "fit": "Wide leg, high rise. True to size.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Waist (½)",
+        "Hip (½)",
+        "Inseam",
+        "Rise",
+        "Leg opening"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            38,
+            57,
+            79,
+            33,
+            26
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            40.5,
+            59.5,
+            79.5,
+            33.5,
+            27
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            43,
+            62,
+            80,
+            34,
+            28
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            45.5,
+            64.5,
+            80.5,
+            34.5,
+            29
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "trousers"
+    ],
+    "weightKg": 0.7,
+    "demo": true,
+    "createdAt": "2026-09-25T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-019",
+    "slug": "carpenter-denim",
+    "name": "Carpenter Denim",
+    "subtitle": "14 oz selvedge denim",
+    "category": "trousers",
+    "collection": "Vol. 02 — Utility",
+    "season": "SS26",
+    "price": 559,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [
+      "bestseller"
+    ],
+    "featured": false,
+    "order": 190,
+    "garment": "jeans",
+    "print": null,
+    "colors": [
+      {
+        "name": "Rinse Indigo",
+        "hex": "#2C3954"
+      },
+      {
+        "name": "Ecru",
+        "hex": "#E8E0CC"
+      }
+    ],
+    "sizes": [
+      "28",
+      "30",
+      "32",
+      "34",
+      "36"
+    ],
+    "variants": [
+      {
+        "sku": "CS019-RI-28",
+        "color": "Rinse Indigo",
+        "size": "28",
+        "stock": 8,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS019-RI-30",
+        "color": "Rinse Indigo",
+        "size": "30",
+        "stock": 7,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS019-RI-32",
+        "color": "Rinse Indigo",
+        "size": "32",
+        "stock": 15,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS019-RI-34",
+        "color": "Rinse Indigo",
+        "size": "34",
+        "stock": 22,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS019-RI-36",
+        "color": "Rinse Indigo",
+        "size": "36",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS019-E-28",
+        "color": "Ecru",
+        "size": "28",
+        "stock": 23,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS019-E-30",
+        "color": "Ecru",
+        "size": "30",
+        "stock": 9,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS019-E-32",
+        "color": "Ecru",
+        "size": "32",
+        "stock": 33,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS019-E-34",
+        "color": "Ecru",
+        "size": "34",
+        "stock": 3,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS019-E-36",
+        "color": "Ecru",
+        "size": "36",
+        "stock": 7,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "Woven on vintage shuttle looms, this 14 oz selvedge denim is cut into a relaxed carpenter jean with a hammer loop and utility pocket. It will fade to a record of how you wear it.",
+    "details": [
+      "14 oz shuttle-loomed selvedge denim",
+      "Hammer loop and utility pocket",
+      "Copper rivets and button fly",
+      "Chain-stitched hem",
+      "Rigid, unwashed — sanforized"
+    ],
+    "materials": "100% cotton denim.",
+    "care": [
+      "Wash rarely, inside out, cold",
+      "Hang dry"
+    ],
+    "fit": "Relaxed straight leg. Take your usual waist size.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Waist (½)",
+        "Hip (½)",
+        "Inseam",
+        "Rise",
+        "Leg opening"
+      ],
+      "rows": [
+        {
+          "size": "28",
+          "values": [
+            37,
+            53,
+            80,
+            31,
+            22
+          ]
+        },
+        {
+          "size": "30",
+          "values": [
+            39.5,
+            55.5,
+            80.5,
+            31.5,
+            22.5
+          ]
+        },
+        {
+          "size": "32",
+          "values": [
+            42,
+            58,
+            81,
+            32,
+            23
+          ]
+        },
+        {
+          "size": "34",
+          "values": [
+            44.5,
+            60.5,
+            81.5,
+            32.5,
+            23.5
+          ]
+        },
+        {
+          "size": "36",
+          "values": [
+            47,
+            63,
+            82,
+            33,
+            24
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "trousers",
+      "jeans"
+    ],
+    "weightKg": 0.95,
+    "demo": true,
+    "createdAt": "2026-08-14T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-020",
+    "slug": "utility-cargo-pant",
+    "name": "Utility Cargo Pant",
+    "subtitle": "Cotton ripstop, 8 pockets",
+    "category": "trousers",
+    "collection": "Vol. 02 — Utility",
+    "season": "SS26",
+    "price": 499,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [
+      "new"
+    ],
+    "featured": false,
+    "order": 200,
+    "garment": "cargo",
+    "print": null,
+    "colors": [
+      {
+        "name": "Olive",
+        "hex": "#5D6046"
+      },
+      {
+        "name": "Black",
+        "hex": "#161514"
+      },
+      {
+        "name": "Stone",
+        "hex": "#C8C0B1"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "variants": [
+      {
+        "sku": "CS020-O-S",
+        "color": "Olive",
+        "size": "S",
+        "stock": 11,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS020-O-M",
+        "color": "Olive",
+        "size": "M",
+        "stock": 19,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS020-O-L",
+        "color": "Olive",
+        "size": "L",
+        "stock": 27,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS020-O-XL",
+        "color": "Olive",
+        "size": "XL",
+        "stock": 10,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS020-B-S",
+        "color": "Black",
+        "size": "S",
+        "stock": 1,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS020-B-M",
+        "color": "Black",
+        "size": "M",
+        "stock": 1,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS020-B-L",
+        "color": "Black",
+        "size": "L",
+        "stock": 24,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS020-B-XL",
+        "color": "Black",
+        "size": "XL",
+        "stock": 10,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS020-S-S",
+        "color": "Stone",
+        "size": "S",
+        "stock": 21,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS020-S-M",
+        "color": "Stone",
+        "size": "M",
+        "stock": 7,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS020-S-L",
+        "color": "Stone",
+        "size": "L",
+        "stock": 4,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS020-S-XL",
+        "color": "Stone",
+        "size": "XL",
+        "stock": 21,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "A cargo pant without the costume. Bellowed pockets sit flat until needed, articulated knees follow movement and an adjustable hem lets you wear it straight or tapered.",
+    "details": [
+      "Cotton ripstop",
+      "Bellowed cargo pockets with hidden snaps",
+      "Articulated knee darts",
+      "Adjustable drawcord hem",
+      "Gusseted crotch"
+    ],
+    "materials": "100% cotton ripstop.",
+    "care": [
+      "Machine wash cold",
+      "Tumble dry low"
+    ],
+    "fit": "Relaxed with adjustable taper.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Waist (½)",
+        "Hip (½)",
+        "Inseam",
+        "Rise",
+        "Leg opening"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            37,
+            56,
+            78,
+            32,
+            24
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            39.5,
+            58.5,
+            78.5,
+            32.5,
+            25
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            42,
+            61,
+            79,
+            33,
+            26
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            44.5,
+            63.5,
+            79.5,
+            33.5,
+            27
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "trousers",
+      "cargo",
+      "new-in"
+    ],
+    "weightKg": 0.75,
+    "demo": true,
+    "createdAt": "2026-10-14T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-021",
+    "slug": "pleated-track-short",
+    "name": "Pleated Track Short",
+    "subtitle": "Technical nylon, 7\" inseam",
+    "category": "trousers",
+    "collection": "Vol. 02 — Utility",
+    "season": "SS26",
+    "price": 299,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [],
+    "featured": false,
+    "order": 210,
+    "garment": "shorts",
+    "print": null,
+    "colors": [
+      {
+        "name": "Midnight",
+        "hex": "#232A38"
+      },
+      {
+        "name": "Sand",
+        "hex": "#D1BD9C"
+      }
+    ],
+    "sizes": [
+      "S",
+      "M",
+      "L",
+      "XL"
+    ],
+    "variants": [
+      {
+        "sku": "CS021-M-S",
+        "color": "Midnight",
+        "size": "S",
+        "stock": 20,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS021-M-M",
+        "color": "Midnight",
+        "size": "M",
+        "stock": 14,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS021-M-L",
+        "color": "Midnight",
+        "size": "L",
+        "stock": 29,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS021-M-XL",
+        "color": "Midnight",
+        "size": "XL",
+        "stock": 11,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS021-S-S",
+        "color": "Sand",
+        "size": "S",
+        "stock": 21,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS021-S-M",
+        "color": "Sand",
+        "size": "M",
+        "stock": 23,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS021-S-L",
+        "color": "Sand",
+        "size": "L",
+        "stock": 4,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS021-S-XL",
+        "color": "Sand",
+        "size": "XL",
+        "stock": 23,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "A relaxed short in quick-drying technical nylon with a single front pleat for extra volume and a mesh-lined pocket bag.",
+    "details": [
+      "Quick-dry technical nylon",
+      "Single front pleat",
+      "Elastic waist with flat drawcord",
+      "Mesh pocket bags",
+      "7\" inseam"
+    ],
+    "materials": "100% nylon.",
+    "care": [
+      "Machine wash cold",
+      "Hang dry"
+    ],
+    "fit": "Relaxed fit. True to size.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Waist (½)",
+        "Hip (½)",
+        "Inseam",
+        "Leg opening"
+      ],
+      "rows": [
+        {
+          "size": "S",
+          "values": [
+            36,
+            56,
+            18,
+            32
+          ]
+        },
+        {
+          "size": "M",
+          "values": [
+            38.5,
+            58.5,
+            18.5,
+            33
+          ]
+        },
+        {
+          "size": "L",
+          "values": [
+            41,
+            61,
+            19,
+            34
+          ]
+        },
+        {
+          "size": "XL",
+          "values": [
+            43.5,
+            63.5,
+            19.5,
+            35
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "trousers",
+      "shorts"
+    ],
+    "weightKg": 0.3,
+    "demo": true,
+    "createdAt": "2026-09-05T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-022",
+    "slug": "six-panel-cap",
+    "name": "Six-Panel Cap",
+    "subtitle": "Washed cotton twill",
+    "category": "accessories",
+    "collection": "Vol. 01 — Foundation",
+    "season": "SS26",
+    "price": 189,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [],
+    "featured": true,
+    "order": 220,
+    "garment": "cap",
+    "print": null,
+    "colors": [
+      {
+        "name": "Ink",
+        "hex": "#1E1B1A"
+      },
+      {
+        "name": "Bone",
+        "hex": "#E6DFD2"
+      },
+      {
+        "name": "Clay",
+        "hex": "#AE7658"
+      }
+    ],
+    "sizes": [
+      "OS"
+    ],
+    "variants": [
+      {
+        "sku": "CS022-I-OS",
+        "color": "Ink",
+        "size": "OS",
+        "stock": 16,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS022-B-OS",
+        "color": "Bone",
+        "size": "OS",
+        "stock": 8,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS022-C-OS",
+        "color": "Clay",
+        "size": "OS",
+        "stock": 4,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "An unstructured six-panel cap in washed cotton twill with an embroidered monogram, a pre-curved brim and a brass slider closure.",
+    "details": [
+      "Washed cotton twill",
+      "Embroidered monogram",
+      "Unstructured crown",
+      "Brass slider closure",
+      "Taped interior seams"
+    ],
+    "materials": "100% cotton.",
+    "care": [
+      "Spot clean"
+    ],
+    "fit": "One size — adjustable 56–60 cm.",
+    "measurements": {
+      "unit": "cm",
+      "columns": [
+        "Head circumference",
+        "Brim length"
+      ],
+      "rows": [
+        {
+          "size": "OS",
+          "values": [
+            58,
+            7
+          ]
+        }
+      ]
+    },
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "accessories",
+      "cap"
+    ],
+    "weightKg": 0.12,
+    "demo": true,
+    "createdAt": "2026-08-06T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-023",
+    "slug": "ribbed-merino-beanie",
+    "name": "Ribbed Merino Beanie",
+    "subtitle": "Fine-gauge extra-fine merino",
+    "category": "accessories",
+    "collection": "Vol. 04 — Winter Construction",
+    "season": "AW26",
+    "price": 159,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [
+      "restock"
+    ],
+    "featured": false,
+    "order": 230,
+    "garment": "beanie",
+    "print": null,
+    "colors": [
+      {
+        "name": "Charcoal",
+        "hex": "#3A3A3C"
+      },
+      {
+        "name": "Rust",
+        "hex": "#9A4B2C"
+      },
+      {
+        "name": "Cream",
+        "hex": "#EEE6D4"
+      }
+    ],
+    "sizes": [
+      "OS"
+    ],
+    "variants": [
+      {
+        "sku": "CS023-C-OS",
+        "color": "Charcoal",
+        "size": "OS",
+        "stock": 17,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS023-R-OS",
+        "color": "Rust",
+        "size": "OS",
+        "stock": 9,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS023-C-OS",
+        "color": "Cream",
+        "size": "OS",
+        "stock": 10,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "A fisherman beanie in extra-fine merino with a deep double-layer cuff and a woven label at the fold.",
+    "details": [
+      "Extra-fine merino, 2×2 rib",
+      "Double-layer cuff",
+      "Woven label"
+    ],
+    "materials": "100% extra-fine merino wool.",
+    "care": [
+      "Hand wash cold",
+      "Dry flat"
+    ],
+    "fit": "One size.",
+    "measurements": null,
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": "2026-11-06",
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "accessories",
+      "beanie"
+    ],
+    "weightKg": 0.08,
+    "demo": true,
+    "createdAt": "2026-08-16T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-024",
+    "slug": "canvas-tote",
+    "name": "Canvas Tote",
+    "subtitle": "18 oz duck canvas, leather handles",
+    "category": "accessories",
+    "collection": "Vol. 01 — Foundation",
+    "season": "SS26",
+    "price": 219,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [],
+    "featured": false,
+    "order": 240,
+    "garment": "tote",
+    "print": null,
+    "colors": [
+      {
+        "name": "Ecru",
+        "hex": "#E8E0CC"
+      },
+      {
+        "name": "Black",
+        "hex": "#161514"
+      }
+    ],
+    "sizes": [
+      "OS"
+    ],
+    "variants": [
+      {
+        "sku": "CS024-E-OS",
+        "color": "Ecru",
+        "size": "OS",
+        "stock": 14,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS024-B-OS",
+        "color": "Black",
+        "size": "OS",
+        "stock": 19,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "A structured tote in 18 oz duck canvas with vegetable-tanned leather handles, an internal zip pocket and a base that stands on its own.",
+    "details": [
+      "18 oz duck canvas",
+      "Vegetable-tanned leather handles",
+      "Internal zip pocket",
+      "Reinforced base"
+    ],
+    "materials": "Canvas: 100% cotton. Handles: cow leather.",
+    "care": [
+      "Spot clean"
+    ],
+    "fit": "W 42 × H 38 × D 14 cm.",
+    "measurements": null,
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "accessories",
+      "tote"
+    ],
+    "weightKg": 0.6,
+    "demo": true,
+    "createdAt": "2026-10-12T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-025",
+    "slug": "utility-crossbody",
+    "name": "Utility Crossbody",
+    "subtitle": "Cordura® nylon, magnetic buckle",
+    "category": "accessories",
+    "collection": "Vol. 02 — Utility",
+    "season": "SS26",
+    "price": 349,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [
+      "new"
+    ],
+    "featured": false,
+    "order": 250,
+    "garment": "crossbody",
+    "print": null,
+    "colors": [
+      {
+        "name": "Black",
+        "hex": "#161514"
+      },
+      {
+        "name": "Olive",
+        "hex": "#5D6046"
+      }
+    ],
+    "sizes": [
+      "OS"
+    ],
+    "variants": [
+      {
+        "sku": "CS025-B-OS",
+        "color": "Black",
+        "size": "OS",
+        "stock": 21,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS025-O-OS",
+        "color": "Olive",
+        "size": "OS",
+        "stock": 7,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "A compact crossbody with a water-resistant Cordura® body, a magnetic Fidlock-style buckle and organised interior pockets for everyday carry.",
+    "details": [
+      "Water-resistant Cordura® nylon",
+      "Magnetic one-hand buckle",
+      "Adjustable webbing strap",
+      "Three interior pockets",
+      "Rear anti-theft pocket"
+    ],
+    "materials": "100% nylon.",
+    "care": [
+      "Spot clean"
+    ],
+    "fit": "W 24 × H 16 × D 7 cm.",
+    "measurements": null,
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "accessories",
+      "crossbody",
+      "new-in"
+    ],
+    "weightKg": 0.4,
+    "demo": true,
+    "createdAt": "2026-10-12T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  },
+  {
+    "id": "cs-026",
+    "slug": "studio-socks-3-pack",
+    "name": "Studio Socks — 3 Pack",
+    "subtitle": "Combed cotton, cushioned sole",
+    "category": "accessories",
+    "collection": "Vol. 01 — Foundation",
+    "season": "SS26",
+    "price": 99,
+    "compareAt": null,
+    "currency": "CNY",
+    "status": "published",
+    "badges": [],
+    "featured": false,
+    "order": 260,
+    "garment": "socks",
+    "print": null,
+    "colors": [
+      {
+        "name": "Bone",
+        "hex": "#E6DFD2"
+      },
+      {
+        "name": "Black",
+        "hex": "#161514"
+      }
+    ],
+    "sizes": [
+      "39–42",
+      "43–46"
+    ],
+    "variants": [
+      {
+        "sku": "CS026-B-3942",
+        "color": "Bone",
+        "size": "39–42",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS026-B-4346",
+        "color": "Bone",
+        "size": "43–46",
+        "stock": 1,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS026-B-3942",
+        "color": "Black",
+        "size": "39–42",
+        "stock": 0,
+        "preorder": false,
+        "weidianSkuId": ""
+      },
+      {
+        "sku": "CS026-B-4346",
+        "color": "Black",
+        "size": "43–46",
+        "stock": 8,
+        "preorder": false,
+        "weidianSkuId": ""
+      }
+    ],
+    "images": [],
+    "description": "Three pairs of mid-calf socks in combed cotton with a cushioned sole, seamless toe and a jacquard monogram at the cuff.",
+    "details": [
+      "Combed cotton blend",
+      "Cushioned terry sole",
+      "Hand-linked seamless toe",
+      "Jacquard monogram"
+    ],
+    "materials": "80% cotton, 17% polyamide, 3% elastane.",
+    "care": [
+      "Machine wash 40°C"
+    ],
+    "fit": "EU sizing.",
+    "measurements": null,
+    "leadTime": "Ships in 3–5 working days",
+    "restockDate": null,
+    "weidian": {
+      "itemId": "",
+      "url": "",
+      "syncEnabled": false,
+      "syncInfo": false,
+      "lastSyncedAt": null
+    },
+    "agentLinks": {},
+    "tags": [
+      "accessories",
+      "socks"
+    ],
+    "weightKg": 0.2,
+    "demo": true,
+    "createdAt": "2026-08-07T00:00:00.000Z",
+    "updatedAt": "2026-10-26T07:30:00.000Z"
+  }
+]

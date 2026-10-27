@@ -1,0 +1,44 @@
+[
+  {
+    "id": "outerwear",
+    "name": "Outerwear",
+    "description": "Jackets, liners and coats engineered in layers.",
+    "order": 1
+  },
+  {
+    "id": "hoodies",
+    "name": "Hoodies & Sweats",
+    "description": "Heavyweight terry, garment dyed and pre-shrunk.",
+    "order": 2
+  },
+  {
+    "id": "tees",
+    "name": "Tees & Tops",
+    "description": "Compact jerseys with structure that lasts.",
+    "order": 3
+  },
+  {
+    "id": "knitwear",
+    "name": "Knitwear",
+    "description": "Fully fashioned knits, linked by hand.",
+    "order": 4
+  },
+  {
+    "id": "shirts",
+    "name": "Shirts",
+    "description": "Poplin, corduroy and overshirts.",
+    "order": 5
+  },
+  {
+    "id": "trousers",
+    "name": "Trousers & Denim",
+    "description": "Tailored, utility and selvedge.",
+    "order": 6
+  },
+  {
+    "id": "accessories",
+    "name": "Accessories",
+    "description": "Caps, knits, bags and essentials.",
+    "order": 7
+  }
+]

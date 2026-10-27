@@ -1,0 +1,99 @@
+/* ==========================================================================
+   COLA STUDIO — Design tokens
+   "Construction lines": a warm cola-black / foam palette, one caramel accent,
+   hairlines that echo the monoline monogram, Poppins at extreme weight contrast.
+   ========================================================================== */
+
+/* Self-hosted Poppins (OFL) — fallback for the weights Google Fonts also serves */
+@font-face { font-family: "Poppins Local"; src: url("../fonts/Poppins-Light.ttf") format("truetype"); font-weight: 100 300; font-style: normal; font-display: swap; }
+@font-face { font-family: "Poppins Local"; src: url("../fonts/Poppins-LightItalic.ttf") format("truetype"); font-weight: 100 300; font-style: italic; font-display: swap; }
+@font-face { font-family: "Poppins Local"; src: url("../fonts/Poppins-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Poppins Local"; src: url("../fonts/Poppins-Italic.ttf") format("truetype"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: "Poppins Local"; src: url("../fonts/Poppins-Medium.ttf") format("truetype"); font-weight: 500 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Poppins Local"; src: url("../fonts/Poppins-Bold.ttf") format("truetype"); font-weight: 700 900; font-style: normal; font-display: swap; }
+
+:root {
+  /* ---- Palette ---------------------------------------------------------- */
+  --cola:        #130D0A;   /* cola black — primary dark, text on light */
+  --cola-2:      #1C1410;   /* raised dark surface */
+  --cola-3:      #2A201A;   /* borders on dark */
+  --foam:        #F3EEE6;   /* foam — primary light background */
+  --foam-2:      #EBE4D9;   /* raised light surface */
+  --bone:        #DDD3C4;   /* borders / muted fills on light */
+  --stone:       #8F857A;   /* secondary text */
+  --stone-2:     #6F665C;   /* secondary text, higher contrast */
+  --syrup:       #C07A42;   /* caramel accent — use sparingly */
+  --syrup-soft:  #E9CDAE;
+  --white:       #FFFFFF;
+
+  /* Stock status */
+  --st-in:       #4F8A5B;
+  --st-low:      #CC8A2B;
+  --st-out:      #A8452F;
+  --st-pre:      #5B6BA8;
+  --st-restock:  #8A6BB0;
+
+  /* Semantic (light theme default) */
+  --bg:          var(--foam);
+  --bg-2:        var(--foam-2);
+  --fg:          var(--cola);
+  --fg-2:        var(--stone-2);
+  --fg-3:        var(--stone);
+  --line:        rgba(19, 13, 10, .14);
+  --line-2:      rgba(19, 13, 10, .28);
+  --accent:      var(--syrup);
+
+  /* ---- Type ------------------------------------------------------------- */
+  --font: "Poppins", "Poppins Local", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --w-thin: 200; --w-light: 300; --w-reg: 400; --w-med: 500; --w-semi: 600; --w-bold: 700; --w-black: 800;
+
+  --fs-micro: .6875rem;   /* 11px — labels */
+  --fs-xs:    .75rem;     /* 12px */
+  --fs-sm:    .875rem;    /* 14px */
+  --fs-base:  1rem;       /* 16px */
+  --fs-md:    1.125rem;
+  --fs-lg:    clamp(1.25rem, 1.1rem + .6vw, 1.625rem);
+  --fs-xl:    clamp(1.75rem, 1.3rem + 1.8vw, 2.75rem);
+  --fs-2xl:   clamp(2.25rem, 1.5rem + 3.2vw, 4.5rem);
+  --fs-3xl:   clamp(2.75rem, 1.6rem + 5.4vw, 7rem);
+  --fs-mega:  clamp(3.5rem, 1rem + 11vw, 13rem);
+
+  --track-label: .16em;
+  --track-tight: -.045em;
+  --track-snug:  -.025em;
+
+  /* ---- Space & layout --------------------------------------------------- */
+  --gutter: clamp(16px, 3.2vw, 48px);
+  --max: 1600px;
+  --radius: 2px;          /* almost square — tailored, not bubbly */
+  --radius-pill: 999px;
+  --header-h: 72px;
+  --hair: 1px;
+
+  /* ---- Motion ----------------------------------------------------------- */
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-in-out: cubic-bezier(.76, 0, .24, 1);
+  --ease-soft: cubic-bezier(.33, 1, .68, 1);
+  --t-fast: .2s; --t-med: .45s; --t-slow: .9s;
+
+  --shadow-1: 0 1px 0 rgba(19,13,10,.04), 0 12px 32px -18px rgba(19,13,10,.28);
+  --shadow-2: 0 30px 80px -30px rgba(19,13,10,.45);
+
+  color-scheme: light;
+}
+
+/* Dark surfaces: apply .theme-dark to any section */
+.theme-dark {
+  --bg: var(--cola);
+  --bg-2: var(--cola-2);
+  --fg: var(--foam);
+  --fg-2: #BFB4A6;
+  --fg-3: #8C8176;
+  --line: rgba(243, 238, 230, .14);
+  --line-2: rgba(243, 238, 230, .3);
+  color-scheme: dark;
+}
+
+@media (max-width: 760px) {
+  :root { --header-h: 60px; }
+}

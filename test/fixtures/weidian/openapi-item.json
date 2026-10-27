@@ -1,0 +1,15 @@
+{
+  "status": { "status_code": 0, "status_reason": "success" },
+  "result": {
+    "item_name": "Construction Work Jacket 工装夹克",
+    "itemid": "6660001112",
+    "price": "689.00",
+    "stock": "11",
+    "imgs": ["https://si.geilicdn.com/jacket-1.jpg", "https://si.geilicdn.com/jacket-2.jpg"],
+    "skus": [
+      { "id": "3301", "title": "Clay / S", "stock": "2", "price": "689.00", "sku_merchant_code": "" },
+      { "id": "3302", "title": "Clay / M", "stock": "5", "price": "689.00", "sku_merchant_code": "CS001-CLAY-M" },
+      { "id": "3303", "title": "Off-White-L", "stock": "4", "price": "689.00", "sku_merchant_code": "" }
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "status": { "code": 0, "message": "OK", "description": "" },
+  "result": {
+    "itemId": "7781234567",
+    "itemTitle": "Cola Studio 重磅连帽卫衣 480g毛圈",
+    "itemMainPic": "https://si.geilicdn.com/pcitem1234-main.jpg?w=750&h=750",
+    "itemDiscountLowPrice": 49900,
+    "itemDiscountHighPrice": 49900,
+    "itemOriginalLowPrice": 59900,
+    "stock": 23,
+    "attrList": [
+      {
+        "attrTitle": "颜色",
+        "attrValues": [
+          { "attrId": 101, "attrValue": "黑色", "img": "https://si.geilicdn.com/black.jpg" },
+          { "attrId": 102, "attrValue": "陶土色", "img": "https://si.geilicdn.com/clay.jpg" }
+        ]
+      },
+      {
+        "attrTitle": "尺码",
+        "attrValues": [
+          { "attrId": 201, "attrValue": "M" },
+          { "attrId": 202, "attrValue": "L" },
+          { "attrId": 203, "attrValue": "2XL" }
+        ]
+      }
+    ],
+    "skuInfos": [
+      { "attrIds": [101, 201], "skuInfo": { "id": 90001, "title": "黑色;M", "stock": 7, "price": 49900, "discountPrice": 49900, "originalPrice": 59900, "img": "" } },
+      { "attrIds": [101, 202], "skuInfo": { "id": 90002, "title": "黑色;L", "stock": 0, "price": 49900, "discountPrice": 49900 } },
+      { "attrIds": [101, 203], "skuInfo": { "id": 90003, "title": "黑色;2XL", "stock": 4, "price": 49900, "discountPrice": 49900 } },
+      { "attrIds": [102, 201], "skuInfo": { "id": 90004, "title": "陶土色;M", "stock": 9, "price": 49900, "discountPrice": 49900 } },
+      { "attrIds": [102, 202], "skuInfo": { "id": 90005, "title": "陶土色;L", "stock": 3, "price": 49900, "discountPrice": 49900 } },
+      { "attrIds": [102, 203], "skuInfo": { "id": 90006, "title": "陶土色;2XL", "stock": 0, "price": 49900, "discountPrice": 49900 } },
+      { "attrIds": [102, 999], "skuInfo": { "id": 90099, "title": "陶土色;3XL 定制", "stock": 2, "price": 52900 } }
+    ]
+  }
+}

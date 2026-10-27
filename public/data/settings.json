@@ -1,0 +1,120 @@
+{
+  "demo": true,
+  "brand": {
+    "name": "Cola Studio",
+    "tagline": "International Fashion Studio",
+    "domain": "colastudio.com",
+    "email": "studio@colastudio.com",
+    "established": "2019"
+  },
+  "announcement": {
+    "enabled": false,
+    "text": "Vol. 04 — Winter Construction drops 14.11 · Order via WhatsApp or your agent · Worldwide shipping",
+    "link": "updates"
+  },
+  "currency": {
+    "base": "CNY",
+    "default": "EUR",
+    "available": [
+      "CNY",
+      "EUR",
+      "USD",
+      "GBP"
+    ],
+    "rates": {
+      "CNY": 1,
+      "EUR": 0.128,
+      "USD": 0.139,
+      "GBP": 0.107
+    },
+    "autoUpdate": true,
+    "updatedAt": "2026-10-26T06:00:00Z"
+  },
+  "inventory": {
+    "lowStockThreshold": 5,
+    "refreshSeconds": 30
+  },
+  "whatsapp": {
+    "number": "31600000000",
+    "enabled": true,
+    "greeting": "Hello Cola Studio",
+    "orderPrefix": "CS"
+  },
+  "agents": [
+    {
+      "id": "agent-1",
+      "name": "Agent One",
+      "enabled": true,
+      "recommended": true,
+      "urlTemplate": "",
+      "description": "Full-service agent · QC photos · consolidated worldwide shipping"
+    },
+    {
+      "id": "agent-2",
+      "name": "Agent Two",
+      "enabled": true,
+      "recommended": false,
+      "urlTemplate": "",
+      "description": "Low service fees · fast warehouse processing"
+    },
+    {
+      "id": "agent-3",
+      "name": "Agent Three",
+      "enabled": true,
+      "recommended": false,
+      "urlTemplate": "",
+      "description": "Flexible payment methods · EU-friendly shipping lines"
+    }
+  ],
+  "weidian": {
+    "shopUrl": "",
+    "itemUrlTemplate": "https://weidian.com/item.html?itemID={itemId}"
+  },
+  "social": {
+    "instagram": "",
+    "weibo": "https://weibo.com/u/7354109778",
+    "tiktok": "",
+    "whatsappChannel": "",
+    "discord": "",
+    "xiaohongshu": ""
+  },
+  "nextDrop": {
+    "enabled": true,
+    "title": "Vol. 04 — Winter Construction",
+    "subtitle": "Down, wool and fully fashioned knits. 9 pieces, numbered runs.",
+    "date": "2026-11-14T12:00:00+01:00"
+  },
+  "shipping": {
+    "regions": [
+      {
+        "region": "Netherlands & Belgium",
+        "time": "6–10 days"
+      },
+      {
+        "region": "Rest of Europe",
+        "time": "7–12 days"
+      },
+      {
+        "region": "United Kingdom",
+        "time": "7–12 days"
+      },
+      {
+        "region": "United States & Canada",
+        "time": "8–14 days"
+      },
+      {
+        "region": "Australia & New Zealand",
+        "time": "9–15 days"
+      },
+      {
+        "region": "Rest of world",
+        "time": "10–20 days"
+      }
+    ],
+    "note": "Times are indicative after dispatch from our partner warehouse and depend on the shipping line you choose."
+  },
+  "seo": {
+    "title": "Cola Studio — International Fashion Studio",
+    "description": "Cola Studio designs and produces garments with obsessive attention to construction, fabric and craftsmanship. Live stock, studio updates and worldwide ordering."
+  }
+}

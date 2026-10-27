@@ -1,0 +1,362 @@
+[
+  {
+    "id": "su-v04-teaser",
+    "source": "studio",
+    "sourceId": null,
+    "url": null,
+    "title": "Drop notice | Vol. 04 — Winter Construction",
+    "category": "drop",
+    "textOriginal": "第四季「冬季结构」将于11月14日中午12点(欧洲中部时间)正式发布。本季共9款,包括750蓬羽绒服、双面羊毛大衣和全成型针织系列。每款均为限量编号生产,发布前一周将在本页面公布完整尺码表与库存。",
+    "textEnglish": "Vol. 04 — Winter Construction releases on 14 November at 12:00 CET. Nine pieces this season, including the 750 fill-power down parka, the double-faced wool overcoat and a fully fashioned knit series. Every style is produced in a limited, numbered run. Full size charts and stock will be published here one week before release.",
+    "media": [
+      {
+        "type": "illustration",
+        "garment": "puffer",
+        "color": "#161514"
+      },
+      {
+        "type": "illustration",
+        "garment": "coat",
+        "color": "#3E2B21"
+      },
+      {
+        "type": "illustration",
+        "garment": "knit",
+        "color": "#E8E0CC"
+      }
+    ],
+    "video": null,
+    "publishedAt": "2026-10-26T09:00:00.000Z",
+    "fetchedAt": "2026-10-26T09:00:00.000Z",
+    "status": "published",
+    "pinned": true,
+    "translation": {
+      "provider": "none",
+      "model": null,
+      "edited": false
+    },
+    "relatedProducts": [
+      "cs-003",
+      "cs-005",
+      "cs-014"
+    ],
+    "demo": true
+  },
+  {
+    "id": "wb-5361204418820117",
+    "source": "weibo",
+    "sourceId": "5361204418820117",
+    "url": "https://m.weibo.cn/status/5361204418820117",
+    "title": "Production update | Technical Down Parka",
+    "category": "production",
+    "textOriginal": "羽绒服大货进入充绒环节🪶 每一格都单独称重充绒,误差控制在±0.3克以内。箱式隔断结构让羽绒不会跑位,今天测试了第一批成品的蓬松度,750+达标✅ 下周开始压胶和整烫。#冬季结构#",
+    "textEnglish": "Bulk production of the down parka has reached the filling stage. Every baffle is weighed and filled individually, with a tolerance of ±0.3 g. The box-baffle construction keeps the down from shifting, and today we tested loft on the first finished pieces: 750+ fill power confirmed. Seam taping and pressing begin next week.",
+    "media": [
+      {
+        "type": "illustration",
+        "garment": "puffer",
+        "color": "#2E3F33"
+      },
+      {
+        "type": "swatch",
+        "texture": "quilted",
+        "color": "#161514"
+      }
+    ],
+    "video": null,
+    "publishedAt": "2026-10-24T06:12:00.000Z",
+    "fetchedAt": "2026-10-24T06:12:00.000Z",
+    "status": "published",
+    "pinned": false,
+    "translation": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "edited": false
+    },
+    "relatedProducts": [
+      "cs-003"
+    ],
+    "demo": true
+  },
+  {
+    "id": "wb-5360488216011023",
+    "source": "weibo",
+    "sourceId": "5360488216011023",
+    "url": "https://m.weibo.cn/status/5360488216011023",
+    "title": "Restock | 520 GSM Heavyweight Hoodie",
+    "category": "restock",
+    "textOriginal": "520克重磅卫衣补货完成!水洗黑和麻灰全码到齐,米白色M和L码数量有限。这一批面料重新做了预缩处理,缩水率控制在3%以内。库存已同步到网站实时库存页面。",
+    "textEnglish": "The 520 GSM heavyweight hoodie is back in stock. Washed Black and Heather Grey are available in every size; Bone is limited in M and L. This batch of fabric was pre-shrunk again, keeping shrinkage under 3%. Stock has been synced to the Live Stock page on the website.",
+    "media": [
+      {
+        "type": "illustration",
+        "garment": "hoodie",
+        "color": "#33302E"
+      },
+      {
+        "type": "illustration",
+        "garment": "hoodie",
+        "color": "#A8A5A0",
+        "view": "back"
+      }
+    ],
+    "video": null,
+    "publishedAt": "2026-10-22T11:40:00.000Z",
+    "fetchedAt": "2026-10-22T11:40:00.000Z",
+    "status": "published",
+    "pinned": false,
+    "translation": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "edited": false
+    },
+    "relatedProducts": [
+      "cs-006"
+    ],
+    "demo": true
+  },
+  {
+    "id": "wb-5359671020381556",
+    "source": "weibo",
+    "sourceId": "5359671020381556",
+    "url": "https://m.weibo.cn/status/5359671020381556",
+    "title": "Studio | Knit sampling, round three",
+    "category": "studio",
+    "textOriginal": "针织毛衣第三轮打样回来了。这次把领口改成了半高领,肩部用了马鞍肩结构,穿起来更自然。全成型工艺,每一片都是直接织成形状再手工缝合,没有裁剪。颜色定了三个:米白、炭灰、铁锈红。",
+    "textEnglish": "The third round of knit samples is back. We changed the collar to a mock neck and moved to a saddle-shoulder construction, which sits far more naturally. Everything is fully fashioned: each panel is knitted to shape and then linked by hand, with no cutting at all. Three colours are now final: Ecru, Charcoal and Rust.",
+    "media": [
+      {
+        "type": "illustration",
+        "garment": "knit",
+        "color": "#9A4B2C"
+      },
+      {
+        "type": "swatch",
+        "texture": "knit",
+        "color": "#E8E0CC"
+      },
+      {
+        "type": "pattern",
+        "garment": "knit"
+      }
+    ],
+    "video": null,
+    "publishedAt": "2026-10-19T08:05:00.000Z",
+    "fetchedAt": "2026-10-19T08:05:00.000Z",
+    "status": "published",
+    "pinned": false,
+    "translation": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "edited": false
+    },
+    "relatedProducts": [
+      "cs-014"
+    ],
+    "demo": true
+  },
+  {
+    "id": "wb-5358902137763341",
+    "source": "weibo",
+    "sourceId": "5358902137763341",
+    "url": "https://m.weibo.cn/status/5358902137763341",
+    "title": "Production update | Construction Work Jacket",
+    "category": "production",
+    "textOriginal": "工装夹克的帆布到了,12盎司,染色之后再上一层薄蜡。这次缝线全部改为三针包缝,口袋四角都加了套结加固。灯芯绒领面做了三个颜色的对比,最后还是选了同色系。",
+    "textEnglish": "The canvas for the work jacket has arrived: 12 oz, given a light wax finish after dyeing. All seams have been switched to triple-needle felled construction, and every pocket corner is now reinforced with bar tacks. We compared three colours for the corduroy collar facing and ultimately chose a tonal match.",
+    "media": [
+      {
+        "type": "illustration",
+        "garment": "workjacket",
+        "color": "#AE7658"
+      },
+      {
+        "type": "swatch",
+        "texture": "canvas",
+        "color": "#AE7658"
+      },
+      {
+        "type": "swatch",
+        "texture": "corduroy",
+        "color": "#8A5A40"
+      }
+    ],
+    "video": null,
+    "publishedAt": "2026-10-16T13:22:00.000Z",
+    "fetchedAt": "2026-10-16T13:22:00.000Z",
+    "status": "published",
+    "pinned": false,
+    "translation": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "edited": false
+    },
+    "relatedProducts": [
+      "cs-001"
+    ],
+    "demo": true
+  },
+  {
+    "id": "wb-5357715598012448",
+    "source": "weibo",
+    "sourceId": "5357715598012448",
+    "url": "https://m.weibo.cn/status/5357715598012448",
+    "title": "New arrival | Monogram Print Tee",
+    "category": "drop",
+    "textOriginal": "新品上架:字母组合印花T恤。工作室标志用发泡印花印在胸前,每一条线都按照标志原本的结构角度印制。黑色和米白两色,300克紧密纺面料。",
+    "textEnglish": "New in: the Monogram Print Tee. The studio mark is puff-printed on the chest, with every line printed at the monogram's original construction angle. Available in Ink and Bone on our 300 GSM compact-spun jersey.",
+    "media": [
+      {
+        "type": "illustration",
+        "garment": "tee",
+        "color": "#1E1B1A",
+        "print": "monogram"
+      },
+      {
+        "type": "illustration",
+        "garment": "tee",
+        "color": "#E6DFD2",
+        "print": "monogram"
+      }
+    ],
+    "video": null,
+    "publishedAt": "2026-10-13T10:00:00.000Z",
+    "fetchedAt": "2026-10-13T10:00:00.000Z",
+    "status": "published",
+    "pinned": false,
+    "translation": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "edited": false
+    },
+    "relatedProducts": [
+      "cs-011"
+    ],
+    "demo": true
+  },
+  {
+    "id": "wb-5356857105057064",
+    "source": "weibo",
+    "sourceId": "5356857105057064",
+    "url": "https://m.weibo.cn/status/5356857105057064",
+    "title": "Production update | Carpenter Denim",
+    "category": "production",
+    "textOriginal": "赤耳牛仔裤这批用的是老式梭织机织的14盎司布,每天产量很低,但布面的颗粒感和边线是现代织机做不出来的。裤脚用链式锁边,洗几次之后会出现自然的扭纹。",
+    "textEnglish": "This batch of selvedge jeans uses 14 oz denim woven on vintage shuttle looms. Daily output is very low, but the slubby texture and the selvedge edge are things modern looms simply cannot reproduce. Hems are chain-stitched, so a natural roping effect appears after a few washes.",
+    "media": [
+      {
+        "type": "illustration",
+        "garment": "jeans",
+        "color": "#2C3954"
+      },
+      {
+        "type": "swatch",
+        "texture": "denim",
+        "color": "#2C3954"
+      }
+    ],
+    "video": null,
+    "publishedAt": "2026-10-10T07:48:00.000Z",
+    "fetchedAt": "2026-10-10T07:48:00.000Z",
+    "status": "published",
+    "pinned": false,
+    "translation": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "edited": false
+    },
+    "relatedProducts": [
+      "cs-019"
+    ],
+    "demo": true
+  },
+  {
+    "id": "wb-5355432290654312",
+    "source": "weibo",
+    "sourceId": "5355432290654312",
+    "url": "https://m.weibo.cn/status/5355432290654312",
+    "title": "Notice | Golden Week schedule",
+    "category": "notice",
+    "textOriginal": "国庆假期通知:10月1日至10月7日工厂和仓库暂停发货,期间下单将在10月8日起按顺序发出。WhatsApp客服正常回复,感谢理解。",
+    "textEnglish": "Golden Week notice: from 1 to 7 October the factory and warehouse will pause shipping. Orders placed during this period will be dispatched in sequence from 8 October. WhatsApp support remains available as usual. Thank you for your understanding.",
+    "media": [],
+    "video": null,
+    "publishedAt": "2026-10-01T02:30:00.000Z",
+    "fetchedAt": "2026-10-01T02:30:00.000Z",
+    "status": "published",
+    "pinned": false,
+    "translation": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "edited": false
+    },
+    "relatedProducts": [],
+    "demo": true
+  },
+  {
+    "id": "wb-5354190087123345",
+    "source": "weibo",
+    "sourceId": "5354190087123345",
+    "url": "https://m.weibo.cn/status/5354190087123345",
+    "title": "Studio | Pattern room",
+    "category": "studio",
+    "textOriginal": "版房日常。一件外套从纸样到大货平均要经过4次修版。今天在调整翻领的弧度,差2毫米,穿在身上的感觉就完全不一样。",
+    "textEnglish": "A day in the pattern room. On average, a jacket goes through four rounds of pattern corrections between the first paper pattern and bulk production. Today we were adjusting the curve of a lapel: a difference of just 2 mm completely changes how it sits on the body.",
+    "media": [
+      {
+        "type": "pattern",
+        "garment": "workjacket"
+      },
+      {
+        "type": "pattern",
+        "garment": "coat"
+      }
+    ],
+    "video": null,
+    "publishedAt": "2026-10-03T09:15:00.000Z",
+    "fetchedAt": "2026-10-03T09:15:00.000Z",
+    "status": "published",
+    "pinned": false,
+    "translation": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "edited": false
+    },
+    "relatedProducts": [],
+    "demo": true
+  },
+  {
+    "id": "wb-5353388012479881",
+    "source": "weibo",
+    "sourceId": "5353388012479881",
+    "url": "https://m.weibo.cn/status/5353388012479881",
+    "title": "Quality control | Final inspection",
+    "category": "production",
+    "textOriginal": "每件衣服出厂前都要经过最后一道质检:测量关键尺寸、检查线迹密度、拉力测试纽扣和拉链。不合格的直接返工,不会流入仓库。",
+    "textEnglish": "Every garment passes a final inspection before it leaves the factory: key measurements are checked, stitch density is inspected, and buttons and zips are pull-tested. Anything that fails goes straight back for rework and never reaches the warehouse.",
+    "media": [
+      {
+        "type": "illustration",
+        "garment": "shirt",
+        "color": "#E6DFD2"
+      },
+      {
+        "type": "swatch",
+        "texture": "jersey",
+        "color": "#33302E"
+      }
+    ],
+    "video": null,
+    "publishedAt": "2026-10-06T12:04:00.000Z",
+    "fetchedAt": "2026-10-06T12:04:00.000Z",
+    "status": "published",
+    "pinned": false,
+    "translation": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "edited": false
+    },
+    "relatedProducts": [],
+    "demo": true
+  }
+]

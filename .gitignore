@@ -1,0 +1,22 @@
+# Runtime data (database, secrets, backups, media cache)
+data/*
+!data/.gitkeep
+
+# Admin uploads
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Local configuration
+.env
+.env.*
+!.env.example
+
+# Tooling
+node_modules/
+npm-debug.log*
+.DS_Store
+*.log
+
+# Builds / Vercel
+dist/
+.vercel/

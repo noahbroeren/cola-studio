@@ -1,0 +1,254 @@
+[
+  {
+    "at": "2026-10-26T00:21:56.066Z",
+    "productId": "cs-016",
+    "sku": "CS016-B-L",
+    "from": 30,
+    "to": 29,
+    "source": "admin",
+    "demo": true
+  },
+  {
+    "at": "2026-10-25T23:29:14.451Z",
+    "productId": "cs-023",
+    "sku": "CS023-C-OS",
+    "from": 18,
+    "to": 17,
+    "source": "admin",
+    "demo": true
+  },
+  {
+    "at": "2026-10-25T23:16:16.589Z",
+    "productId": "cs-018",
+    "sku": "CS018-S-S",
+    "from": 17,
+    "to": 15,
+    "source": "weidian",
+    "demo": true
+  },
+  {
+    "at": "2026-10-25T18:21:14.821Z",
+    "productId": "cs-004",
+    "sku": "CS004-M-XXL",
+    "from": 3,
+    "to": 0,
+    "source": "weidian",
+    "demo": true
+  },
+  {
+    "at": "2026-10-25T12:48:29.542Z",
+    "productId": "cs-024",
+    "sku": "CS024-B-OS",
+    "from": 0,
+    "to": 19,
+    "source": "weidian",
+    "demo": true
+  },
+  {
+    "at": "2026-10-25T12:18:56.465Z",
+    "productId": "cs-002",
+    "sku": "CS002-O-S",
+    "from": 0,
+    "to": 9,
+    "source": "admin",
+    "demo": true
+  },
+  {
+    "at": "2026-10-25T03:13:36.577Z",
+    "productId": "cs-003",
+    "sku": "CS003-B-XL",
+    "from": 0,
+    "to": 22,
+    "source": "admin",
+    "demo": true
+  },
+  {
+    "at": "2026-10-24T22:49:49.213Z",
+    "productId": "cs-014",
+    "sku": "CS014-E-M",
+    "from": 2,
+    "to": 0,
+    "source": "weidian",
+    "demo": true
+  },
+  {
+    "at": "2026-10-24T21:31:35.777Z",
+    "productId": "cs-022",
+    "sku": "CS022-C-OS",
+    "from": 7,
+    "to": 4,
+    "source": "admin",
+    "demo": true
+  },
+  {
+    "at": "2026-10-24T19:17:53.179Z",
+    "productId": "cs-001",
+    "sku": "CS001-C-M",
+    "from": 15,
+    "to": 12,
+    "source": "weidian",
+    "demo": true
+  },
+  {
+    "at": "2026-10-24T17:40:00.280Z",
+    "productId": "cs-017",
+    "sku": "CS017-O-XL",
+    "from": 22,
+    "to": 20,
+    "source": "weidian",
+    "demo": true
+  },
+  {
+    "at": "2026-10-24T12:00:41.006Z",
+    "productId": "cs-010",
+    "sku": "CS010-C-XXL",
+    "from": 0,
+    "to": 2,
+    "source": "weidian",
+    "demo": true
+  },
+  {
+    "at": "2026-10-24T11:57:47.938Z",
+    "productId": "cs-008",
+    "sku": "CS008-HG-L",
+    "from": 11,
+    "to": 9,
+    "source": "admin",
+    "demo": true
+  },
+  {
+    "at": "2026-10-24T11:31:00.450Z",
+    "productId": "cs-017",
+    "sku": "CS017-O-M",
+    "from": 0,
+    "to": 14,
+    "source": "admin",
+    "demo": true
+  },
+  {
+    "at": "2026-10-24T11:25:48.416Z",
+    "productId": "cs-009",
+    "sku": "CS009-WB-L",
+    "from": 6,
+    "to": 4,
+    "source": "weidian",
+    "demo": true
+  },
+  {
+    "at": "2026-10-24T08:28:51.454Z",
+    "productId": "cs-017",
+    "sku": "CS017-E-L",
+    "from": 0,
+    "to": 3,
+    "source": "weidian",
+    "demo": true
+  },
+  {
+    "at": "2026-10-24T07:57:23.433Z",
+    "productId": "cs-025",
+    "sku": "CS025-O-OS",
+    "from": 0,
+    "to": 7,
+    "source": "admin",
+    "demo": true
+  },
+  {
+    "at": "2026-10-24T07:29:30.156Z",
+    "productId": "cs-008",
+    "sku": "CS008-M-L",
+    "from": 11,
+    "to": 10,
+    "source": "weidian",
+    "demo": true
+  },
+  {
+    "at": "2026-10-24T04:53:10.457Z",
+    "productId": "cs-018",
+    "sku": "CS018-C-S",
+    "from": 0,
+    "to": 21,
+    "source": "weidian",
+    "demo": true
+  },
+  {
+    "at": "2026-10-24T04:41:10.253Z",
+    "productId": "cs-012",
+    "sku": "CS012-C-L",
+    "from": 2,
+    "to": 1,
+    "source": "weidian",
+    "demo": true
+  },
+  {
+    "at": "2026-10-24T02:56:38.279Z",
+    "productId": "cs-025",
+    "sku": "CS025-B-OS",
+    "from": 22,
+    "to": 21,
+    "source": "admin",
+    "demo": true
+  },
+  {
+    "at": "2026-10-24T02:48:53.507Z",
+    "productId": "cs-021",
+    "sku": "CS021-M-S",
+    "from": 23,
+    "to": 20,
+    "source": "weidian",
+    "demo": true
+  },
+  {
+    "at": "2026-10-24T00:30:13.165Z",
+    "productId": "cs-025",
+    "sku": "CS025-O-OS",
+    "from": 10,
+    "to": 7,
+    "source": "admin",
+    "demo": true
+  },
+  {
+    "at": "2026-10-23T23:07:15.784Z",
+    "productId": "cs-006",
+    "sku": "CS006-WB-S",
+    "from": 9,
+    "to": 8,
+    "source": "weidian",
+    "demo": true
+  },
+  {
+    "at": "2026-10-23T16:20:43.536Z",
+    "productId": "cs-006",
+    "sku": "CS006-B-S",
+    "from": 22,
+    "to": 21,
+    "source": "weidian",
+    "demo": true
+  },
+  {
+    "at": "2026-10-23T14:30:43.326Z",
+    "productId": "cs-026",
+    "sku": "CS026-B-3942",
+    "from": 3,
+    "to": 0,
+    "source": "weidian",
+    "demo": true
+  },
+  {
+    "at": "2026-10-23T11:07:53.309Z",
+    "productId": "cs-016",
+    "sku": "CS016-FB-S",
+    "from": 14,
+    "to": 11,
+    "source": "weidian",
+    "demo": true
+  },
+  {
+    "at": "2026-10-23T07:46:09.485Z",
+    "productId": "cs-016",
+    "sku": "CS016-B-L",
+    "from": 32,
+    "to": 29,
+    "source": "weidian",
+    "demo": true
+  }
+]

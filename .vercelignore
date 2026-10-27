@@ -1,0 +1,9 @@
+# Not needed on Vercel. Paths are anchored to the project root with a leading
+# slash — "data/" without it would also drop public/data (the seed catalogue).
+/data/
+/test/
+/dist/
+/.env
+/.env.*
+/Dockerfile
+/docker-compose.yml

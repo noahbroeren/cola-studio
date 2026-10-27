@@ -1,0 +1,60 @@
+[
+  {
+    "id": "wb-5356000000000001",
+    "source": "weibo",
+    "sourceId": "5356000000000001",
+    "url": "https://m.weibo.cn/status/5356000000000001",
+    "title": "Sampling update | Heavyweight Hoodie",
+    "category": "production",
+    "textOriginal": "打样",
+    "textEnglish": "Second sample round.",
+    "media": [],
+    "video": null,
+    "publishedAt": "2026-10-20T08:00:00Z",
+    "fetchedAt": "2026-10-20T08:05:00Z",
+    "status": "published",
+    "pinned": false,
+    "translation": { "provider": "anthropic", "model": "claude-sonnet-5-5", "edited": false },
+    "relatedProducts": ["cs-002"]
+  },
+  {
+    "id": "su-pinned",
+    "source": "studio",
+    "sourceId": null,
+    "title": "Studio notice | Holiday Schedule",
+    "category": "notice",
+    "textEnglish": "Closed during the holidays.",
+    "media": [],
+    "publishedAt": "2026-09-01T08:00:00+08:00",
+    "status": "published",
+    "pinned": true,
+    "relatedProducts": []
+  },
+  {
+    "id": "wb-5356000000000002",
+    "source": "weibo",
+    "sourceId": "5356000000000002",
+    "title": "Pending",
+    "category": "drop",
+    "textEnglish": "Not yet",
+    "media": [],
+    "publishedAt": "2026-10-22T08:00:00Z",
+    "status": "pending",
+    "pinned": false,
+    "translation": { "provider": "none", "model": null, "edited": false, "error": "boom" },
+    "relatedProducts": []
+  },
+  {
+    "id": "wb-5356000000000003",
+    "source": "weibo",
+    "sourceId": "5356000000000003",
+    "title": "Restock | Construction Work Jacket",
+    "category": "restock",
+    "textEnglish": "Back in stock.",
+    "media": [],
+    "publishedAt": "2026-10-23T08:00:00Z",
+    "status": "published",
+    "pinned": false,
+    "relatedProducts": ["cs-001"]
+  }
+]

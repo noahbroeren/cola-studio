@@ -1,0 +1,18 @@
+{
+  "demo": true,
+  "brand": { "name": "Cola Studio", "tagline": "International Fashion Studio", "domain": "colastudio.com", "email": "studio@colastudio.com", "established": "2019" },
+  "announcement": { "enabled": true, "text": "Vol. 03 is live", "link": "live-stock" },
+  "currency": {
+    "base": "CNY",
+    "default": "EUR",
+    "available": ["CNY", "EUR", "USD", "GBP"],
+    "rates": { "CNY": 1, "EUR": 0.128, "USD": 0.139, "GBP": 0.107 },
+    "autoUpdate": false,
+    "updatedAt": "2026-10-26T08:00:00Z"
+  },
+  "inventory": { "lowStockThreshold": 5, "refreshSeconds": 30 },
+  "whatsapp": { "number": "31600000000", "enabled": true, "greeting": "Hello Cola Studio", "orderPrefix": "CS" },
+  "agents": [{ "id": "agent-1", "name": "Agent One", "enabled": true, "urlTemplate": "", "description": "", "recommended": true }],
+  "weidian": { "shopUrl": "", "itemUrlTemplate": "https://weidian.com/item.html?itemID={itemId}" },
+  "seo": { "title": "Cola Studio — International Fashion Studio", "description": "Design, production and craftsmanship." }
+}

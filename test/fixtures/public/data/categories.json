@@ -1,0 +1,4 @@
+[
+  { "id": "tops", "name": "Tops", "description": "Heavyweight jersey and fleece", "order": 2 },
+  { "id": "outerwear", "name": "Outerwear", "description": "Jackets and coats", "order": 1 }
+]

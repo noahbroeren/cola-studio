@@ -1,0 +1,22 @@
+services:
+  cola-studio:
+    build: .
+    image: cola-studio:latest
+    container_name: cola-studio
+    restart: unless-stopped
+    # Only reachable from the host (put nginx/Caddy in front for HTTPS).
+    # Use "3000:3000" to expose it directly.
+    ports:
+      - "127.0.0.1:3000:3000"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      DATA_DIR: /app/data
+      PUBLIC_DIR: /app/public
+      UPLOADS_DIR: /app/data/uploads
+    volumes:
+      - cola-data:/app/data
+
+volumes:
+  cola-data:
